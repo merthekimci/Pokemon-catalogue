@@ -126,3 +126,19 @@
 - **[2026-02-22]** Updated `App.jsx` to import from `./data/cards.js` instead of inline array
 - **[2026-02-22]** Vite tree-shakes dev data out of production bundle (verified: exactly 90 `kartNo` entries in built JS)
 - **[2026-02-22]** No Vite config changes needed — `import.meta.env.MODE` is built-in
+
+### Feature: Implement Mobile Screens from .pen Design
+- **[2026-02-22]** Analyzed 5 mobile screens (390px) in `pokemon-pencil-new.pen`: Catalogue, Settings, Card Detail, Trainer Detail, Özet
+- **[2026-02-22]** Phase 1 — State Foundation: Added `favorites`, `theme`, `ownerName` to App.jsx with localStorage persistence
+- **[2026-02-22]** Phase 2 — Light Theme CSS: Added `[data-theme="light"]` block in `styles.css` overriding all CSS custom properties (bg, text, border colors)
+- **[2026-02-22]** Phase 2 — Light theme overrides for `.poke-card`, `.modal-overlay`, `.trainer-card-mini`, scrollbar
+- **[2026-02-22]** Phase 3 — 5-Tab Bottom Nav: Rewrote `BottomTabBar` from 3 tabs to 5 tabs (Özet, Kartlarım, Kart Ekle, Eğitmenler, Ayarlar) with teal active state
+- **[2026-02-22]** Phase 4 — Routes: Added `/card/:cardId`, `/egitmenler`, `/ayarlar` routes with proper prop passing
+- **[2026-02-22]** Phase 5 — Özet Dashboard: Rewrote `SummaryView` from stub to full dashboard with 5 widgets (Collection Value, Cards + rarity chips, Favorites, Top Card, Type Distribution)
+- **[2026-02-22]** Phase 6 — Card Detail: Created `src/components/CardDetail.jsx` with large card art, stats grid, favorite toggle, trainer info, related cards
+- **[2026-02-22]** Phase 7 — Trainers List: Created `src/components/TrainersList.jsx` with trainer grid (portrait, name, region, card count)
+- **[2026-02-22]** Phase 8 — Settings: Created `src/components/SettingsPage.jsx` with theme toggle (dark/light preview cards) and owner name input
+- **[2026-02-22]** Phase 9 — Favorites Filter: Added heart filter button in catalogue controls, `showFavoritesOnly` state, pink active styling
+- **[2026-02-22]** Wrapped `CardTile` body in `<Link to={/card/${card.id}}>` for card detail navigation
+- **[2026-02-22]** Extended `stats` useMemo with `rarityCounts`, `topCard`, `favoritesCount`
+- **[2026-02-22]** Build verified: `npm run build` passes cleanly

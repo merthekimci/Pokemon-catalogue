@@ -1,8 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import { trainers } from "./data/trainers";
 import { initialCards } from "./data/cards.js";
 import TrainerDetail from "./components/TrainerDetail";
+import CardDetail from "./components/CardDetail";
+import TrainersList from "./components/TrainersList";
+import SettingsPage from "./components/SettingsPage";
 
 const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`;
 
@@ -26,12 +29,26 @@ const rarityColors = { C: "#5a566e", U: "#00c896", M: "#7b61ff", RR: "#ffd166", 
 const rarityGlow = { C: "none", U: "0 0 8px rgba(0,200,150,0.3)", M: "0 0 12px rgba(123,97,255,0.4)", RR: "0 0 16px rgba(255,209,102,0.5)", R: "0 0 10px rgba(139,92,246,0.4)", SR: "0 0 16px rgba(236,72,153,0.5)" };
 
 const STORAGE_KEY = "pokemon_katalog_cards";
+const FAVORITES_KEY = "pokemon_katalog_favorites";
+const THEME_KEY = "pokemon_katalog_theme";
+const OWNER_KEY = "pokemon_katalog_owner";
+
 function loadCards() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return JSON.parse(saved);
   } catch (_) {}
   return initialCards;
+}
+function loadFavorites() {
+  try { const s = localStorage.getItem(FAVORITES_KEY); if (s) return JSON.parse(s); } catch (_) {}
+  return [];
+}
+function loadTheme() {
+  try { return localStorage.getItem(THEME_KEY) || "dark"; } catch (_) { return "dark"; }
+}
+function loadOwner() {
+  try { return localStorage.getItem(OWNER_KEY) || "Koleksiyoncu"; } catch (_) { return "Koleksiyoncu"; }
 }
 
 
@@ -127,6 +144,8 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
         </button>
       )}
 
+      <Link to={`/card/${card.id}`} style={{ textDecoration: "none", color: "inherit" }}
+        onClick={() => { if (scrollRef) scrollRef.current = window.scrollY; }}>
       <div style={{
         padding: "20px 16px 12px", display: "flex", justifyContent: "center",
         alignItems: "center", minHeight: 180,
@@ -223,6 +242,7 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
           </div>
         )}
       </div>
+      </Link>
     </div>
   );
 }
@@ -612,48 +632,135 @@ function DeleteConfirmModal({ card, onConfirm, onClose }) {
   );
 }
 
-function SummaryView({ stats }) {
+function SummaryView({ stats, cards, favorites }) {
+  const navigate = useNavigate();
+
+  const widgetStyle = {
+    background: "var(--bg-card)", border: "1px solid var(--border-dim)",
+    borderRadius: 16, padding: 16, marginBottom: 0,
+  };
+  const headerRow = {
+    display: "flex", alignItems: "center", gap: 8, marginBottom: 8, width: "100%",
+  };
+  const headerIcon = (color) => ({ fontSize: 18, color, flexShrink: 0 });
+  const headerTitle = {
+    fontFamily: "'Rajdhani', sans-serif", fontSize: 14, fontWeight: 700,
+    color: "var(--text-primary)",
+  };
+  const bigNum = (color) => ({
+    fontFamily: "'Rajdhani', sans-serif", fontSize: 28, fontWeight: 800, color,
+  });
+  const subText = { fontSize: 11, color: "var(--text-muted)" };
+  const chipBase = {
+    display: "inline-flex", alignItems: "center", gap: 4,
+    padding: "3px 8px", borderRadius: 10, fontSize: 11, fontWeight: 600,
+  };
+
   return (
     <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "40px 28px 120px",
-      position: "relative",
-      zIndex: 1,
+      position: "relative", zIndex: 1,
+      padding: "20px 16px 100px", maxWidth: 600, margin: "0 auto",
     }}>
-      <img
-        src={TCG_LOGO}
-        alt=""
-        style={{
-          width: 200, height: "auto", marginBottom: 20, opacity: 0.3,
-          filter: "grayscale(0.3) drop-shadow(0 0 20px rgba(123,97,255,0.3))",
-          userSelect: "none", pointerEvents: "none",
-        }}
-      />
-      <h2 style={{
-        fontFamily: "'Rajdhani', sans-serif",
-        fontSize: 28,
-        fontWeight: 700,
-        margin: "0 0 8px",
-        background: "linear-gradient(135deg, #e8e6f0, #7b61ff)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-      }}>Özet</h2>
-      <p style={{ color: "var(--text-muted)", fontSize: 14, textAlign: "center" }}>
-        Koleksiyon özeti yakında burada olacak.
-      </p>
-      <div style={{
-        marginTop: 24, padding: "16px 24px",
-        background: "var(--bg-card)", border: "1px solid var(--border-dim)",
-        borderRadius: 16, textAlign: "center", minWidth: 220,
-      }}>
-        <div style={{ color: "var(--text-muted)", fontSize: 12, marginBottom: 4 }}>Toplam Kart</div>
-        <div style={{
-          fontFamily: "'Rajdhani', sans-serif", fontSize: 36, fontWeight: 700, color: "var(--holo-1)",
-        }}>{stats.total}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+        <img src={TCG_LOGO} alt="" style={{ height: 28, width: "auto" }} />
+        <h2 style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 18, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Özet</h2>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* W-Value */}
+        <div style={widgetStyle}>
+          <div style={headerRow}>
+            <span style={headerIcon("#0d9488")}>💰</span>
+            <span style={headerTitle}>Koleksiyon Değeri</span>
+            <div style={{ flex: 1 }} />
+            <span style={{ color: "var(--text-muted)", fontSize: 14 }}>›</span>
+          </div>
+          <div style={bigNum("var(--text-primary)")}>${stats.totalValue.toFixed(2)}</div>
+          <div style={subText}>{stats.total} kartın toplam piyasa değeri</div>
+        </div>
+
+        {/* W-Cards */}
+        <div style={widgetStyle}>
+          <div style={headerRow}>
+            <span style={headerIcon("#0d9488")}>🃏</span>
+            <span style={headerTitle}>Kartlarım</span>
+            <div style={{ flex: 1 }} />
+            <span style={{ color: "var(--text-muted)", fontSize: 14 }}>›</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+            <span style={bigNum("var(--text-primary)")}>{stats.total}</span>
+            <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-muted)" }}>kart</span>
+          </div>
+          <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+            {Object.entries(stats.rarityCounts || {}).sort((a, b) => (rarityOrder[a[0]] || 0) - (rarityOrder[b[0]] || 0)).map(([r, count]) => (
+              <span key={r} style={{ ...chipBase, background: `${rarityColors[r]}15`, color: rarityColors[r] }}>
+                {r}: {count}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* W-Favs */}
+        <div style={widgetStyle}>
+          <div style={headerRow}>
+            <span style={headerIcon("#f72585")}>♥</span>
+            <span style={headerTitle}>Favoriler</span>
+            <div style={{ flex: 1 }} />
+            <span style={{ color: "var(--text-muted)", fontSize: 14 }}>›</span>
+          </div>
+          <div style={bigNum("#f72585")}>{stats.favoritesCount}</div>
+          <div style={subText}>favori olarak işaretlenen kartlar</div>
+        </div>
+
+        {/* W-TopCard */}
+        {stats.topCard && (
+          <div style={{ ...widgetStyle, cursor: "pointer" }} onClick={() => navigate(`/card/${stats.topCard.id}`)}>
+            <div style={headerRow}>
+              <span style={headerIcon("#d4a800")}>🏆</span>
+              <span style={headerTitle}>En Değerli Kart</span>
+              <div style={{ flex: 1 }} />
+              <span style={{ color: "var(--text-muted)", fontSize: 14 }}>›</span>
+            </div>
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              {stats.topCard.img && (
+                <img src={stats.topCard.img} alt={stats.topCard.nameEN}
+                  style={{ width: 56, height: 56, objectFit: "contain", borderRadius: 8 }}
+                  crossOrigin="anonymous" />
+              )}
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15, fontFamily: "'Rajdhani', sans-serif", color: "var(--text-primary)" }}>
+                  {stats.topCard.nameEN}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                  {stats.topCard.rarity} · {stats.topCard.type}
+                </div>
+                <div style={{ fontWeight: 700, fontSize: 14, fontFamily: "'Rajdhani', sans-serif", color: "#0d9488" }}>
+                  ${(stats.topCard.marketValue || 0).toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* W-Types */}
+        <div style={widgetStyle}>
+          <div style={headerRow}>
+            <span style={headerIcon("#0d9488")}>📊</span>
+            <span style={headerTitle}>Tür Dağılımı</span>
+            <div style={{ flex: 1 }} />
+            <span style={{ color: "var(--text-muted)", fontSize: 14 }}>›</span>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {Object.entries(stats.types).sort((a, b) => b[1] - a[1]).map(([type, count]) => {
+              const tc = typeColors[type] || typeColors["Normal"];
+              return (
+                <span key={type} style={{ ...chipBase, background: `${tc.bg}15`, color: tc.bg }}>
+                  {tc.emoji} {type} ({count})
+                </span>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -661,60 +768,68 @@ function SummaryView({ stats }) {
 
 function BottomTabBar({ onAddClick }) {
   const location = useLocation();
-  const isHome = location.pathname === "/" || location.pathname.startsWith("/trainer");
-  const isSummary = location.pathname === "/ozet";
+  const p = location.pathname;
+  const isOzet = p === "/ozet";
+  const isHome = p === "/" || p.startsWith("/card/");
+  const isTrainers = p === "/egitmenler" || p.startsWith("/trainer");
+  const isSettings = p === "/ayarlar";
+  const isAdd = false;
 
   const tabStyle = (active) => ({
     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-    gap: 4, flex: 1, padding: "8px 0", cursor: "pointer", background: "transparent",
+    gap: 3, flex: 1, padding: "8px 0", cursor: "pointer", background: "transparent",
     border: "none", textDecoration: "none", position: "relative",
     transition: "color 0.2s ease", fontFamily: "'DM Sans', sans-serif",
-    fontSize: 11, fontWeight: 600, letterSpacing: "0.03em",
-    color: active ? "var(--holo-1)" : "var(--text-muted)",
+    fontSize: 10, fontWeight: 600, letterSpacing: "0.03em",
+    color: active ? "#0d9488" : "var(--text-muted)",
   });
 
   const indicator = (
     <span style={{
-      position: "absolute", bottom: 0, width: 32, height: 2,
-      background: "var(--holo-1)", borderRadius: 2,
-      boxShadow: "0 0 8px rgba(0,245,212,0.6)",
+      position: "absolute", bottom: 2, width: 28, height: 2,
+      background: "#0d9488", borderRadius: 2,
     }} />
   );
 
   return (
     <nav className="bottom-tab-bar" style={{
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
-      height: 64, display: "flex", alignItems: "stretch",
-      background: "rgba(14, 13, 20, 0.92)",
-      borderTop: "1px solid rgba(255,255,255,0.08)",
+      height: 60, display: "flex", alignItems: "stretch",
+      background: "var(--bg-card)",
+      borderTop: "1px solid var(--border-dim)",
       backdropFilter: "blur(20px) saturate(1.5)",
       WebkitBackdropFilter: "blur(20px) saturate(1.5)",
-      boxShadow: "0 -4px 24px rgba(0,0,0,0.5), 0 -1px 0 rgba(123,97,255,0.15)",
     }}>
+      <Link to="/ozet" style={tabStyle(isOzet)}>
+        <span style={{ fontSize: 18 }}>📊</span>
+        Özet
+        {isOzet && indicator}
+      </Link>
+
       <Link to="/" style={tabStyle(isHome)}>
-        <span style={{ fontSize: 20 }}>🃏</span>
+        <span style={{ fontSize: 18 }}>🃏</span>
         Kartlarım
         {isHome && indicator}
       </Link>
 
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <button onClick={onAddClick} className="tab-add-btn" style={{
-          width: 52, height: 52, borderRadius: "50%", border: "none",
-          background: "linear-gradient(135deg, #00c896, #00f5d4)",
-          color: "#07060b", fontSize: 24, cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 0 20px rgba(0,245,212,0.35), 0 4px 16px rgba(0,0,0,0.4)",
-          transition: "transform 0.2s ease, box-shadow 0.2s ease",
-          flexShrink: 0, marginBottom: 8,
-        }} aria-label="Kart Ekle">
-          📷
-        </button>
-      </div>
+      <button onClick={onAddClick} style={{
+        ...tabStyle(isAdd),
+        color: "#00f5d4",
+      }}>
+        <span style={{ fontSize: 18 }}>➕</span>
+        Kart Ekle
+      </button>
 
-      <Link to="/ozet" style={tabStyle(isSummary)}>
-        <span style={{ fontSize: 20 }}>📊</span>
-        Özet
-        {isSummary && indicator}
+      <Link to="/egitmenler" style={tabStyle(isTrainers)}>
+        <span style={{ fontSize: 18 }}>👥</span>
+        Eğitmenler
+        {isTrainers && indicator}
+      </Link>
+
+      <Link to="/ayarlar" style={tabStyle(isSettings)}>
+        <span style={{ fontSize: 18 }}>⚙️</span>
+        Ayarlar
+        {isSettings && indicator}
       </Link>
     </nav>
   );
@@ -745,11 +860,31 @@ export default function App() {
   const [showCompare, setShowCompare] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [favorites, setFavorites] = useState(loadFavorites);
+  const [theme, setTheme] = useState(loadTheme);
+  const [ownerName, setOwnerName] = useState(loadOwner);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const scrollRef = useRef(0);
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); } catch (_) {}
   }, [cards]);
+
+  useEffect(() => {
+    try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); } catch (_) {}
+  }, [favorites]);
+
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+  }, [theme]);
+
+  useEffect(() => {
+    try { localStorage.setItem(OWNER_KEY, ownerName); } catch (_) {}
+  }, [ownerName]);
+
+  const toggleFavorite = (cardId) =>
+    setFavorites((prev) => prev.includes(cardId) ? prev.filter((id) => id !== cardId) : [...prev, cardId]);
 
   const filtered = useMemo(() => {
     let r = cards.filter((c) => {
@@ -757,7 +892,8 @@ export default function App() {
       return (
         (!q || c.nameEN.toLowerCase().includes(q) || c.kartNo.includes(q)) &&
         (typeFilter === "Tümü" || c.type === typeFilter) &&
-        (rarityFilter === "Tümü" || c.rarity === rarityFilter)
+        (rarityFilter === "Tümü" || c.rarity === rarityFilter) &&
+        (!showFavoritesOnly || favorites.includes(c.id))
       );
     });
     const dir = sortDir === "asc" ? 1 : -1;
@@ -775,7 +911,7 @@ export default function App() {
       return cmp * dir;
     });
     return r;
-  }, [cards, search, typeFilter, rarityFilter, sortBy, sortDir]);
+  }, [cards, search, typeFilter, rarityFilter, sortBy, sortDir, showFavoritesOnly, favorites]);
 
   const toggle = (id) =>
     setCompareList((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < 4 ? [...p, id] : p));
@@ -787,15 +923,24 @@ export default function App() {
 
   const stats = useMemo(() => {
     const types = {};
-    cards.forEach((c) => { types[c.type] = (types[c.type] || 0) + 1; });
+    const rarityCounts = {};
+    let topCard = null;
+    cards.forEach((c) => {
+      types[c.type] = (types[c.type] || 0) + 1;
+      rarityCounts[c.rarity] = (rarityCounts[c.rarity] || 0) + 1;
+      if (!topCard || (c.marketValue || 0) > (topCard.marketValue || 0)) topCard = c;
+    });
     return {
       total: cards.length,
       copies: cards.reduce((s, c) => s + c.copies, 0),
-      maxHP: Math.max(...cards.map((c) => c.hp)),
+      maxHP: Math.max(...cards.map((c) => c.hp), 0),
       totalValue: cards.reduce((s, c) => s + (c.marketValue || 0) * c.copies, 0),
       types,
+      rarityCounts,
+      topCard,
+      favoritesCount: favorites.length,
     };
-  }, [cards]);
+  }, [cards, favorites]);
 
   const catalogueContent = (
     <>
@@ -864,6 +1009,19 @@ export default function App() {
       }}>
         <input className="holo-input" placeholder="&#x1F50D; Kart ara..." value={search}
           onChange={(e) => setSearch(e.target.value)} style={{ width: 200 }} />
+        <button
+          className={`btn-glow ${showFavoritesOnly ? "active" : ""}`}
+          onClick={() => setShowFavoritesOnly((f) => !f)}
+          title="Yalnızca Favoriler"
+          style={{
+            padding: "9px 14px",
+            color: showFavoritesOnly ? "#f72585" : "var(--text-muted)",
+            borderColor: showFavoritesOnly ? "#f72585" : undefined,
+            background: showFavoritesOnly ? "rgba(247,37,133,0.12)" : undefined,
+          }}
+        >
+          {showFavoritesOnly ? "♥" : "♡"} Favoriler
+        </button>
         <select className="holo-select" value={rarityFilter} onChange={(e) => setRarityFilter(e.target.value)}>
           <option value="Tümü">Tüm Nadirlikler</option>
           {Object.entries(rarityLabels).map(([k, v]) => <option key={k} value={k}>{k} - {v}</option>)}
@@ -952,7 +1110,10 @@ export default function App() {
       <Routes>
         <Route path="/" element={<CatalogueView scrollRef={scrollRef}>{catalogueContent}</CatalogueView>} />
         <Route path="/trainer/:trainerSlug" element={<TrainerDetail cards={cards} typeColors={typeColors} />} />
-        <Route path="/ozet" element={<SummaryView stats={stats} />} />
+        <Route path="/ozet" element={<SummaryView stats={stats} cards={cards} favorites={favorites} />} />
+        <Route path="/card/:cardId" element={<CardDetail cards={cards} favorites={favorites} onToggleFavorite={toggleFavorite} typeColors={typeColors} />} />
+        <Route path="/egitmenler" element={<TrainersList cards={cards} typeColors={typeColors} />} />
+        <Route path="/ayarlar" element={<SettingsPage theme={theme} onThemeChange={setTheme} ownerName={ownerName} onOwnerNameChange={setOwnerName} />} />
       </Routes>
       <BottomTabBar onAddClick={() => setShowAdd(true)} />
       {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} nextId={Math.max(0, ...cards.map((c) => c.id)) + 1} />}

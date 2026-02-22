@@ -702,3 +702,66 @@ body {
 .tab-add-btn:active {
   transform: scale(0.95);
 }
+
+/* ═══════════════════════════════════════════════════
+   LIGHT THEME OVERRIDES
+   ═══════════════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg-deep: #f0f0f5;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-elevated: #f5f5fa;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+
+  --border-dim: #e0dfe8;
+  --border-subtle: #d0cfe0;
+  --border-glow: rgba(0, 0, 0, 0.12);
+
+  --text-primary: #2a2838;
+  --text-secondary: #5a566e;
+  --text-muted: #8b87a0;
+
+  --accent-glow: rgba(123, 97, 255, 0.2);
+}
+
+[data-theme="light"] body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .grain-overlay {
+  opacity: 0.015;
+}
+
+[data-theme="light"] .poke-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .poke-card:hover {
+  box-shadow: 0 8px 32px rgba(123, 97, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .poke-card .shimmer-streak::after {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.02), transparent);
+}
+
+[data-theme="light"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .holo-select option {
+  background: #ffffff;
+  color: #2a2838;
+}
+
+[data-theme="light"] .trainer-card-mini {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(123, 97, 255, 0.2);
+}
