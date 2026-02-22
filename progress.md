@@ -15,3 +15,12 @@
 ### UI Fix: Sort Controls Grouping
 - **[2026-02-22]** Wrapped sort attribute selector and sort direction button (↑/↓) in a flex container with `flexShrink: 0` so they always stay together on mobile and desktop
 - **[2026-02-22]** Added "Sırala:" label to the left of the sort dropdown
+
+### Feature: Photo Upload + OpenAI Vision Card Analysis
+- **[2026-02-22]** Removed manual AddModal (keyboard entry form for adding cards)
+- **[2026-02-22]** Added PhotoUploadModal with 3 phases: upload (drag-and-drop + file input), analyzing (spinner), review (editable card data with collapsible details)
+- **[2026-02-22]** Created Vercel serverless function (`api/analyze.js`) to proxy OpenAI Vision API calls — keeps API key server-side
+- **[2026-02-22]** Added localStorage persistence for card collection (survives page refresh)
+- **[2026-02-22]** Supports single card photos and full binder page photos (multi-card extraction)
+- **[2026-02-22]** Added dev proxy in vite.config.js for local development with `vercel dev`
+- **[2026-02-22]** OpenAI prompt maps card symbols to Turkish type/stage/rarity values matching existing schema

@@ -50,11 +50,23 @@ npm install -g vercel
 vercel
 ```
 
-## Özellikler
+## Ortam Degiskenleri
 
-- 37 tekil Pokémon kart (80+ toplam kopya dahil)
-- Arama, filtreleme (tür, nadirlik), sıralama
-- ⚔️ 4'e kadar kart karşılaştırma
-- ➕ Yeni kart ekleme
-- Pokémon görselleri (PokeAPI sprites)
-- Türkçe / Korece / İngilizce kart bilgileri
+Vercel dashboard'da asagidaki ortam degiskenini ayarlayin:
+
+- `OPENAI_API_KEY` — OpenAI API anahtariniz (fotograf analizi icin gerekli)
+
+Yerel gelistirme icin `.env.local` dosyasi olusturun:
+```
+OPENAI_API_KEY=sk-...
+```
+
+## Ozellikler
+
+- 37 tekil Pokemon kart (80+ toplam kopya dahil)
+- Arama, filtreleme (tur, nadirlik), siralama
+- 4'e kadar kart karsilastirma
+- Fotograftan kart ekleme (OpenAI Vision ile tek kart veya sayfa analizi)
+- localStorage ile kalici koleksiyon verisi
+- Pokemon gorselleri (PokeAPI sprites)
+- Turkce / Korece / Ingilizce kart bilgileri

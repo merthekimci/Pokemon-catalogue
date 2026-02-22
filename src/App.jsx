@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 /* ── Type colors with neon glow variants ── */
 const typeColors = {
@@ -20,6 +20,15 @@ const rarityColors = { C: "#5a566e", U: "#00c896", M: "#7b61ff", RR: "#ffd166", 
 const rarityGlow = { C: "none", U: "0 0 8px rgba(0,200,150,0.3)", M: "0 0 12px rgba(123,97,255,0.4)", RR: "0 0 16px rgba(255,209,102,0.5)", R: "0 0 10px rgba(139,92,246,0.4)", SR: "0 0 16px rgba(236,72,153,0.5)" };
 
 const sp = (n) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${n}.png`;
+
+const STORAGE_KEY = "pokemon_katalog_cards";
+function loadCards() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (_) {}
+  return initialCards;
+}
 
 const initialCards = [
   // === OT (GRASS) ===
@@ -352,70 +361,252 @@ function CompareView({ cards, onClose }) {
   );
 }
 
-function AddModal({ onClose, onAdd, nextId }) {
-  const [f, setF] = useState({
-    kartNo: "", nameEN: "", type: "Normal", hp: 70, stage: "Temel",
-    attack1: "", dmg1: "", attack2: "", dmg2: "", weakness: "", retreat: "1",
-    rarity: "C", ability: "", copies: 1, img: "", marketValue: 0,
-  });
-  const s = (k, v) => setF((p) => ({ ...p, [k]: v }));
-  const submit = () => {
-    if (!f.nameEN) return;
-    onAdd({ ...f, id: nextId, hp: +f.hp || 0, copies: +f.copies || 1, marketValue: +f.marketValue || 0 });
+function PhotoUploadModal({ onClose, onAdd, nextId }) {
+  const [phase, setPhase] = useState("upload");
+  const [preview, setPreview] = useState(null);
+  const [imageBase64, setImageBase64] = useState("");
+  const [mimeType, setMimeType] = useState("image/jpeg");
+  const [extractedCards, setExtractedCards] = useState([]);
+  const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const [expandedIdx, setExpandedIdx] = useState(null);
+
+  const handleFile = (file) => {
+    if (!file || !file.type.startsWith("image/")) {
+      setError("Lutfen bir gorsel dosyasi secin.");
+      return;
+    }
+    if (file.size > 15_000_000) {
+      setError("Dosya boyutu 15MB'dan kucuk olmali.");
+      return;
+    }
+    setError("");
+    setMimeType(file.type);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      setPreview(dataUrl);
+      setImageBase64(dataUrl.split(",")[1]);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFile(e.dataTransfer.files[0]);
+  };
+
+  const analyzeImage = async () => {
+    if (!imageBase64) return;
+    setPhase("analyzing");
+    setError("");
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64, mimeType }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Analiz basarisiz");
+      if (!data.cards || data.cards.length === 0) {
+        setError("Fotograf uzerinde kart bulunamadi. Tekrar deneyin.");
+        setPhase("upload");
+        return;
+      }
+      const withIds = data.cards.map((c, i) => ({
+        ...c,
+        id: nextId + i,
+        hp: +c.hp || 0,
+        copies: +c.copies || 1,
+        marketValue: +c.marketValue || 0,
+      }));
+      setExtractedCards(withIds);
+      setPhase("review");
+    } catch (err) {
+      setError(err.message);
+      setPhase("upload");
+    }
+  };
+
+  const updateCard = (idx, field, value) =>
+    setExtractedCards((prev) =>
+      prev.map((c, i) => (i === idx ? { ...c, [field]: value } : c))
+    );
+
+  const removeCard = (idx) =>
+    setExtractedCards((prev) => prev.filter((_, i) => i !== idx));
+
+  const confirmAdd = () => {
+    const cleaned = extractedCards.map((c) => ({
+      ...c,
+      hp: +c.hp || 0,
+      copies: +c.copies || 1,
+      marketValue: +c.marketValue || 0,
+    }));
+    onAdd(cleaned);
     onClose();
   };
+
   const lbl = { fontSize: 12, fontWeight: 600, color: "#8b87a0", marginBottom: 4, display: "block" };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" style={{ maxWidth: 600, width: "100%" }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" style={{ maxWidth: 700, width: "100%" }} onClick={(e) => e.stopPropagation()}>
         <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20, fontFamily: "'Rajdhani', sans-serif", color: "#e8e6f0" }}>
-          &#x2795; Yeni Kart Ekle
+          &#x1F4F7; Fotoğraftan Kart Ekle
         </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          {[["Kart No", "kartNo", "001/080"], ["İngilizce Ad *", "nameEN", "Pikachu"],
-            ["Görsel URL", "img", "https://..."],
-          ].map(([l, k, p]) => (
-            <div key={k}><label style={lbl}>{l}</label>
-              <input className="holo-input" style={{ width: "100%" }} value={f[k]} onChange={(e) => s(k, e.target.value)} placeholder={p} />
+
+        {/* ── Upload Phase ── */}
+        {phase === "upload" && (
+          <>
+            <div
+              className={`upload-zone ${isDragging ? "dragging" : ""}`}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={onDrop}
+              onClick={() => document.getElementById("card-photo-input").click()}
+            >
+              <input
+                id="card-photo-input"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={(e) => handleFile(e.target.files[0])}
+                style={{ display: "none" }}
+              />
+              {preview ? (
+                <img src={preview} alt="Preview" style={{ maxHeight: 280, maxWidth: "100%", borderRadius: 12, objectFit: "contain" }} />
+              ) : (
+                <div>
+                  <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.4 }}>&#x1F4F7;</div>
+                  <div style={{ color: "#8b87a0", fontSize: 14, fontWeight: 600 }}>
+                    Kart fotografini surukleyin veya tiklayin
+                  </div>
+                  <div style={{ color: "#5a566e", fontSize: 12, marginTop: 6 }}>
+                    Tek kart veya kart sayfasi fotografi yukleyebilirsiniz
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-          <div><label style={lbl}>Tür</label>
-            <select className="holo-select" style={{ width: "100%" }} value={f.type} onChange={(e) => s("type", e.target.value)}>
-              {Object.keys(typeColors).map((t) => <option key={t}>{t}</option>)}
-            </select>
-          </div>
-          <div><label style={lbl}>HP</label>
-            <input className="holo-input" style={{ width: "100%" }} type="number" value={f.hp} onChange={(e) => s("hp", e.target.value)} />
-          </div>
-          <div><label style={lbl}>Aşama</label>
-            <select className="holo-select" style={{ width: "100%" }} value={f.stage} onChange={(e) => s("stage", e.target.value)}>
-              {["Temel", "1. Aşama", "2. Aşama", "Mega ex", "Temel ex", "Destekçi", "Eşya", "Araç", "Stadyum"].map((v) => <option key={v}>{v}</option>)}
-            </select>
-          </div>
-          <div><label style={lbl}>Nadirlik</label>
-            <select className="holo-select" style={{ width: "100%" }} value={f.rarity} onChange={(e) => s("rarity", e.target.value)}>
-              {Object.entries(rarityLabels).map(([k, v]) => <option key={k} value={k}>{k} - {v}</option>)}
-            </select>
-          </div>
-          {[["Saldırı 1", "attack1"], ["Hasar 1", "dmg1"], ["Saldırı 2", "attack2"], ["Hasar 2", "dmg2"],
-            ["Zayıflık", "weakness"], ["Çekilme", "retreat"], ["Yetenek", "ability"],
-          ].map(([l, k]) => (
-            <div key={k}><label style={lbl}>{l}</label>
-              <input className="holo-input" style={{ width: "100%" }} value={f[k]} onChange={(e) => s(k, e.target.value)} />
+            {error && (
+              <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(247,37,133,0.1)", border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10, color: "#ff4d6d", fontSize: 13 }}>
+                {error}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 12, marginTop: 20, justifyContent: "flex-end" }}>
+              <button className="btn-glow" onClick={onClose}>Iptal</button>
+              {preview && (
+                <button className="btn-emerald" onClick={analyzeImage}>&#x1F50D; Analiz Et</button>
+              )}
             </div>
-          ))}
-          <div><label style={lbl}>Kopya</label>
-            <input className="holo-input" style={{ width: "100%" }} type="number" value={f.copies} onChange={(e) => s("copies", e.target.value)} />
+          </>
+        )}
+
+        {/* ── Analyzing Phase ── */}
+        {phase === "analyzing" && (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <div className="spinner" />
+            <div style={{ color: "#8b87a0", fontSize: 14, fontWeight: 600 }}>
+              Kartlar analiz ediliyor...
+            </div>
+            <div style={{ color: "#5a566e", fontSize: 12, marginTop: 6 }}>
+              Bu islem birkaç saniye surebilir
+            </div>
           </div>
-          <div><label style={lbl}>Piyasa Değeri (USD)</label>
-            <input className="holo-input" style={{ width: "100%" }} type="number" step="0.01" value={f.marketValue} onChange={(e) => s("marketValue", e.target.value)} placeholder="0.00" />
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 12, marginTop: 20, justifyContent: "flex-end" }}>
-          <button className="btn-glow" onClick={onClose}>İptal</button>
-          <button className="btn-accent" onClick={submit}>Ekle</button>
-        </div>
+        )}
+
+        {/* ── Review Phase ── */}
+        {phase === "review" && (
+          <>
+            <div style={{ color: "#8b87a0", fontSize: 13, marginBottom: 14 }}>
+              {extractedCards.length} kart bulundu. Bilgileri kontrol edip duzenleyebilirsiniz.
+            </div>
+            <div style={{ maxHeight: "55vh", overflowY: "auto", paddingRight: 4 }}>
+              {extractedCards.map((card, idx) => (
+                <div key={idx} className="review-card-row">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <span style={{ fontWeight: 700, color: "#e8e6f0", fontFamily: "'Rajdhani', sans-serif", fontSize: 16 }}>
+                      #{idx + 1} {card.nameEN || "—"}
+                    </span>
+                    <button className="btn-danger" style={{ padding: "4px 10px", fontSize: 11 }} onClick={() => removeCard(idx)}>&#x2715;</button>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                    <div>
+                      <label style={lbl}>Ad</label>
+                      <input className="holo-input" style={{ width: "100%" }} value={card.nameEN} onChange={(e) => updateCard(idx, "nameEN", e.target.value)} />
+                    </div>
+                    <div>
+                      <label style={lbl}>Tur</label>
+                      <select className="holo-select" style={{ width: "100%" }} value={card.type} onChange={(e) => updateCard(idx, "type", e.target.value)}>
+                        {Object.keys(typeColors).map((t) => <option key={t}>{t}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={lbl}>HP</label>
+                      <input className="holo-input" style={{ width: "100%" }} type="number" value={card.hp} onChange={(e) => updateCard(idx, "hp", e.target.value)} />
+                    </div>
+                    <div>
+                      <label style={lbl}>Nadirlik</label>
+                      <select className="holo-select" style={{ width: "100%" }} value={card.rarity} onChange={(e) => updateCard(idx, "rarity", e.target.value)}>
+                        {Object.entries(rarityLabels).map(([k, v]) => <option key={k} value={k}>{k} - {v}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={lbl}>Asama</label>
+                      <select className="holo-select" style={{ width: "100%" }} value={card.stage} onChange={(e) => updateCard(idx, "stage", e.target.value)}>
+                        {["Temel", "1. Aşama", "2. Aşama", "Mega ex", "Temel ex", "Destekçi", "Eşya", "Araç", "Stadyum"].map((v) => <option key={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={lbl}>Kart No</label>
+                      <input className="holo-input" style={{ width: "100%" }} value={card.kartNo} onChange={(e) => updateCard(idx, "kartNo", e.target.value)} />
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 8 }}>
+                    <button
+                      className="btn-glow"
+                      style={{ padding: "4px 12px", fontSize: 11 }}
+                      onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+                    >
+                      {expandedIdx === idx ? "▲ Detaylari Gizle" : "▼ Detaylar"}
+                    </button>
+                    {expandedIdx === idx && (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+                        {[["Saldiri 1", "attack1"], ["Hasar 1", "dmg1"], ["Saldiri 2", "attack2"], ["Hasar 2", "dmg2"],
+                          ["Zayiflik", "weakness"], ["Cekilme", "retreat"], ["Yetenek", "ability"],
+                        ].map(([l, k]) => (
+                          <div key={k}><label style={lbl}>{l}</label>
+                            <input className="holo-input" style={{ width: "100%" }} value={card[k]} onChange={(e) => updateCard(idx, k, e.target.value)} />
+                          </div>
+                        ))}
+                        <div><label style={lbl}>Kopya</label>
+                          <input className="holo-input" style={{ width: "100%" }} type="number" value={card.copies} onChange={(e) => updateCard(idx, "copies", e.target.value)} />
+                        </div>
+                        <div><label style={lbl}>Piyasa Degeri (USD)</label>
+                          <input className="holo-input" style={{ width: "100%" }} type="number" step="0.01" value={card.marketValue} onChange={(e) => updateCard(idx, "marketValue", e.target.value)} placeholder="0.00" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {error && (
+              <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(247,37,133,0.1)", border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10, color: "#ff4d6d", fontSize: 13 }}>
+                {error}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 12, marginTop: 20, justifyContent: "flex-end" }}>
+              <button className="btn-glow" onClick={onClose}>Iptal</button>
+              {extractedCards.length > 0 && (
+                <button className="btn-emerald" onClick={confirmAdd}>
+                  &#x2795; {extractedCards.length} Kart Ekle
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -424,7 +615,7 @@ function AddModal({ onClose, onAdd, nextId }) {
 /* ── Main App ── */
 
 export default function App() {
-  const [cards, setCards] = useState(initialCards);
+  const [cards, setCards] = useState(loadCards);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("Tümü");
   const [rarityFilter, setRarityFilter] = useState("Tümü");
@@ -434,6 +625,10 @@ export default function App() {
   const [compareList, setCompareList] = useState([]);
   const [showCompare, setShowCompare] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); } catch (_) {}
+  }, [cards]);
 
   const filtered = useMemo(() => {
     let r = cards.filter((c) => {
@@ -580,7 +775,7 @@ export default function App() {
         {compareMode && compareList.length >= 2 && (
           <button className="btn-accent" onClick={() => setShowCompare(true)}>Göster &#x2192;</button>
         )}
-        <button className="btn-emerald" onClick={() => setShowAdd(true)}>&#x2795; Yeni Kart</button>
+        <button className="btn-emerald" onClick={() => setShowAdd(true)}>&#x1F4F7; Fotoğraf ile Ekle</button>
       </div>
 
       {/* Card Grid */}
@@ -599,7 +794,7 @@ export default function App() {
       </div>
 
       {showCompare && <CompareView cards={cards.filter((c) => compareList.includes(c.id))} onClose={() => setShowCompare(false)} />}
-      {showAdd && <AddModal onClose={() => setShowAdd(false)} onAdd={(c) => setCards((p) => [...p, c])} nextId={Math.max(...cards.map((c) => c.id)) + 1} />}
+      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} nextId={Math.max(0, ...cards.map((c) => c.id)) + 1} />}
     </div>
   );
 }
