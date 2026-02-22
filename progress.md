@@ -184,3 +184,10 @@
 - **[2026-02-22]** All TCGdex URLs verified: HTTP 200 with `access-control-allow-origin: *`
 - **[2026-02-22]** No changes to card data files — existing `img` field in cards.prod.js serves as automatic fallback
 - **[2026-02-22]** Build verified: `npm run build` passes cleanly
+
+### Data Cleanup: Remove Korean & Japanese Text from Card Attributes
+- **[2026-02-22]** Removed Korean (한글) and Japanese (ひらがな/カタカナ) text from `attack1`, `attack2`, and `ability` fields in `cards.prod.js` (69 lines) and `cards.dev.js` (6 lines)
+- **[2026-02-22]** Pattern: `"ForeignText (Translation)"` → `"Translation"` — kept only the Turkish/English translation
+- **[2026-02-22]** Korean: 64 cards affected across all type sections (Ot, Ateş, Su, Elektrik, Psişik, Dövüş, Karanlık, Çelik, Normal)
+- **[2026-02-22]** Japanese: 5 cards affected (Arcanine, Magmar, Clefable, Sandshrew, Farfetch'd)
+- **[2026-02-22]** Cards with pure English attacks (Darkrai, Iron Jugulis, Fezandipiti, Scream Tail, Pumpkaboo, Poochyena, Lampent) were already clean — no changes needed
