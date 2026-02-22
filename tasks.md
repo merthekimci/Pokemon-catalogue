@@ -22,3 +22,4 @@
 | 18 | Default theme to light + Kartlarım screen redesign to match .pen design | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 19 | 3D interactive card rotation with flip and holographic overlay | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 20 | Add 16:9 detail images for all trainers | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 21 | Replace PokeAPI sprites with actual TCGdex physical card scan images | Completed | mhekimci | 2026-02-22 | 2026-02-22 |

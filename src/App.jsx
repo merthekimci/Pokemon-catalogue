@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import { trainers } from "./data/trainers";
 import { initialCards } from "./data/cards.js";
+import { resolveCardImage } from "./data/tcgdex-map";
 import TrainerDetail from "./components/TrainerDetail";
 import CardDetail from "./components/CardDetail";
 import TrainersList from "./components/TrainersList";
@@ -158,8 +159,8 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
           display: "flex", justifyContent: "center", alignItems: "center",
           background: "var(--bg-elevated)",
         }}>
-          {card.img && !imgErr ? (
-            <img src={card.img} alt={card.nameEN} onError={() => setImgErr(true)}
+          {resolveCardImage(card) && !imgErr ? (
+            <img src={resolveCardImage(card)} alt={card.nameEN} onError={() => setImgErr(true)}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
               crossOrigin="anonymous" />
           ) : (
@@ -193,10 +194,18 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
         </div>
 
         {/* Trainer + kartNo row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 6px" }}>
-          <span style={{ fontSize: 9, fontWeight: 600, color: "var(--accent)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {trainer ? trainer.name : "—"}
-          </span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 6px" }}>
+          {trainer && card.trainer ? (
+            <Link
+              to={`/trainer/${card.trainer}`}
+              onClick={(e) => { e.stopPropagation(); if (scrollRef) scrollRef.current = window.scrollY; }}
+              style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "none" }}
+            >
+              {trainer.name}
+            </Link>
+          ) : (
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)" }}>—</span>
+          )}
           <span style={{ fontSize: 8, color: "var(--text-muted)", flexShrink: 0 }}>{card.kartNo}</span>
         </div>
 
@@ -280,8 +289,8 @@ function CompareView({ cards, onClose }) {
               }}>
                 <div style={{ padding: 16, display: "flex", justifyContent: "center",
                   background: `radial-gradient(ellipse at 50% 80%, ${t.glow}, transparent 70%)` }}>
-                  {card.img ? (
-                    <img src={card.img} alt={card.nameEN}
+                  {resolveCardImage(card) ? (
+                    <img src={resolveCardImage(card)} alt={card.nameEN}
                       style={{ maxHeight: 110, objectFit: "contain", filter: `drop-shadow(0 4px 16px ${t.glow})` }}
                       crossOrigin="anonymous" />
                   ) : (
@@ -607,8 +616,8 @@ function DeleteConfirmModal({ card, onConfirm, onClose }) {
           background: `radial-gradient(ellipse at 50% 80%, ${t.glow}, transparent 70%)`,
           borderRadius: 12,
         }}>
-          {card.img && (
-            <img src={card.img} alt={card.nameEN}
+          {resolveCardImage(card) && (
+            <img src={resolveCardImage(card)} alt={card.nameEN}
               style={{
                 maxHeight: 120, objectFit: "contain",
                 filter: `drop-shadow(0 4px 16px ${t.glow})`,
@@ -734,8 +743,8 @@ function SummaryView({ stats, cards, favorites }) {
               <span style={{ color: "var(--text-muted)", fontSize: 14 }}>›</span>
             </div>
             <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-              {stats.topCard.img && (
-                <img src={stats.topCard.img} alt={stats.topCard.nameEN}
+              {resolveCardImage(stats.topCard) && (
+                <img src={resolveCardImage(stats.topCard)} alt={stats.topCard.nameEN}
                   style={{ width: 56, height: 56, objectFit: "contain", borderRadius: 8 }}
                   crossOrigin="anonymous" />
               )}

@@ -173,3 +173,14 @@
 - **[2026-02-22]** Updated `TrainerDetail.jsx` hero image to use `trainer.detailPicture || trainer.picture` with fallback
 - **[2026-02-22]** TrainersList.jsx unchanged — continues using `trainer.picture` for circular portrait avatars
 - **[2026-02-22]** Build verified: `npm run build` passes cleanly
+
+### Feature: Replace PokeAPI Sprites with TCGdex Physical Card Scans
+- **[2026-02-22]** Researched TCGdex API — identified main set as ME02 (Phantasmal Flames), confirmed `https://assets.tcgdex.net/en/me/me02/{localId}/high.png` URL pattern returns hi-res card scans with CORS support
+- **[2026-02-22]** Created `src/data/tcgdex-map.js` — maps 79 card IDs to TCGdex image URLs across ME02 and 10 other sets (SV01–SV06.5, SWSH1–SWSH11, SM5, XY0)
+- **[2026-02-22]** Mapping done by card name (not number) since Korean 80-card set numbering differs from ME02's 130-card English set
+- **[2026-02-22]** Exported `resolveCardImage(card)` helper: returns TCGdex URL if mapped, falls back to existing PokeAPI sprite, then empty string
+- **[2026-02-22]** Updated `App.jsx` (5 locations), `CardDetail.jsx` (2 locations), `TrainerDetail.jsx` (1 location) to use `resolveCardImage()` instead of `card.img`
+- **[2026-02-22]** Trainer/item/stadium cards (Dawn, Jumbo Ice, Heat Burner, Sacred Charm, Ball Player, Blaine's Strategy, Dizzying Valley, Heat Burner SR) now show actual card scan images for the first time
+- **[2026-02-22]** All TCGdex URLs verified: HTTP 200 with `access-control-allow-origin: *`
+- **[2026-02-22]** No changes to card data files — existing `img` field in cards.prod.js serves as automatic fallback
+- **[2026-02-22]** Build verified: `npm run build` passes cleanly

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { trainers } from "../data/trainers";
+import { resolveCardImage } from "../data/tcgdex-map";
 
 const typeColors = {
   "Ot":       { bg: "#00c853", glow: "rgba(0,200,83,0.35)", dark: "#0a2e16", emoji: "🌿" },
@@ -258,8 +259,8 @@ export default function CardDetail({ cards, favorites, onToggleFavorite, typeCol
               borderTop: `2px solid ${t.bg}66`, borderBottom: `2px solid ${t.bg}66`,
               borderRadius: 5, margin: "0 6px",
             }}>
-              {card.img ? (
-                <img src={card.img} alt={card.nameEN}
+              {resolveCardImage(card) ? (
+                <img src={resolveCardImage(card)} alt={card.nameEN}
                   style={{ maxHeight: 170, maxWidth: "90%", objectFit: "contain", filter: `drop-shadow(0 4px 16px ${t.glow})` }}
                   crossOrigin="anonymous" />
               ) : (
@@ -444,7 +445,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite, typeCol
                   background: "var(--bg-card)", border: "1px solid var(--border-dim)",
                   borderRadius: 10, padding: 8,
                 }}>
-                  {c.img && <img src={c.img} alt={c.nameEN} style={{ width: 60, height: 60, objectFit: "contain" }} crossOrigin="anonymous" />}
+                  {resolveCardImage(c) && <img src={resolveCardImage(c)} alt={c.nameEN} style={{ width: 60, height: 60, objectFit: "contain" }} crossOrigin="anonymous" />}
                   <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-primary)", fontFamily: "'Rajdhani', sans-serif", marginTop: 4 }}>
                     {c.nameEN}
                   </div>

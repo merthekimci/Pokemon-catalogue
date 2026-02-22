@@ -1,5 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { trainers } from '../data/trainers';
+import { resolveCardImage } from '../data/tcgdex-map';
 
 export default function TrainerDetail({ cards, typeColors }) {
   const { trainerSlug } = useParams();
@@ -152,9 +153,9 @@ export default function TrainerDetail({ cards, typeColors }) {
                       width: 70, height: 70, borderRadius: 35, overflow: "hidden",
                       background: "var(--bg-elevated)", flexShrink: 0,
                     }}>
-                      {card.img && (
+                      {resolveCardImage(card) && (
                         <img
-                          src={card.img}
+                          src={resolveCardImage(card)}
                           alt={card.nameEN}
                           crossOrigin="anonymous"
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
