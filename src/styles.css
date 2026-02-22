@@ -497,7 +497,7 @@ body {
   z-index: 1;
   max-width: 900px;
   margin: 0 auto;
-  padding: 24px 28px 60px;
+  padding: 24px 28px 140px;
   animation: floatIn 0.5s ease both;
 }
 
@@ -659,4 +659,19 @@ body {
   .trainer-detail-page {
     padding: 16px 16px 40px;
   }
+}
+
+/* ── Bottom Tab Bar ── */
+.bottom-tab-bar-spacer {
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.tab-add-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 32px rgba(0,245,212,0.55), 0 6px 20px rgba(0,0,0,0.5) !important;
+}
+
+.tab-add-btn:active {
+  transform: scale(0.95);
 }

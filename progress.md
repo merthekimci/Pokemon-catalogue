@@ -39,3 +39,12 @@
 - **[2026-02-22]** Added trainer page CSS to `styles.css` (hero with holoShimmer border, glass sections, responsive layout)
 - **[2026-02-22]** State preservation: all filter/sort state stays in `App` (stays mounted across routes), scroll position saved to `useRef` and restored via `requestAnimationFrame`
 - **[2026-02-22]** Added `vercel.json` with SPA rewrite rules for production routing
+
+### Feature: Bottom Tab Bar Navigation
+- **[2026-02-22]** Added sticky bottom tab bar with three items: Kartlarım (home), Ekle (add card CTA), Özet (summary placeholder)
+- **[2026-02-22]** "Ekle" center button is a circular teal gradient icon button that opens PhotoUploadModal from any route
+- **[2026-02-22]** Moved PhotoUploadModal render to App return block (outside Routes) so it works from all pages
+- **[2026-02-22]** Added `/ozet` route with SummaryView placeholder component showing total card count
+- **[2026-02-22]** Tab bar uses glassmorphism styling (blur + semi-transparent bg), active tab indicator with --holo-1 color
+- **[2026-02-22]** Added bottom spacer to catalogue content and increased trainer-detail-page padding to prevent content being hidden behind tab bar
+- **[2026-02-22]** Tab bar visible on all routes (catalogue, trainer detail, summary) for consistent mobile navigation

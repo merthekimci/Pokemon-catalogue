@@ -68,6 +68,7 @@ OPENAI_API_KEY=sk-...
 - 4'e kadar kart karsilastirma
 - Fotograftan kart ekleme (OpenAI Vision ile tek kart veya sayfa analizi)
 - Egitmen (Trainer) detay sayfalari — her kartta egitmen adi, tiklandiginda biyografi, hikaye ve resim iceren detay sayfasi
+- Alt navigasyon cubugu (tab bar) — Kartlarim, Ekle (fotograf CTA), Ozet sayfalari arasinda gezinme
 - Filtre, siralama ve kaydirma pozisyonu korunarak geri donme
 - localStorage ile kalici koleksiyon verisi
 - Pokemon gorselleri (PokeAPI sprites)

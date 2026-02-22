@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { trainers } from "./data/trainers";
 import TrainerDetail from "./components/TrainerDetail";
 
@@ -626,6 +626,106 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
   );
 }
 
+function SummaryView({ stats }) {
+  return (
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "40px 28px 120px",
+      position: "relative",
+      zIndex: 1,
+    }}>
+      <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.4 }}>📊</div>
+      <h2 style={{
+        fontFamily: "'Rajdhani', sans-serif",
+        fontSize: 28,
+        fontWeight: 700,
+        margin: "0 0 8px",
+        background: "linear-gradient(135deg, #e8e6f0, #7b61ff)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+      }}>Özet</h2>
+      <p style={{ color: "var(--text-muted)", fontSize: 14, textAlign: "center" }}>
+        Koleksiyon özeti yakında burada olacak.
+      </p>
+      <div style={{
+        marginTop: 24, padding: "16px 24px",
+        background: "var(--bg-card)", border: "1px solid var(--border-dim)",
+        borderRadius: 16, textAlign: "center", minWidth: 220,
+      }}>
+        <div style={{ color: "var(--text-muted)", fontSize: 12, marginBottom: 4 }}>Toplam Kart</div>
+        <div style={{
+          fontFamily: "'Rajdhani', sans-serif", fontSize: 36, fontWeight: 700, color: "var(--holo-1)",
+        }}>{stats.total}</div>
+      </div>
+    </div>
+  );
+}
+
+function BottomTabBar({ onAddClick }) {
+  const location = useLocation();
+  const isHome = location.pathname === "/" || location.pathname.startsWith("/trainer");
+  const isSummary = location.pathname === "/ozet";
+
+  const tabStyle = (active) => ({
+    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    gap: 4, flex: 1, padding: "8px 0", cursor: "pointer", background: "transparent",
+    border: "none", textDecoration: "none", position: "relative",
+    transition: "color 0.2s ease", fontFamily: "'DM Sans', sans-serif",
+    fontSize: 11, fontWeight: 600, letterSpacing: "0.03em",
+    color: active ? "var(--holo-1)" : "var(--text-muted)",
+  });
+
+  const indicator = (
+    <span style={{
+      position: "absolute", bottom: 0, width: 32, height: 2,
+      background: "var(--holo-1)", borderRadius: 2,
+      boxShadow: "0 0 8px rgba(0,245,212,0.6)",
+    }} />
+  );
+
+  return (
+    <nav className="bottom-tab-bar" style={{
+      position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
+      height: 64, display: "flex", alignItems: "stretch",
+      background: "rgba(14, 13, 20, 0.92)",
+      borderTop: "1px solid rgba(255,255,255,0.08)",
+      backdropFilter: "blur(20px) saturate(1.5)",
+      WebkitBackdropFilter: "blur(20px) saturate(1.5)",
+      boxShadow: "0 -4px 24px rgba(0,0,0,0.5), 0 -1px 0 rgba(123,97,255,0.15)",
+    }}>
+      <Link to="/" style={tabStyle(isHome)}>
+        <span style={{ fontSize: 20 }}>🃏</span>
+        Kartlarım
+        {isHome && indicator}
+      </Link>
+
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <button onClick={onAddClick} className="tab-add-btn" style={{
+          width: 52, height: 52, borderRadius: "50%", border: "none",
+          background: "linear-gradient(135deg, #00c896, #00f5d4)",
+          color: "#07060b", fontSize: 24, cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 0 20px rgba(0,245,212,0.35), 0 4px 16px rgba(0,0,0,0.4)",
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+          flexShrink: 0, marginBottom: 8,
+        }} aria-label="Kart Ekle">
+          📷
+        </button>
+      </div>
+
+      <Link to="/ozet" style={tabStyle(isSummary)}>
+        <span style={{ fontSize: 20 }}>📊</span>
+        Özet
+        {isSummary && indicator}
+      </Link>
+    </nav>
+  );
+}
+
 /* ── Main App ── */
 
 function CatalogueView({ scrollRef, children }) {
@@ -814,7 +914,7 @@ export default function App() {
       </div>
 
       {showCompare && <CompareView cards={cards.filter((c) => compareList.includes(c.id))} onClose={() => setShowCompare(false)} />}
-      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} nextId={Math.max(0, ...cards.map((c) => c.id)) + 1} />}
+      <div className="bottom-tab-bar-spacer" />
     </>
   );
 
@@ -828,7 +928,10 @@ export default function App() {
       <Routes>
         <Route path="/" element={<CatalogueView scrollRef={scrollRef}>{catalogueContent}</CatalogueView>} />
         <Route path="/trainer/:trainerSlug" element={<TrainerDetail cards={cards} typeColors={typeColors} />} />
+        <Route path="/ozet" element={<SummaryView stats={stats} />} />
       </Routes>
+      <BottomTabBar onAddClick={() => setShowAdd(true)} />
+      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} nextId={Math.max(0, ...cards.map((c) => c.id)) + 1} />}
     </div>
   );
 }
