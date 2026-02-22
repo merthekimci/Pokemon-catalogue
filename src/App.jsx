@@ -550,25 +550,28 @@ export default function App() {
           <option value="Tümü">Tüm Nadirlikler</option>
           {Object.entries(rarityLabels).map(([k, v]) => <option key={k} value={k}>{k} - {v}</option>)}
         </select>
-        <select className="holo-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-          <option value="rarity">Nadirlik</option>
-          <option value="kartNo">Kart No</option>
-          <option value="hp">HP</option>
-          <option value="nameEN">İsim</option>
-          <option value="copies">Kopya</option>
-          <option value="marketValue">Piyasa Değeri</option>
-          <option value="type">Tip</option>
-          <option value="stage">Aşama</option>
-          <option value="dmg1">Saldırı 1 Hasar</option>
-          <option value="dmg2">Saldırı 2 Hasar</option>
-          <option value="weakness">Zayıflık</option>
-          <option value="retreat">Geri Çekilme</option>
-        </select>
-        <button className="holo-select" onClick={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
-          style={{ cursor: "pointer", minWidth: 38, textAlign: "center", padding: "6px 10px" }}
-          title={sortDir === "asc" ? "Artan" : "Azalan"}>
-          {sortDir === "asc" ? "↑" : "↓"}
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#8b87a0", whiteSpace: "nowrap" }}>Sırala:</span>
+          <select className="holo-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <option value="rarity">Nadirlik</option>
+            <option value="kartNo">Kart No</option>
+            <option value="hp">HP</option>
+            <option value="nameEN">İsim</option>
+            <option value="copies">Kopya</option>
+            <option value="marketValue">Piyasa Değeri</option>
+            <option value="type">Tip</option>
+            <option value="stage">Aşama</option>
+            <option value="dmg1">Saldırı 1 Hasar</option>
+            <option value="dmg2">Saldırı 2 Hasar</option>
+            <option value="weakness">Zayıflık</option>
+            <option value="retreat">Geri Çekilme</option>
+          </select>
+          <button className="holo-select" onClick={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
+            style={{ cursor: "pointer", minWidth: 38, textAlign: "center", padding: "6px 10px" }}
+            title={sortDir === "asc" ? "Artan" : "Azalan"}>
+            {sortDir === "asc" ? "↑" : "↓"}
+          </button>
+        </div>
         <div style={{ flex: 1 }} />
         <button className={`btn-glow ${compareMode ? "active" : ""}`}
           onClick={() => { setCompareMode(!compareMode); setCompareList([]); }}>

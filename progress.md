@@ -11,3 +11,7 @@
   - Task flow: plan → log → execute → track bugs → update progress → update README → commit/push → deploy
 - **[2026-02-22]** Created persistent memory file for cross-session continuity
 - **[2026-02-22]** Created project tracking files: tasks.md, progress.md, bugs.md
+
+### UI Fix: Sort Controls Grouping
+- **[2026-02-22]** Wrapped sort attribute selector and sort direction button (↑/↓) in a flex container with `flexShrink: 0` so they always stay together on mobile and desktop
+- **[2026-02-22]** Added "Sırala:" label to the left of the sort dropdown
