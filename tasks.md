@@ -12,3 +12,6 @@
 | 8 | Add remove card from collection feature with confirmation modal | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 9 | Fix trainer detail page: correct portraits + Turkish bio/lore | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 10 | Integrate Pokemon TCG logo into header, summary, modal, and empty state | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 11 | Pencil design: Light theme, settings screen, TCG card style, logo | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 12 | Pencil design: Mobile-first pivot — create mobile Settings, Card Detail, Trainer Detail screens | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 13 | Pencil design: Reconfigure bottom tab bar (5 tabs) + add favorites filter | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
