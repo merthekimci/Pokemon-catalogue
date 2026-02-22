@@ -128,5 +128,5 @@ export const tcgdexImageMap = {
 };
 
 export function resolveCardImage(card) {
-  return tcgdexImageMap[card.id] || card.img || "";
+  return card.img || tcgdexImageMap[card.id] || "";
 }

@@ -99,7 +99,21 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
     const json = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const cards = JSON.parse(json);
 
-    // For each card, attempt a TCGdex image lookup by English name
+    // Normalize translations.tr.type in case GPT-4o returned an English type name
+    const TYPE_TR = {
+      Grass: "Ot", Fire: "Ateş", Water: "Su", Lightning: "Elektrik",
+      Fighting: "Dövüş", Metal: "Çelik", Colorless: "Normal",
+      Darkness: "Karanlık", Psychic: "Psişik",
+      Supporter: "Destekçi", Item: "Destekçi", Tool: "Destekçi", Stadium: "Destekçi",
+    };
+    cards.forEach((card) => {
+      const trType = card.translations?.tr?.type;
+      if (trType && TYPE_TR[trType]) {
+        card.translations.tr.type = TYPE_TR[trType];
+      }
+    });
+
+    // For each card, attempt a TCGdex image lookup by English name (all sets)
     const cardsWithImages = await Promise.all(
       cards.map(async (card) => {
         if (card.img) return card; // already has an image
@@ -107,7 +121,7 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
         if (!enName) return card;
         try {
           const tcgRes = await fetch(
-            `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}&set.id=me02`
+            `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}`
           );
           if (tcgRes.ok) {
             const results = await tcgRes.json();
@@ -116,11 +130,12 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
             }
           }
         } catch (_) {
-          // TCGdex lookup failed — fall back to card-number URL construction
-          const num = card.cardNumber?.split("/")?.[0]?.trim();
-          if (num && !isNaN(+num)) {
-            return { ...card, img: `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png` };
-          }
+          // TCGdex fetch threw — fall through to card-number fallback below
+        }
+        // Fall back to card-number URL (ME02 best-effort)
+        const num = card.cardNumber?.split("/")?.[0]?.trim();
+        if (num && !isNaN(+num)) {
+          return { ...card, img: `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png` };
         }
         return card;
       })

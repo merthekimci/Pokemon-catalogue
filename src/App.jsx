@@ -427,7 +427,7 @@ function CompareView({ cards, onClose }) {
   );
 }
 
-function PhotoUploadModal({ onClose, onAdd, nextId }) {
+function PhotoUploadModal({ onClose, onAdd }) {
   const [phase, setPhase] = useState("upload");
   const [preview, setPreview] = useState(null);
   const [imageBase64, setImageBase64] = useState("");
@@ -493,7 +493,7 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
       }
       const withIds = data.cards.map((c, i) => ({
         ...c,
-        id: nextId + i,
+        id: Date.now() + i,
         hp: +c.hp || 0,
         copies: +c.copies || 1,
         marketValue: +c.marketValue || 0,
@@ -1588,7 +1588,7 @@ export default function App() {
         <Route path="/ayarlar" element={<SettingsPage theme={theme} onThemeChange={setTheme} ownerName={ownerName} onOwnerNameChange={setOwnerName} phone={phone} onShowPhoneModal={() => setShowPhoneModal(true)} onPhoneChange={(p) => { setPhone(p); if (!p) { setCards([]); setFavorites([]); setTheme("dark"); setOwnerName("Koleksiyoncu"); } }} />} />
       </Routes>
       <BottomTabBar onAddClick={() => setShowAdd(true)} />
-      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} nextId={Math.max(0, ...cards.map((c) => c.id)) + 1} />}
+      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} />}
       {deleteTarget && <DeleteConfirmModal card={deleteTarget} onConfirm={handleDeleteCard} onClose={() => setDeleteTarget(null)} />}
       {showPhoneModal && <PhoneModal onSave={(p) => { setPhone(p); setShowPhoneModal(false); }} onClose={() => setShowPhoneModal(false)} />}
     </div>
