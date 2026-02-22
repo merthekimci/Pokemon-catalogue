@@ -3,6 +3,8 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { trainers } from "./data/trainers";
 import TrainerDetail from "./components/TrainerDetail";
 
+const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`;
+
 /* ── Type colors with neon glow variants ── */
 const typeColors = {
   "Ot":       { bg: "#00c853", glow: "rgba(0,200,83,0.35)", dark: "#0a2e16", emoji: "🌿" },
@@ -489,9 +491,19 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" style={{ maxWidth: 700, width: "100%" }} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20, fontFamily: "'Rajdhani', sans-serif", color: "#e8e6f0" }}>
-          &#x1F4F7; Fotoğraftan Kart Ekle
-        </h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+          <img
+            src={TCG_LOGO}
+            alt=""
+            style={{
+              height: 28, width: "auto",
+              filter: "drop-shadow(0 0 6px rgba(123,97,255,0.4))",
+            }}
+          />
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, fontFamily: "'Rajdhani', sans-serif", color: "#e8e6f0" }}>
+            Fotoğraftan Kart Ekle
+          </h2>
+        </div>
 
         {/* ── Upload Phase ── */}
         {phase === "upload" && (
@@ -715,7 +727,15 @@ function SummaryView({ stats }) {
       position: "relative",
       zIndex: 1,
     }}>
-      <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.4 }}>📊</div>
+      <img
+        src={TCG_LOGO}
+        alt=""
+        style={{
+          width: 200, height: "auto", marginBottom: 20, opacity: 0.3,
+          filter: "grayscale(0.3) drop-shadow(0 0 20px rgba(123,97,255,0.3))",
+          userSelect: "none", pointerEvents: "none",
+        }}
+      />
       <h2 style={{
         fontFamily: "'Rajdhani', sans-serif",
         fontSize: 28,
@@ -892,19 +912,22 @@ export default function App() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 4 }}>
           <img
-            src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-            alt="Pokémon"
-            style={{ height: 40, width: 40, filter: "drop-shadow(0 0 8px rgba(123,97,255,0.4))" }}
+            src={TCG_LOGO}
+            alt="Pokémon Trading Card Game"
+            style={{
+              height: 48, width: "auto",
+              filter: "drop-shadow(0 0 10px rgba(123,97,255,0.5)) drop-shadow(0 0 20px rgba(0,245,212,0.2))",
+            }}
           />
           <div>
             <h1 style={{
-              fontSize: 26, fontWeight: 700, margin: 0,
+              fontSize: 20, fontWeight: 700, margin: 0,
               fontFamily: "'Rajdhani', sans-serif",
               background: "linear-gradient(135deg, #e8e6f0, #7b61ff)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
               letterSpacing: "0.02em", lineHeight: 1.1,
             }}>
-              Pokémon Kart Kataloğu
+              Kart Kataloğu
             </h1>
             <p style={{ margin: 0, color: "#5a566e", fontSize: 12 }}>
               Japonca/İngilizce Baskı —{" "}
@@ -986,15 +1009,35 @@ export default function App() {
         <div style={{ fontSize: 12, color: "#5a566e", marginBottom: 14 }}>
           {filtered.length} kart gösteriliyor
         </div>
-        <div className="card-grid" style={{
-          display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 18,
-        }}>
-          {filtered.map((c, i) => (
-            <CardTile key={c.id} card={c} compareMode={compareMode}
-              isSelected={compareList.includes(c.id)} onToggle={toggle} index={i} scrollRef={scrollRef}
-              onDelete={setDeleteTarget} />
-          ))}
-        </div>
+        {filtered.length === 0 ? (
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center",
+            justifyContent: "center", padding: "60px 20px", textAlign: "center",
+          }}>
+            <img
+              src={TCG_LOGO}
+              alt=""
+              style={{
+                width: 180, height: "auto", opacity: 0.15,
+                filter: "grayscale(0.5)", marginBottom: 20,
+                userSelect: "none", pointerEvents: "none",
+              }}
+            />
+            <p style={{ color: "var(--text-muted)", fontSize: 14, fontFamily: "'DM Sans', sans-serif" }}>
+              Aramanızla eşleşen kart bulunamadı.
+            </p>
+          </div>
+        ) : (
+          <div className="card-grid" style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 18,
+          }}>
+            {filtered.map((c, i) => (
+              <CardTile key={c.id} card={c} compareMode={compareMode}
+                isSelected={compareList.includes(c.id)} onToggle={toggle} index={i} scrollRef={scrollRef}
+                onDelete={setDeleteTarget} />
+            ))}
+          </div>
+        )}
       </div>
 
       {showCompare && <CompareView cards={cards.filter((c) => compareList.includes(c.id))} onClose={() => setShowCompare(false)} />}

@@ -58,6 +58,14 @@
 - **[2026-02-22]** Added `@media (hover: none)` CSS rule so delete button is visible on touch devices (opacity: 0.7)
 - **[2026-02-22]** Card removal persists automatically via existing localStorage useEffect
 
+### Design: Pokemon TCG Logo Integration
+- **[2026-02-22]** Added `TCG_LOGO` constant using `import.meta.env.BASE_URL` for cross-deployment compatibility (Vercel + GitHub Pages)
+- **[2026-02-22]** Header: Replaced 40x40 Pokéball sprite with official TCG logo (48px height) with dual holographic drop-shadow (purple + cyan glow)
+- **[2026-02-22]** Header: Shortened title from "Pokémon Kart Kataloğu" → "Kart Kataloğu" (logo carries the branding), reduced font-size 26→20
+- **[2026-02-22]** Summary View: Replaced 📊 emoji with TCG logo watermark (200px, opacity 0.3, grayscale 0.3, purple glow)
+- **[2026-02-22]** Photo Upload Modal: Added small logo (28px) inline next to "Fotoğraftan Kart Ekle" title, removed camera emoji
+- **[2026-02-22]** Empty State: When no cards match search/filter, shows ghost TCG logo watermark (opacity 0.15, grayscale 0.5) with Turkish message
+
 ### Bugfix: Trainer Detail Page — Portraits & Turkish Translation
 - **[2026-02-22]** Fixed trainer portraits: replaced Pokemon sprite URLs with actual trainer character artwork from Bulbapedia (official Ken Sugimori / anime artwork)
 - **[2026-02-22]** Downloaded 13 trainer images to `public/trainers/` for local serving (Ash, Misty, Brock, Dawn, Blaine, Prof. Oak, Cynthia, Red, Blue, Lance, N, Steven Stone, Team Rocket)

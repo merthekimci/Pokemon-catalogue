@@ -11,3 +11,4 @@
 | 7 | Add sticky bottom tab bar (Kartlarım, Ekle, Özet) with routing | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 8 | Add remove card from collection feature with confirmation modal | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 9 | Fix trainer detail page: correct portraits + Turkish bio/lore | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 10 | Integrate Pokemon TCG logo into header, summary, modal, and empty state | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
