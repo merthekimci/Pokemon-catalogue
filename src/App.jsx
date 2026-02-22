@@ -1128,7 +1128,14 @@ export default function App() {
       .then((r) => r.json())
       .then((json) => {
         if (json.exists && json.data) {
-          setCards(json.data.cards ?? []);
+          // Auto-migrate: strip PokeAPI sprite URLs so tcgdexImageMap takes over
+          const rawCards = json.data.cards ?? [];
+          const migratedCards = rawCards.map((c) =>
+            c.img && c.img.includes("githubusercontent.com/PokeAPI")
+              ? { ...c, img: "" }
+              : c
+          );
+          setCards(migratedCards);
           setFavorites(json.data.favorites ?? []);
           setTheme(json.data.theme ?? "dark");
           setOwnerName(json.data.owner_name ?? "Koleksiyoncu");
