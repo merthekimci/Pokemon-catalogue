@@ -76,7 +76,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite, typeCol
   const sameTypeCards = cards.filter((c) => c.type === card.type && c.id !== card.id).slice(0, 4);
 
   return (
-    <div style={{ position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", paddingBottom: 100 }}>
+    <div style={{ position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", paddingBottom: 100, background: "var(--bg-deep)", minHeight: "100vh" }}>
       {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", gap: 10,

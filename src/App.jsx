@@ -670,7 +670,7 @@ function SummaryView({ stats, cards, favorites }) {
 
   return (
     <div style={{
-      position: "relative", zIndex: 1,
+      position: "relative", zIndex: 1, background: "var(--bg-deep)", minHeight: "100vh",
       padding: "20px 16px 100px", maxWidth: 600, margin: "0 auto",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>

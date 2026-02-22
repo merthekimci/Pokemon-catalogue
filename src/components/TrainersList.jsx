@@ -5,7 +5,7 @@ const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-gam
 
 export default function TrainersList({ cards, typeColors }) {
   return (
-    <div style={{ position: "relative", zIndex: 1, padding: "0 0 100px", maxWidth: 600, margin: "0 auto" }}>
+    <div style={{ position: "relative", zIndex: 1, padding: "0 0 100px", maxWidth: 600, margin: "0 auto", background: "var(--bg-deep)", minHeight: "100vh" }}>
       {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", gap: 10,

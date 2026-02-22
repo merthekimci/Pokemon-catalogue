@@ -525,6 +525,8 @@ body {
   max-width: 900px;
   margin: 0 auto;
   padding: 24px 28px 140px;
+  background: var(--bg-deep);
+  min-height: 100vh;
   animation: floatIn 0.5s ease both;
 }
 

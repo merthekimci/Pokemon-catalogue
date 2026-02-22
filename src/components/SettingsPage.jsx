@@ -7,7 +7,7 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
   };
 
   return (
-    <div style={{ position: "relative", zIndex: 1, maxWidth: 600, margin: "0 auto", paddingBottom: 100 }}>
+    <div style={{ position: "relative", zIndex: 1, maxWidth: 600, margin: "0 auto", paddingBottom: 100, background: "var(--bg-deep)", minHeight: "100vh" }}>
       {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
