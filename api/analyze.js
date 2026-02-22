@@ -113,12 +113,29 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
       }
     });
 
-    // For each card, attempt a TCGdex image lookup by English name (all sets)
+    // For each card, attempt a TCGdex image lookup by English name.
+    // Strategy: prefer ME02 set (this collection's source set), fall back to all sets
+    // for cards not in ME02, then fall back to card-number ME02 URL as last resort.
     const cardsWithImages = await Promise.all(
       cards.map(async (card) => {
         if (card.img) return card; // already has an image
         const enName = card.translations?.en?.name || card.original?.name;
         if (!enName) return card;
+
+        // 1. Try ME02 set first — this is the primary source set for this collection
+        try {
+          const me02Res = await fetch(
+            `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}&set.id=me02`
+          );
+          if (me02Res.ok) {
+            const me02Results = await me02Res.json();
+            if (Array.isArray(me02Results) && me02Results.length > 0 && me02Results[0].image) {
+              return { ...card, img: me02Results[0].image + "/high.png" };
+            }
+          }
+        } catch (_) {}
+
+        // 2. Card not in ME02 — search all sets
         try {
           const tcgRes = await fetch(
             `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}`
@@ -129,10 +146,9 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
               return { ...card, img: results[0].image + "/high.png" };
             }
           }
-        } catch (_) {
-          // TCGdex fetch threw — fall through to card-number fallback below
-        }
-        // Fall back to card-number URL (ME02 best-effort)
+        } catch (_) {}
+
+        // 3. Last resort: build ME02 URL from card number
         const num = card.cardNumber?.split("/")?.[0]?.trim();
         if (num && !isNaN(+num)) {
           return { ...card, img: `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png` };
