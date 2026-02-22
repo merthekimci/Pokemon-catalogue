@@ -25,6 +25,7 @@
   --accent: #7b61ff;
   --accent-glow: rgba(123, 97, 255, 0.35);
   --card-section-border: rgba(255, 255, 255, 0.08);
+  --bg-cream: #fffbe8;
 }
 
 * { box-sizing: border-box; }
@@ -105,7 +106,7 @@ body {
 /* ── Card base ── */
 .poke-card {
   position: relative;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   background: var(--bg-card);
   border: 1px solid var(--border-dim);
@@ -120,7 +121,7 @@ body {
   content: '';
   position: absolute;
   inset: -1px;
-  border-radius: 17px;
+  border-radius: 19px;
   padding: 1px;
   background: linear-gradient(
     135deg,
@@ -519,9 +520,16 @@ body {
 }
 
 /* ── Responsive ── */
+@media (max-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
 @media (max-width: 640px) {
   .card-grid {
     grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
   }
 }
 
@@ -538,6 +546,21 @@ body {
 
 .tab-add-btn:active {
   transform: scale(0.95);
+}
+
+/* ── Catalogue Header & Control Bar ── */
+.catalogue-header {
+  background: #07060bEB;
+}
+
+.catalogue-control-bar {
+  background: rgba(14, 13, 20, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.control-bar-btn {
+  background: var(--bg-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -602,4 +625,22 @@ body {
 
 [data-theme="light"] ::-webkit-scrollbar-thumb {
   background: rgba(123, 97, 255, 0.2);
+}
+
+[data-theme="light"] .catalogue-header {
+  background: #ffffffEB;
+}
+
+[data-theme="light"] .catalogue-control-bar {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid #e0dfe8;
+}
+
+[data-theme="light"] .control-bar-btn {
+  border-color: #e0dfe8;
+}
+
+[data-theme="light"] .bottom-tab-bar {
+  background: #ffffffEB !important;
+  border-top-color: #e0dfe8 !important;
 }

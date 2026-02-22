@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { trainers } from "../data/trainers";
 import { resolveCardImage } from "../data/tcgdex-map";
+import { pokemonMeta } from "../data/pokemon-meta";
 
 const typeColors = {
   "Ot":       { bg: "#00c853", glow: "rgba(0,200,83,0.35)", dark: "#0a2e16", emoji: "🌿" },
@@ -19,6 +20,12 @@ const typeColors = {
 const rarityLabels = { C: "Common", U: "Uncommon", M: "Holo Rare", RR: "Double Rare", R: "Rare", SR: "Secret Rare" };
 const rarityColors = { C: "#5a566e", U: "#00c896", M: "#7b61ff", RR: "#ffd166", R: "#8b5cf6", SR: "#ec4899" };
 
+const affiliationIcons = {
+  flame: "🔥", leaf: "🌿", droplet: "💧", zap: "⚡", "map-pin": "📍",
+  sparkles: "✨", ghost: "👻", fist: "👊",
+};
+
+// ─── 3D Card Tilt Hook ───
 function useCardTilt({ sensitivity = 0.4 } = {}) {
   const cardRef = useRef(null);
   const isActive = useRef(false);
@@ -119,46 +126,275 @@ function useCardTilt({ sensitivity = 0.4 } = {}) {
   return { cardRef, tilt, isInteracting, handlers };
 }
 
-function TypeBadge({ type }) {
-  const t = typeColors[type] || typeColors["Normal"];
+// ─── Sub-components ───
+
+function StatCard({ label, value, orbColor }) {
   return (
-    <span style={{
-      background: `${t.bg}1A`, color: t.bg, borderRadius: 6, fontWeight: 600,
-      display: "inline-flex", alignItems: "center", gap: 4,
-      padding: "4px 10px", fontSize: 12,
+    <div style={{
+      background: "var(--bg-card)", borderRadius: 12, padding: 14,
+      border: "1px solid var(--border-dim)", display: "flex",
+      flexDirection: "column", gap: 4,
     }}>
-      {t.emoji} {type}
-    </span>
+      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>{label}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        {orbColor && <span style={{ width: 12, height: 12, borderRadius: "50%", background: orbColor, flexShrink: 0 }} />}
+        <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'DM Sans', sans-serif" }}>{value}</span>
+      </div>
+    </div>
   );
 }
 
-function RarityBadge({ rarity }) {
+function SectionTitle({ children, isDesktop }) {
   return (
-    <span style={{
-      background: rarityColors[rarity] || "#5a566e", color: "#fff",
-      padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700,
-    }}>
-      {rarity} — {rarityLabels[rarity] || rarity}
-    </span>
+    <h3 style={{
+      fontFamily: "'Rajdhani', sans-serif", fontSize: isDesktop ? 22 : 20,
+      fontWeight: 700, color: "var(--text-primary)", margin: 0,
+    }}>{children}</h3>
   );
 }
 
-export default function CardDetail({ cards, favorites, onToggleFavorite, typeColors: tc }) {
+function SectionWrapper({ children, isDesktop, padding }) {
+  return (
+    <div style={{
+      borderTop: "1px solid var(--border-dim)",
+      padding: padding || (isDesktop ? "20px 0" : "16px 0 0 0"),
+      display: "flex", flexDirection: "column",
+      gap: isDesktop ? 12 : 10,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function RelationCard({ card, reason, isFoe, resolveImg }) {
+  const tc = typeColors[card.type] || typeColors["Normal"];
+  return (
+    <Link to={`/card/${card.id}`} style={{
+      flexShrink: 0, width: 120, textDecoration: "none",
+      borderRadius: 12, overflow: "hidden",
+      background: "var(--bg-card)",
+      border: `1px solid ${isFoe ? "rgba(255,68,68,0.1)" : "var(--border-dim)"}`,
+    }}>
+      <div style={{ height: 80, background: `linear-gradient(135deg, ${tc.bg}15, ${tc.bg}05)`, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        {resolveImg(card) ? (
+          <img src={resolveImg(card)} alt={card.nameEN} style={{ height: 60, objectFit: "contain" }} crossOrigin="anonymous" />
+        ) : (
+          <span style={{ fontSize: 32, opacity: 0.3 }}>{tc.emoji}</span>
+        )}
+      </div>
+      <div style={{ padding: "8px 10px" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'DM Sans', sans-serif" }}>{card.nameEN}</div>
+        <div style={{ fontSize: 10, color: isFoe ? "#ff4444" : tc.bg, fontFamily: "'DM Sans', sans-serif" }}>{reason}</div>
+      </div>
+    </Link>
+  );
+}
+
+// ─── Physical Card (Desktop left column) ───
+function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensity, tiltMagnitude, cardRef, handlers }) {
+  const weaknessType = card.weakness?.match(/^(\S+)/)?.[1];
+  const weaknessColor = Object.entries(typeColors).find(([k]) => k === weaknessType)?.[1]?.bg || "#8b87a0";
+
+  return (
+    <div style={{ perspective: 900, perspectiveOrigin: "50% 50%" }}>
+      <div
+        ref={cardRef}
+        {...handlers}
+        style={{
+          width: 320,
+          transformStyle: "preserve-3d",
+          transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg)`,
+          transition: isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          willChange: "transform",
+          cursor: isInteracting ? "grabbing" : "grab",
+          userSelect: "none", WebkitUserSelect: "none",
+          position: "relative",
+          borderRadius: 16,
+          boxShadow: isInteracting
+            ? `0 ${10 + Math.abs(tilt.rotX) * 0.5}px ${20 + tiltMagnitude * 0.8}px rgba(0,0,0,0.25), 0 0 ${20 + tiltMagnitude}px ${t.glow}`
+            : "0 8px 32px rgba(0,0,0,0.15)",
+        }}
+      >
+        {/* FRONT FACE */}
+        <div style={{
+          backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+          borderRadius: 16, overflow: "hidden",
+          background: t.bg, padding: 6, position: "relative",
+          border: `1px solid ${t.bg}40`,
+        }}>
+          <div style={{
+            borderRadius: 10, background: "var(--bg-cream)", padding: 8,
+            display: "flex", flexDirection: "column", gap: 6,
+          }}>
+            {/* Name Bar */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px" }}>
+              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 22, color: "#2a2838" }}>
+                {card.nameEN}
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 20, color: t.bg }}>
+                  HP {card.hp}
+                </span>
+                <span style={{ width: 16, height: 16, borderRadius: "50%", background: t.bg, display: "inline-block" }} />
+              </div>
+            </div>
+
+            {/* Art Window */}
+            <div style={{
+              height: 220, borderRadius: 6, overflow: "hidden", position: "relative",
+              border: `2px solid ${t.bg}66`,
+              background: resolveCardImage(card) ? undefined : `radial-gradient(ellipse at 50% 80%, ${t.glow}, transparent 70%)`,
+            }}>
+              {resolveCardImage(card) ? (
+                <img src={resolveCardImage(card)} alt={card.nameEN}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  crossOrigin="anonymous" />
+              ) : (
+                <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 64, opacity: 0.4 }}>{t.emoji}</div>
+              )}
+              {/* Copy badge */}
+              {card.copies > 1 && (
+                <div style={{
+                  position: "absolute", top: 8, left: 8,
+                  background: "rgba(0,0,0,0.8)", borderRadius: 10, padding: "2px 8px",
+                }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "'DM Sans', sans-serif" }}>x{card.copies}</span>
+                </div>
+              )}
+              {/* Heart badge */}
+              <div style={{
+                position: "absolute", top: 8, right: 8,
+                background: "rgba(0,0,0,0.27)", borderRadius: 15, width: 30, height: 30,
+                display: "flex", justifyContent: "center", alignItems: "center",
+              }}>
+                <span style={{ fontSize: 16, opacity: 0.53 }}>♡</span>
+              </div>
+            </div>
+
+            {/* Trainer Row */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#0d9488", fontFamily: "'DM Sans', sans-serif" }}>
+                {card.trainer ? (trainers[card.trainer]?.name || card.trainer) : "—"}
+              </span>
+              <span style={{ fontSize: 12, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>{card.kartNo}</span>
+            </div>
+
+            {/* Attack Section */}
+            {card.attack1 && (
+              <div style={{ padding: "6px 10px", borderTop: `1px solid ${t.bg}40`, display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>⚔ {card.attack1}</span>
+                  <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{card.dmg1 || "—"}</span>
+                </div>
+                {card.attack2 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>⚔ {card.attack2}</span>
+                    <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{card.dmg2 || "—"}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Footer: weakness / resistance / retreat */}
+            <div style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "4px 10px", borderTop: `1px solid ${t.bg}40`,
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <span style={{ fontSize: 9, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>zayiflik</span>
+                {card.weakness && card.weakness !== "-" ? (
+                  <>
+                    <span style={{ width: 14, height: 14, borderRadius: "50%", background: weaknessColor, display: "inline-block" }} />
+                    <span style={{ fontSize: 10, fontWeight: 600, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>x2</span>
+                  </>
+                ) : <span style={{ fontSize: 12, color: "#8b87a0" }}>—</span>}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <span style={{ fontSize: 9, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>dayaniklilik</span>
+                <span style={{ fontSize: 12, color: "#8b87a0" }}>—</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <span style={{ fontSize: 9, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>cekilme</span>
+                {card.retreat && card.retreat !== "-" ? (
+                  <span style={{ width: 14, height: 14, borderRadius: "50%", background: "#8b87a0", display: "inline-block" }} />
+                ) : <span style={{ fontSize: 12, color: "#8b87a0" }}>—</span>}
+              </div>
+            </div>
+
+            {/* Badges */}
+            <div style={{ display: "flex", gap: 8, padding: "4px 10px", alignItems: "center" }}>
+              <span style={{ background: t.bg, color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
+                {card.type}
+              </span>
+              <span style={{ background: rarityColors[card.rarity] || "#5a566e", color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
+                {card.rarity}
+              </span>
+            </div>
+
+            {/* Market Value */}
+            {card.marketValue > 0 && (
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "6px 10px", borderRadius: 8, background: `${t.bg}0D`,
+              }}>
+                <span style={{ fontSize: 12, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>Piyasa Degeri</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>${card.marketValue.toFixed(2)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Holographic shine overlay */}
+          <div style={{
+            position: "absolute", inset: 0, pointerEvents: "none", zIndex: 10, borderRadius: 16,
+            opacity: holoIntensity * 0.85,
+            background: `
+              radial-gradient(ellipse 80% 60% at ${holoX}% ${holoY}%, rgba(255,255,255,0.25), transparent 60%),
+              linear-gradient(${105 + (tilt.rotY % 360) * 0.5}deg, rgba(0,245,212,0.15) 0%, rgba(123,97,255,0.15) 25%, rgba(247,37,133,0.15) 50%, rgba(255,209,102,0.15) 75%, rgba(0,245,212,0.15) 100%)
+            `,
+            mixBlendMode: "screen",
+            transition: isInteracting ? "none" : "opacity 0.4s ease",
+          }} />
+        </div>
+
+        {/* BACK FACE */}
+        <div style={{
+          backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+          transform: "rotateY(180deg)", position: "absolute", inset: 0,
+          borderRadius: 16, overflow: "hidden", border: `2px solid ${t.bg}40`, background: "#c62828",
+        }}>
+          <img src="https://images.pokemontcg.io/cardback.png" alt="Card Back"
+            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 14 }}
+            crossOrigin="anonymous" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───
+export default function CardDetail({ cards, favorites, onToggleFavorite }) {
   const { cardId } = useParams();
   const navigate = useNavigate();
   const card = cards.find((c) => String(c.id) === cardId);
+
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+  useEffect(() => {
+    const handler = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
 
   const { cardRef, tilt, isInteracting, handlers } = useCardTilt({ sensitivity: 0.4 });
 
   if (!card) {
     return (
       <div style={{ padding: "60px 20px", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <p style={{ fontSize: 18, color: "var(--text-primary)", marginBottom: 16 }}>Kart bulunamadı</p>
+        <p style={{ fontSize: 18, color: "var(--text-primary)", marginBottom: 16 }}>Kart bulunamadi</p>
         <button onClick={() => navigate(-1)} style={{
           background: "var(--bg-elevated)", border: "1px solid var(--border-dim)",
           color: "var(--text-primary)", borderRadius: 10, padding: "10px 20px",
           cursor: "pointer", fontWeight: 600, fontSize: 14,
-        }}>← Geri Dön</button>
+        }}>← Geri Don</button>
       </div>
     );
   }
@@ -166,6 +402,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite, typeCol
   const t = typeColors[card.type] || typeColors["Normal"];
   const isFavorite = favorites.includes(card.id);
   const trainer = card.trainer && trainers[card.trainer];
+  const meta = pokemonMeta[card.id];
 
   // Holographic overlay calculations
   const rawRotY = ((tilt.rotY % 360) + 360) % 360;
@@ -177,225 +414,233 @@ export default function CardDetail({ cards, favorites, onToggleFavorite, typeCol
   const tiltMagnitude = Math.sqrt(tilt.rotX ** 2 + tilt.rotY ** 2);
   const holoIntensity = isInteracting ? Math.min(tiltMagnitude / 30, 1) : 0;
 
-  const statCell = (label, value) => (
-    <div style={{
-      background: "var(--bg-elevated)", borderRadius: 10, padding: "12px 14px",
-      border: "1px solid var(--border-dim)",
-    }}>
-      <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 3 }}>{label}</div>
-      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Rajdhani', sans-serif" }}>{value}</div>
-    </div>
-  );
+  // Friends & foes resolution
+  const friendCards = (meta?.friends || []).map(f => ({ ...f, card: cards.find(c => c.id === f.cardId) })).filter(f => f.card);
+  const foeCards = (meta?.foes || []).map(f => ({ ...f, card: cards.find(c => c.id === f.cardId) })).filter(f => f.card);
 
+  // Fallback: same-type cards if no friends defined
   const sameTypeCards = cards.filter((c) => c.type === card.type && c.id !== card.id).slice(0, 4);
+  const displayFriends = friendCards.length > 0 ? friendCards : sameTypeCards.map(c => ({ card: c, reason: `${c.type} Tipi` }));
 
-  return (
-    <div style={{ position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", paddingBottom: 100, background: "var(--bg-deep)", minHeight: "100vh" }}>
-      {/* Header */}
-      <div style={{
-        display: "flex", alignItems: "center", gap: 10,
-        padding: "14px 16px",
-        background: "var(--bg-card)", borderBottom: "1px solid var(--border-dim)",
-        position: "sticky", top: 0, zIndex: 10,
-      }}>
-        <button onClick={() => navigate(-1)} style={{
-          background: "none", border: "none", cursor: "pointer",
-          fontSize: 20, color: "var(--text-primary)", padding: 0,
-        }}>←</button>
-        <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
-          Kart Detayı
-        </span>
-      </div>
+  const pad = isDesktop ? "24px 28px" : "16px";
 
-      {/* 3D Card */}
-      <div style={{ padding: "20px 16px 0", perspective: 900, perspectiveOrigin: "50% 50%" }}>
-        <div
-          ref={cardRef}
-          {...handlers}
-          style={{
-            transformStyle: "preserve-3d",
-            transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg)`,
-            transition: isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            willChange: "transform",
-            cursor: isInteracting ? "grabbing" : "grab",
-            userSelect: "none",
-            WebkitUserSelect: "none",
-            position: "relative",
-            borderRadius: 14,
-            boxShadow: isInteracting
-              ? `0 ${10 + Math.abs(tilt.rotX) * 0.5}px ${20 + tiltMagnitude * 0.8}px rgba(0,0,0,0.35), 0 0 ${20 + tiltMagnitude}px ${t.glow}`
-              : "0 4px 16px rgba(0,0,0,0.2)",
-          }}
-        >
-          {/* FRONT FACE */}
-          <div style={{
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-            borderRadius: 14,
-            overflow: "hidden",
-            border: `2px solid ${t.bg}40`,
-            background: "var(--bg-card)",
-            position: "relative",
-          }}>
-            {/* Header row: nameEN + HP */}
-            <div style={{
-              padding: "5px 8px", display: "flex", justifyContent: "space-between", alignItems: "center",
-            }}>
-              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>
-                {card.nameEN}
-              </span>
-              <span style={{
-                fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: 14,
-                color: card.hp >= 150 ? "#ff4d6d" : card.hp >= 100 ? "#d4a800" : "#0d9488",
-              }}>
-                HP {card.hp}
-              </span>
-            </div>
-
-            {/* Image container */}
-            <div style={{
-              height: 200, display: "flex", justifyContent: "center", alignItems: "center",
-              background: `radial-gradient(ellipse at 50% 80%, ${t.glow}, transparent 70%)`,
-              borderTop: `2px solid ${t.bg}66`, borderBottom: `2px solid ${t.bg}66`,
-              borderRadius: 5, margin: "0 6px",
-            }}>
-              {resolveCardImage(card) ? (
-                <img src={resolveCardImage(card)} alt={card.nameEN}
-                  style={{ maxHeight: 170, maxWidth: "90%", objectFit: "contain", filter: `drop-shadow(0 4px 16px ${t.glow})` }}
-                  crossOrigin="anonymous" />
-              ) : (
-                <div style={{ fontSize: 64, opacity: 0.4 }}>{t.emoji}</div>
-              )}
-            </div>
-
-            {/* Attacks */}
-            {card.attack1 && (
-              <div style={{ padding: "5px 8px", borderTop: `1px solid ${t.bg}30` }}>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                  ⚔ {card.attack1} — <b style={{ color: "#ff4d6d" }}>{card.dmg1 || "—"}</b>
-                </div>
-                {card.attack2 && (
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-                    ⚔ {card.attack2} — <b style={{ color: "#ff4d6d" }}>{card.dmg2 || "—"}</b>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Type + Rarity badges */}
-            <div style={{ padding: "4px 8px", display: "flex", gap: 6, flexWrap: "wrap" }}>
-              <TypeBadge type={card.type} />
-              <RarityBadge rarity={card.rarity} />
-            </div>
-
-            {/* Market value row */}
-            {card.marketValue > 0 && (
-              <div style={{
-                margin: "4px 8px 8px", padding: "4px 8px", borderRadius: 6,
-                background: `${t.bg}0D`, display: "flex", justifyContent: "space-between", alignItems: "center",
-              }}>
-                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Piyasa Değeri</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#0d9488", fontFamily: "'Rajdhani', sans-serif" }}>
-                  ${card.marketValue.toFixed(2)}
-                </span>
-              </div>
-            )}
-
-            {/* Holographic shine overlay */}
-            <div style={{
-              position: "absolute",
-              inset: 0,
-              pointerEvents: "none",
-              zIndex: 10,
-              borderRadius: 14,
-              opacity: holoIntensity * 0.85,
-              background: `
-                radial-gradient(ellipse 80% 60% at ${holoX}% ${holoY}%, rgba(255,255,255,0.25), transparent 60%),
-                linear-gradient(${105 + (tilt.rotY % 360) * 0.5}deg, rgba(0,245,212,0.15) 0%, rgba(123,97,255,0.15) 25%, rgba(247,37,133,0.15) 50%, rgba(255,209,102,0.15) 75%, rgba(0,245,212,0.15) 100%)
-              `,
-              mixBlendMode: "screen",
-              transition: isInteracting ? "none" : "opacity 0.4s ease",
-            }} />
-          </div>
-
-          {/* BACK FACE */}
-          <div style={{
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
-            position: "absolute",
-            inset: 0,
-            borderRadius: 14,
-            overflow: "hidden",
-            border: `2px solid ${t.bg}40`,
-            background: "#c62828",
-          }}>
-            <img
-              src="https://images.pokemontcg.io/cardback.png"
-              alt="Card Back"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: 12,
-              }}
-              crossOrigin="anonymous"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Name + Info */}
-      <div style={{ padding: "16px 16px 0" }}>
+  // ─── Info Panel (shared between layouts) ───
+  const renderInfoPanel = () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>
+      {/* Name Section */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h1 style={{
-          fontFamily: "'Rajdhani', sans-serif", fontSize: 28, fontWeight: 700,
-          margin: "0 0 4px", color: "var(--text-primary)",
+          fontFamily: "'Rajdhani', sans-serif", fontSize: isDesktop ? 36 : 28,
+          fontWeight: 700, margin: 0, color: "var(--text-primary)",
         }}>{card.nameEN}</h1>
-        <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 12 }}>
-          {card.kartNo} · {card.stage}
+        <div style={{ fontSize: isDesktop ? 14 : 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>
+          {meta?.japaneseName || `${card.kartNo} · ${card.stage}`}
         </div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-          <TypeBadge type={card.type} />
+        <div style={{ display: "flex", gap: 10, marginTop: 4, alignItems: "center" }}>
           <span style={{
-            background: `${t.bg}1A`, color: t.bg, borderRadius: 6, fontWeight: 700,
-            display: "inline-flex", alignItems: "center", gap: 4,
-            padding: "4px 10px", fontSize: 12,
+            background: `${t.bg}1A`, color: t.bg, borderRadius: 6,
+            padding: "4px 12px", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
           }}>
-            HP {card.hp}
+            {card.stage || "Temel Pokemon"}
           </span>
+          {card.hp > 0 && (
+            <span style={{
+              background: `${t.bg}1A`, color: t.bg, borderRadius: 6,
+              padding: "4px 12px", fontSize: 14, fontWeight: 700, fontFamily: "'Rajdhani', sans-serif",
+              display: "inline-flex", alignItems: "center", gap: 6,
+            }}>
+              HP {card.hp}
+              <span style={{ width: 12, height: 12, borderRadius: "50%", background: t.bg, display: "inline-block" }} />
+            </span>
+          )}
         </div>
+      </div>
 
-        {/* Favorite Button */}
+      {/* Favorite Button */}
+      <div>
         <button onClick={() => onToggleFavorite(card.id)} style={{
           display: "flex", alignItems: "center", gap: 8,
-          padding: "10px 16px", borderRadius: 10, cursor: "pointer",
+          padding: "10px 20px", borderRadius: 12, cursor: "pointer",
           background: isFavorite ? "rgba(247,37,133,0.1)" : "var(--bg-elevated)",
           border: `1px solid ${isFavorite ? "rgba(247,37,133,0.3)" : "var(--border-dim)"}`,
           color: isFavorite ? "#f72585" : "var(--text-primary)",
-          fontWeight: 600, fontSize: 13, fontFamily: "'DM Sans', sans-serif",
-          transition: "all 0.2s ease", width: "100%", justifyContent: "center",
+          fontWeight: 600, fontSize: isDesktop ? 14 : 13, fontFamily: "'DM Sans', sans-serif",
+          transition: "all 0.2s ease",
         }}>
-          {isFavorite ? "♥ Favorilerden Çıkar" : "♡ Favorilere Ekle"}
+          <span style={{ fontSize: 18, color: "#f72585" }}>{isFavorite ? "♥" : "♡"}</span>
+          {isFavorite ? "Favorilerden Cikar" : "Favorilere Ekle"}
         </button>
       </div>
 
-      {/* Stats Grid */}
-      <div style={{ padding: "16px 16px 0" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {statCell("Tip", card.type)}
-          {statCell("Nadirlik", `${card.rarity} — ${rarityLabels[card.rarity] || ""}`)}
-          {statCell("Piyasa Değeri", `$${(card.marketValue || 0).toFixed(2)}`)}
-          {statCell("Kopya", `×${card.copies}`)}
-          {statCell("Zayıflık", card.weakness || "—")}
-          {statCell("Dayanıklılık", "—")}
-          {statCell("Çekilme", card.retreat || "—")}
-          {statCell("Kart No", card.kartNo)}
+      {/* Info Grid */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: isDesktop ? 16 : 10 }}>
+          <StatCard label="Tip" value={card.type} orbColor={t.bg} />
+          <StatCard label="Nadirlik" value={`${rarityLabels[card.rarity] || card.rarity} (${card.rarity})`} />
+          <StatCard label="Piyasa Degeri" value={`$${(card.marketValue || 0).toFixed(2)}`} />
+          <StatCard label="Kopya Sayisi" value={`${card.copies} adet`} />
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: isDesktop ? 16 : 10 }}>
+          <StatCard
+            label="Zayiflik"
+            value={card.weakness && card.weakness !== "-" ? card.weakness : "—"}
+            orbColor={card.weakness && card.weakness !== "-" ? (Object.entries(typeColors).find(([k]) => card.weakness.includes(k))?.[1]?.bg) : undefined}
+          />
+          <StatCard label="Dayaniklilik" value="—" />
+          <StatCard
+            label="Cekilme"
+            value={card.retreat && card.retreat !== "-" ? `${card.retreat} Enerji` : "—"}
+            orbColor={card.retreat && card.retreat !== "-" ? "#8b87a0" : undefined}
+          />
+          <StatCard label="Kart Numarasi" value={card.kartNo} />
         </div>
       </div>
+    </div>
+  );
 
-      {/* Ability */}
-      {card.ability && (
-        <div style={{ padding: "16px 16px 0" }}>
+  return (
+    <div style={{ position: "relative", zIndex: 1, background: "var(--bg-deep)", minHeight: "100vh" }}>
+      {/* ═══ HEADER ═══ */}
+      {isDesktop ? (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 14,
+          padding: "16px 28px 12px",
+          background: "var(--bg-card)",
+        }}>
+          <img
+            src={`${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`}
+            alt="Pokemon TCG"
+            style={{ height: 48, width: "auto", objectFit: "contain" }}
+            onError={(e) => { e.target.style.display = "none"; }}
+          />
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'DM Sans', sans-serif" }}>
+            <Link to="/" style={{ color: "#0d9488", fontSize: 13, fontWeight: 500, textDecoration: "none" }}>Kartlarim</Link>
+            <span style={{ color: "var(--text-muted)", fontSize: 13 }}>/</span>
+            <span style={{ color: "var(--text-primary)", fontSize: 13, fontWeight: 600 }}>Kart Detayi</span>
+          </div>
+          <div style={{ flex: 1 }} />
+          <button onClick={() => navigate(-1)} style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "8px 16px", borderRadius: 10, cursor: "pointer",
+            background: "var(--bg-elevated)", border: "1px solid var(--border-dim)",
+            color: "var(--text-primary)", fontSize: 13, fontWeight: 600,
+            fontFamily: "'DM Sans', sans-serif",
+          }}>
+            ← Kartlarima Don
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 10,
+          padding: "14px 16px",
+          background: "var(--bg-card)", borderBottom: "1px solid var(--border-dim)",
+          position: "sticky", top: 0, zIndex: 10,
+        }}>
+          <button onClick={() => navigate(-1)} style={{
+            background: "none", border: "none", cursor: "pointer",
+            fontSize: 20, color: "var(--text-primary)", padding: 0,
+          }}>←</button>
+          <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+            Kart Detayi
+          </span>
+        </div>
+      )}
+
+      {/* ═══ CONTENT ═══ */}
+      <div style={{
+        maxWidth: isDesktop ? 1200 : 480,
+        margin: "0 auto",
+        padding: pad,
+        display: "flex", flexDirection: "column",
+        gap: isDesktop ? 28 : 20,
+        paddingBottom: 100,
+      }}>
+        {/* ═══ HERO SECTION ═══ */}
+        {isDesktop ? (
+          <div style={{ display: "flex", gap: 32 }}>
+            {/* LEFT: Physical Card */}
+            <div style={{ width: 340, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+              <PhysicalCard
+                card={card} t={t} tilt={tilt} isInteracting={isInteracting}
+                holoX={holoX} holoY={holoY} holoIntensity={holoIntensity}
+                tiltMagnitude={tiltMagnitude} cardRef={cardRef} handlers={handlers}
+              />
+            </div>
+            {/* RIGHT: Info Panel */}
+            {renderInfoPanel()}
+          </div>
+        ) : (
+          <>
+            {/* Mobile: Card Showcase */}
+            <div style={{ display: "flex", justifyContent: "center", padding: "8px 0" }}>
+              <div style={{ perspective: 900, perspectiveOrigin: "50% 50%" }}>
+                <div
+                  ref={cardRef}
+                  {...handlers}
+                  style={{
+                    width: 260, height: 364,
+                    transformStyle: "preserve-3d",
+                    transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg)`,
+                    transition: isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    willChange: "transform",
+                    cursor: isInteracting ? "grabbing" : "grab",
+                    userSelect: "none", WebkitUserSelect: "none",
+                    position: "relative", borderRadius: 12,
+                    boxShadow: isInteracting
+                      ? `0 ${10 + Math.abs(tilt.rotX) * 0.5}px ${20 + tiltMagnitude * 0.8}px rgba(0,0,0,0.25), 0 0 ${20 + tiltMagnitude}px ${t.glow}`
+                      : "0 20px 50px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08), 0 0 60px " + t.glow.replace("0.35", "0.06"),
+                  }}
+                >
+                  {/* Front */}
+                  <div style={{
+                    backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+                    borderRadius: 12, overflow: "hidden", width: "100%", height: "100%",
+                    position: "relative",
+                  }}>
+                    {resolveCardImage(card) ? (
+                      <img src={resolveCardImage(card)} alt={card.nameEN}
+                        style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: 12 }}
+                        crossOrigin="anonymous" />
+                    ) : (
+                      <div style={{
+                        width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center",
+                        background: `radial-gradient(ellipse at 50% 80%, ${t.glow}, var(--bg-card) 70%)`,
+                        fontSize: 64, opacity: 0.4,
+                      }}>{t.emoji}</div>
+                    )}
+                    {/* Holo overlay */}
+                    <div style={{
+                      position: "absolute", inset: 0, pointerEvents: "none", zIndex: 10, borderRadius: 12,
+                      opacity: holoIntensity * 0.85,
+                      background: `
+                        radial-gradient(ellipse 80% 60% at ${holoX}% ${holoY}%, rgba(255,255,255,0.25), transparent 60%),
+                        linear-gradient(${105 + (tilt.rotY % 360) * 0.5}deg, rgba(0,245,212,0.15) 0%, rgba(123,97,255,0.15) 25%, rgba(247,37,133,0.15) 50%, rgba(255,209,102,0.15) 75%, rgba(0,245,212,0.15) 100%)
+                      `,
+                      mixBlendMode: "screen",
+                      transition: isInteracting ? "none" : "opacity 0.4s ease",
+                    }} />
+                  </div>
+                  {/* Back */}
+                  <div style={{
+                    backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+                    transform: "rotateY(180deg)", position: "absolute", inset: 0,
+                    borderRadius: 12, overflow: "hidden", background: "#c62828",
+                  }}>
+                    <img src="https://images.pokemontcg.io/cardback.png" alt="Card Back"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 10 }}
+                      crossOrigin="anonymous" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile: Info Panel */}
+            {renderInfoPanel()}
+          </>
+        )}
+
+        {/* ═══ ABILITY ═══ */}
+        {card.ability && (
           <div style={{
             background: "rgba(123,97,255,0.08)", border: "1px solid rgba(123,97,255,0.2)",
             padding: "12px 14px", borderRadius: 12,
@@ -403,60 +648,109 @@ export default function CardDetail({ cards, favorites, onToggleFavorite, typeCol
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>✨ Yetenek</div>
             <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{card.ability}</div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Trainer Section */}
-      {trainer && (
-        <div style={{ padding: "16px 16px 0" }}>
-          <div style={{ borderTop: "1px solid var(--border-dim)", paddingTop: 16 }}>
-            <h3 style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 20, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 10px" }}>
-              Eğitmen Bilgisi
-            </h3>
+        {/* ═══ BIO ═══ */}
+        {meta?.bio && (
+          <SectionWrapper isDesktop={isDesktop}>
+            <SectionTitle isDesktop={isDesktop}>Biyografi</SectionTitle>
+            <p style={{
+              fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
+              color: "var(--text-secondary)", fontFamily: "'DM Sans', sans-serif",
+            }}>{meta.bio}</p>
+          </SectionWrapper>
+        )}
+
+        {/* ═══ LORE ═══ */}
+        {meta?.lore && (
+          <SectionWrapper isDesktop={isDesktop}>
+            <SectionTitle isDesktop={isDesktop}>Hikaye</SectionTitle>
+            <p style={{
+              fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
+              color: "var(--text-secondary)", fontFamily: "'DM Sans', sans-serif",
+            }}>{meta.lore}</p>
+          </SectionWrapper>
+        )}
+
+        {/* ═══ TRAINER ═══ */}
+        {trainer && (
+          <SectionWrapper isDesktop={isDesktop}>
+            <SectionTitle isDesktop={isDesktop}>Egitmen Bilgisi</SectionTitle>
             <Link to={`/trainer/${card.trainer}`} style={{
-              display: "flex", alignItems: "center", gap: 12, padding: 14,
+              display: "flex", alignItems: "center", gap: isDesktop ? 14 : 12,
+              padding: isDesktop ? 16 : 14,
               background: "var(--bg-card)", border: "1px solid var(--border-dim)",
-              borderRadius: 12, textDecoration: "none",
+              borderRadius: isDesktop ? 14 : 12, textDecoration: "none",
             }}>
               {trainer.picture && (
                 <img src={`${import.meta.env.BASE_URL}${trainer.picture}`} alt={trainer.name}
-                  style={{ width: 48, height: 48, borderRadius: 24, objectFit: "cover", objectPosition: "top" }} />
+                  style={{
+                    width: isDesktop ? 56 : 48, height: isDesktop ? 56 : 48,
+                    borderRadius: isDesktop ? 28 : 24, objectFit: "cover", objectPosition: "top",
+                  }} />
               )}
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>{trainer.name}</div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{trainer.region} · {trainer.specialty}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: isDesktop ? 16 : 14, color: "var(--text-primary)", fontFamily: "'DM Sans', sans-serif" }}>{trainer.name}</div>
+                <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>{trainer.region} Bolgesi · {trainer.specialty}</div>
               </div>
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Related Cards */}
-      {sameTypeCards.length > 0 && (
-        <div style={{ padding: "16px 16px 0" }}>
-          <div style={{ borderTop: "1px solid var(--border-dim)", paddingTop: 16 }}>
-            <h3 style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 20, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 10px" }}>
-              Benzer Kartlar
-            </h3>
-            <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-              {sameTypeCards.map((c) => (
-                <Link key={c.id} to={`/card/${c.id}`} style={{
-                  flexShrink: 0, width: 100, textAlign: "center", textDecoration: "none",
-                  background: "var(--bg-card)", border: "1px solid var(--border-dim)",
-                  borderRadius: 10, padding: 8,
+              {isDesktop && (
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 4,
+                  padding: "8px 14px", borderRadius: 8,
+                  background: "rgba(13,148,136,0.1)",
+                  color: "#0d9488", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
                 }}>
-                  {resolveCardImage(c) && <img src={resolveCardImage(c)} alt={c.nameEN} style={{ width: 60, height: 60, objectFit: "contain" }} crossOrigin="anonymous" />}
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-primary)", fontFamily: "'Rajdhani', sans-serif", marginTop: 4 }}>
-                    {c.nameEN}
-                  </div>
-                </Link>
+                  ↗ Profil
+                </div>
+              )}
+            </Link>
+          </SectionWrapper>
+        )}
+
+        {/* ═══ AFFILIATIONS ═══ */}
+        {meta?.affiliations?.length > 0 && (
+          <SectionWrapper isDesktop={isDesktop}>
+            <SectionTitle isDesktop={isDesktop}>Baglantilar</SectionTitle>
+            <div style={{ display: "flex", gap: isDesktop ? 10 : 8, flexWrap: "wrap" }}>
+              {meta.affiliations.map((aff, i) => (
+                <span key={i} style={{
+                  display: "inline-flex", alignItems: "center", gap: isDesktop ? 6 : 5,
+                  padding: isDesktop ? "6px 16px" : "5px 12px",
+                  borderRadius: isDesktop ? 20 : 16,
+                  background: `${aff.color}1A`,
+                  color: aff.color, fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  {affiliationIcons[aff.icon] || "✨"} {aff.label}
+                </span>
               ))}
             </div>
-          </div>
-        </div>
-      )}
+          </SectionWrapper>
+        )}
 
-      <div style={{ height: 20 }} />
+        {/* ═══ FRIENDS ═══ */}
+        {displayFriends.length > 0 && (
+          <SectionWrapper isDesktop={isDesktop}>
+            <SectionTitle isDesktop={isDesktop}>Dostlar</SectionTitle>
+            <div style={{ display: "flex", gap: isDesktop ? 14 : 10, overflowX: "auto", paddingBottom: 4 }}>
+              {displayFriends.map((f, i) => (
+                <RelationCard key={i} card={f.card} reason={f.reason} isFoe={false} resolveImg={resolveCardImage} />
+              ))}
+            </div>
+          </SectionWrapper>
+        )}
+
+        {/* ═══ FOES ═══ */}
+        {foeCards.length > 0 && (
+          <SectionWrapper isDesktop={isDesktop}>
+            <SectionTitle isDesktop={isDesktop}>Rakipler</SectionTitle>
+            <div style={{ display: "flex", gap: isDesktop ? 14 : 10, overflowX: "auto", paddingBottom: 4 }}>
+              {foeCards.map((f, i) => (
+                <RelationCard key={i} card={f.card} reason={f.reason} isFoe={true} resolveImg={resolveCardImage} />
+              ))}
+            </div>
+          </SectionWrapper>
+        )}
+      </div>
     </div>
   );
 }

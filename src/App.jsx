@@ -712,9 +712,10 @@ function DeleteConfirmModal({ card, onConfirm, onClose }) {
         </div>
 
         <p style={{ color: "#8b87a0", fontSize: 14, marginBottom: 24 }}>
-          Bu kartı koleksiyonunuzdan silmek istediğinize emin misiniz?
-          <br />
-          <span style={{ color: "#ff4d6d", fontSize: 12 }}>Bu işlem geri alınamaz.</span>
+          {card.copies > 1
+            ? <>Bu kartın <strong style={{ color: "#e8e6f0" }}>{card.copies} kopyası</strong> var. 1 kopya silinecek.</>
+            : <>Bu kartı koleksiyonunuzdan silmek istediğinize emin misiniz?<br /><span style={{ color: "#ff4d6d", fontSize: 12 }}>Bu işlem geri alınamaz.</span></>
+          }
         </p>
 
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
@@ -1031,7 +1032,11 @@ export default function App() {
     setCompareList((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < 4 ? [...p, id] : p));
 
   const handleDeleteCard = (id) => {
-    setCards((prev) => prev.filter((c) => c.id !== id));
+    setCards((prev) =>
+      prev
+        .map((c) => c.id === id ? { ...c, copies: c.copies - 1 } : c)
+        .filter((c) => c.copies > 0)
+    );
     setDeleteTarget(null);
   };
 
