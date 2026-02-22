@@ -165,3 +165,11 @@
 - **[2026-02-22]** Native `touchmove` listener with `{ passive: false }` to prevent page scroll while dragging card on mobile
 - **[2026-02-22]** Desktop: click+drag; Mobile: touch+swipe — both supported via unified pointer tracking
 - **[2026-02-22]** Sensitivity: 0.4 deg/px — full card-width swipe ≈ 140° rotation, enough to flip to back face
+
+### Feature: 16:9 Detail Images for All Trainers
+- **[2026-02-22]** Downloaded 13 landscape/wide trainer images for detail page hero banners to `public/trainers/*-detail.png`
+- **[2026-02-22]** Images sourced from wallhaven.cc, 4kwallpapers.com, peakpx.com — all high-res (1920px+ wide), colorful anime/game artwork with scenic backgrounds
+- **[2026-02-22]** Added `detailPicture` field to all 13 trainer entries in `src/data/trainers.js` (alongside existing `picture` for circular avatars)
+- **[2026-02-22]** Updated `TrainerDetail.jsx` hero image to use `trainer.detailPicture || trainer.picture` with fallback
+- **[2026-02-22]** TrainersList.jsx unchanged — continues using `trainer.picture` for circular portrait avatars
+- **[2026-02-22]** Build verified: `npm run build` passes cleanly

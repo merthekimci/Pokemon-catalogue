@@ -53,7 +53,7 @@ export default function TrainerDetail({ cards, typeColors }) {
         }}>
           {trainer.picture && (
             <img
-              src={`${import.meta.env.BASE_URL}${trainer.picture}`}
+              src={`${import.meta.env.BASE_URL}${trainer.detailPicture || trainer.picture}`}
               alt={trainer.name}
               style={{
                 width: "100%", height: 200, objectFit: "cover", objectPosition: "top",

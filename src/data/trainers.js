@@ -7,6 +7,7 @@ export const trainers = {
     region: "Kanto",
     specialty: "Various types",
     picture: "trainers/ash-ketchum.png",
+    detailPicture: "trainers/ash-ketchum-detail.png",
   },
 
   "misty": {
@@ -17,6 +18,7 @@ export const trainers = {
     region: "Kanto",
     specialty: "Water",
     picture: "trainers/misty.png",
+    detailPicture: "trainers/misty-detail.png",
   },
 
   "brock": {
@@ -27,6 +29,7 @@ export const trainers = {
     region: "Kanto",
     specialty: "Rock / Ground",
     picture: "trainers/brock.png",
+    detailPicture: "trainers/brock-detail.png",
   },
 
   "dawn": {
@@ -37,6 +40,7 @@ export const trainers = {
     region: "Sinnoh",
     specialty: "Various types",
     picture: "trainers/dawn.png",
+    detailPicture: "trainers/dawn-detail.png",
   },
 
   "blaine": {
@@ -47,6 +51,7 @@ export const trainers = {
     region: "Kanto",
     specialty: "Fire",
     picture: "trainers/blaine.png",
+    detailPicture: "trainers/blaine-detail.png",
   },
 
   "professor-oak": {
@@ -57,6 +62,7 @@ export const trainers = {
     region: "Kanto",
     specialty: "Research",
     picture: "trainers/professor-oak.png",
+    detailPicture: "trainers/professor-oak-detail.png",
   },
 
   "cynthia": {
@@ -67,6 +73,7 @@ export const trainers = {
     region: "Sinnoh",
     specialty: "Various types",
     picture: "trainers/cynthia.png",
+    detailPicture: "trainers/cynthia-detail.png",
   },
 
   "red": {
@@ -77,6 +84,7 @@ export const trainers = {
     region: "Kanto",
     specialty: "Various types",
     picture: "trainers/red.png",
+    detailPicture: "trainers/red-detail.png",
   },
 
   "blue": {
@@ -87,6 +95,7 @@ export const trainers = {
     region: "Kanto",
     specialty: "Various types",
     picture: "trainers/blue.png",
+    detailPicture: "trainers/blue-detail.png",
   },
 
   "lance": {
@@ -97,6 +106,7 @@ export const trainers = {
     region: "Kanto / Johto",
     specialty: "Dragon",
     picture: "trainers/lance.png",
+    detailPicture: "trainers/lance-detail.png",
   },
 
   "n": {
@@ -107,6 +117,7 @@ export const trainers = {
     region: "Unova",
     specialty: "Dragon / Ideals",
     picture: "trainers/n.png",
+    detailPicture: "trainers/n-detail.png",
   },
 
   "steven-stone": {
@@ -117,6 +128,7 @@ export const trainers = {
     region: "Hoenn",
     specialty: "Steel",
     picture: "trainers/steven-stone.png",
+    detailPicture: "trainers/steven-stone-detail.png",
   },
 
   "team-rocket": {
@@ -127,5 +139,6 @@ export const trainers = {
     region: "Kanto",
     specialty: "Various types",
     picture: "trainers/team-rocket.png",
+    detailPicture: "trainers/team-rocket-detail.png",
   },
 };
