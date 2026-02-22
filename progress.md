@@ -57,3 +57,11 @@
 - **[2026-02-22]** Turkish confirmation text: "Bu kartı koleksiyonunuzdan silmek istediğinize emin misiniz?" with warning "Bu işlem geri alınamaz."
 - **[2026-02-22]** Added `@media (hover: none)` CSS rule so delete button is visible on touch devices (opacity: 0.7)
 - **[2026-02-22]** Card removal persists automatically via existing localStorage useEffect
+
+### Bugfix: Trainer Detail Page — Portraits & Turkish Translation
+- **[2026-02-22]** Fixed trainer portraits: replaced Pokemon sprite URLs with actual trainer character artwork from Bulbapedia (official Ken Sugimori / anime artwork)
+- **[2026-02-22]** Downloaded 13 trainer images to `public/trainers/` for local serving (Ash, Misty, Brock, Dawn, Blaine, Prof. Oak, Cynthia, Red, Blue, Lance, N, Steven Stone, Team Rocket)
+- **[2026-02-22]** Updated `trainers.js` picture paths to use local files with `import.meta.env.BASE_URL` prefix in TrainerDetail.jsx for GitHub Pages compatibility
+- **[2026-02-22]** Translated all 13 trainer `bio` and `lore` fields from English to Turkish
+- **[2026-02-22]** Updated `.trainer-portrait` CSS: `object-fit: cover` + `object-position: top` + `border-radius: 50%` for circular character portraits
+- **[2026-02-22]** Removed `crossOrigin="anonymous"` from trainer portrait img (no longer needed for local images)

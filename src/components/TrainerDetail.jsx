@@ -64,10 +64,9 @@ export default function TrainerDetail({ cards, typeColors }) {
       <div className="trainer-hero">
         {trainer.picture && (
           <img
-            src={trainer.picture}
+            src={`${import.meta.env.BASE_URL}${trainer.picture}`}
             alt={trainer.name}
             className="trainer-portrait"
-            crossOrigin="anonymous"
           />
         )}
 
