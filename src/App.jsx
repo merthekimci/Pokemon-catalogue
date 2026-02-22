@@ -104,7 +104,7 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
   return (
     <div
       className={`poke-card ${isSelected ? "selected" : ""}`}
-      style={{ animationDelay: `${Math.min(index * 0.04, 0.8)}s`, padding: 4 }}
+      style={{ animationDelay: `${Math.min(index * 0.04, 0.8)}s` }}
     >
       {compareMode && (
         <div style={{ position: "absolute", top: 8, left: 8, zIndex: 10 }}>
@@ -112,158 +112,172 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
         </div>
       )}
 
-      {!compareMode && onDelete && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(card); }}
-          className="card-delete-btn"
-          title="Kartı Sil"
-          style={{
-            position: "absolute", top: 8, left: 8, zIndex: 10,
-            width: 24, height: 24,
-            background: "rgba(247,37,133,0.15)",
-            border: "1px solid rgba(247,37,133,0.3)",
-            borderRadius: "50%",
-            color: "#ff4d6d",
-            fontSize: 11, fontWeight: 700,
-            cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}
-        >
-          ✕
-        </button>
-      )}
-
-      <Link to={`/card/${card.id}`} style={{ textDecoration: "none", color: "inherit" }}
+      <Link to={`/card/${card.id}`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column" }}
         onClick={() => { if (scrollRef) scrollRef.current = window.scrollY; }}>
-      <div style={{ borderRadius: 10, background: "var(--bg-card)", padding: 6, display: "flex", flexDirection: "column", gap: 3 }}>
 
-        {/* Name + HP row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 6px" }}>
-          <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 12, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 4 }}>
-            {card.nameEN}
-          </span>
-          {card.hp > 0 && (
-            <span style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
-              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: 12, color: t.bg }}>
-                HP {card.hp}
-              </span>
-              <span style={{ width: 12, height: 12, borderRadius: 3, background: t.bg, flexShrink: 0 }} />
-            </span>
-          )}
-        </div>
-
-        {/* Art frame */}
+        {/* Image area */}
         <div style={{
-          height: 120, borderRadius: 6, overflow: "hidden", position: "relative",
-          border: `1px solid ${t.bg}33`,
+          aspectRatio: "5/7", overflow: "hidden", position: "relative",
+          borderRadius: "16px 16px 0 0",
           display: "flex", justifyContent: "center", alignItems: "center",
           background: "var(--bg-elevated)",
         }}>
           {resolveCardImage(card) && !imgErr ? (
             <img src={resolveCardImage(card)} alt={card.nameEN} onError={() => setImgErr(true)}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
               crossOrigin="anonymous" />
           ) : (
             <div style={{ fontSize: 48, opacity: 0.3 }}>{t.emoji}</div>
           )}
-          {/* Copies badge */}
-          <span style={{
-            position: "absolute", top: 4, left: 4,
-            background: "rgba(255,255,255,0.87)", borderRadius: 10,
-            padding: "1px 6px", fontSize: 9, fontWeight: 700, color: "var(--text-primary)",
+          {/* Copy badge — bottom-right of image */}
+          {card.copies > 1 && (
+            <span style={{
+              position: "absolute", bottom: 8, right: 8, zIndex: 5,
+              background: "rgba(0,0,0,0.7)", color: "#fff",
+              borderRadius: 10, padding: "2px 8px",
+              fontSize: 11, fontWeight: 700,
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}>
+              x{card.copies}
+            </span>
+          )}
+        </div>
+
+        {/* Info section */}
+        <div style={{
+          padding: "10px 14px 14px",
+          borderTop: `1px solid ${t.bg}33`,
+          display: "flex", flexDirection: "column", gap: 6,
+        }}>
+          {/* Name row */}
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span style={{
+              fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 15,
+              color: "var(--text-primary)",
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              flex: 1,
+            }}>
+              {card.nameEN}
+            </span>
+          </div>
+
+          {/* Trainer link — always occupies a row */}
+          <div style={{ fontSize: 11, lineHeight: "1.4", minHeight: 16 }}>
+            {trainer && card.trainer ? (
+              <Link
+                to={`/trainer/${card.trainer}`}
+                onClick={(e) => { e.stopPropagation(); if (scrollRef) scrollRef.current = window.scrollY; }}
+                style={{
+                  fontFamily: "'DM Sans', sans-serif", fontWeight: 400,
+                  color: "var(--accent)", textDecoration: "none",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  display: "block",
+                }}
+              >
+                {trainer.name}
+              </Link>
+            ) : null}
+          </div>
+
+          {/* Badges row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{
+              fontSize: 11, fontWeight: 700, color: "#fff",
+              background: t.bg, borderRadius: 20, padding: "3px 10px",
+            }}>
+              {card.type}
+            </span>
+            <span style={{
+              fontSize: 11, fontWeight: 700, color: "#fff",
+              background: rarityColors[card.rarity] || "#5a566e",
+              borderRadius: 20, padding: "3px 10px",
+            }}>
+              {card.rarity}
+            </span>
+            <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: "auto" }}>
+              {card.kartNo}
+            </span>
+          </div>
+
+          {/* HP row */}
+          {card.hp > 0 && (
+            <div style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              background: "rgba(0,245,212,0.05)",
+              border: "1px solid rgba(0,245,212,0.15)",
+              borderRadius: 8, padding: "6px 10px",
+            }}>
+              <span style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", color: "var(--text-muted)" }}>HP</span>
+              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 13, fontWeight: 700, color: "var(--holo-1)" }}>
+                {card.hp}
+              </span>
+            </div>
+          )}
+
+          {/* Market value row — always occupies a row */}
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            background: card.marketValue > 0 ? "rgba(0,245,212,0.05)" : "transparent",
+            border: card.marketValue > 0 ? "1px solid rgba(0,245,212,0.15)" : "1px solid transparent",
+            borderRadius: 8, padding: "6px 10px",
+            minHeight: 31,
           }}>
-            ×{card.copies}
-          </span>
-          {/* Favorite heart */}
+            {card.marketValue > 0 ? (
+              <>
+                <span style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", color: "var(--text-muted)" }}>Piyasa Değeri</span>
+                <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 13, fontWeight: 700, color: "var(--holo-1)" }}>
+                  ${card.marketValue.toFixed(2)}
+                </span>
+              </>
+            ) : null}
+          </div>
+        </div>
+
+      </Link>
+
+      {/* Action bar — favorite + delete */}
+      {(onToggleFavorite || (!compareMode && onDelete)) && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "8px 14px 12px",
+          borderTop: "1px solid rgba(255,255,255,0.05)",
+        }}>
           {onToggleFavorite && (
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(card.id); }}
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite(card.id); }}
               style={{
-                position: "absolute", top: 4, right: 4,
-                width: 22, height: 22, borderRadius: 12,
-                background: isFav ? "rgba(247,37,133,0.13)" : "rgba(255,255,255,0.87)",
-                border: "none", cursor: "pointer",
+                flex: 1,
+                background: isFav ? "rgba(247,37,133,0.15)" : "rgba(255,255,255,0.04)",
+                border: isFav ? "1px solid rgba(247,37,133,0.35)" : "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 8, padding: "6px 0",
+                color: isFav ? "#f72585" : "#c0bdd0",
+                fontSize: 14, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 12, color: isFav ? "#f72585" : "#c0bdd0",
-                padding: 0,
               }}
             >
               {isFav ? "♥" : "♡"}
             </button>
           )}
-        </div>
-
-        {/* Trainer + kartNo row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 6px" }}>
-          {trainer && card.trainer ? (
-            <Link
-              to={`/trainer/${card.trainer}`}
-              onClick={(e) => { e.stopPropagation(); if (scrollRef) scrollRef.current = window.scrollY; }}
-              style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "none" }}
+          {!compareMode && onDelete && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(card); }}
+              className="card-delete-btn"
+              title="Kartı Sil"
+              style={{
+                flex: 1,
+                background: "rgba(247,37,133,0.07)",
+                border: "1px solid rgba(247,37,133,0.2)",
+                borderRadius: 8, padding: "6px 0",
+                color: "#ff4d6d",
+                fontSize: 12, fontWeight: 700, cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
             >
-              {trainer.name}
-            </Link>
-          ) : (
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)" }}>—</span>
+              ✕
+            </button>
           )}
-          <span style={{ fontSize: 8, color: "var(--text-muted)", flexShrink: 0 }}>{card.kartNo}</span>
         </div>
-
-        {/* Attack section */}
-        {card.attack1 && (
-          <div style={{ padding: "3px 6px", borderTop: "1px solid var(--card-section-border)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 2, background: t.bg, flexShrink: 0 }} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-primary)", flex: 1 }}>{card.attack1}</span>
-              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 14, fontWeight: 800, color: "var(--text-primary)" }}>{card.dmg1 || "—"}</span>
-            </div>
-            {card.attack2 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
-                <span style={{ width: 10, height: 10, borderRadius: 2, background: t.bg, flexShrink: 0 }} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-primary)", flex: 1 }}>{card.attack2}</span>
-                <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 14, fontWeight: 800, color: "var(--text-primary)" }}>{card.dmg2 || "—"}</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Footer: weakness + retreat */}
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 6px", borderTop: "1px solid var(--card-section-border)" }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            <span style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "lowercase" }}>zayıflık</span>
-            <span style={{ fontSize: 9, fontWeight: 600, color: "var(--text-secondary)" }}>{card.weakness || "—"}</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-            <span style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "lowercase" }}>çekilme</span>
-            <span style={{ fontSize: 9, fontWeight: 600, color: "var(--text-secondary)" }}>{card.retreat || "—"}</span>
-          </div>
-        </div>
-
-        {/* Badge row */}
-        <div style={{ display: "flex", gap: 4, padding: "2px 6px" }}>
-          <span style={{ fontSize: 8, fontWeight: 700, color: "#fff", background: t.bg, borderRadius: 8, padding: "1px 6px" }}>
-            {card.type}
-          </span>
-          <span style={{ fontSize: 8, fontWeight: 700, color: "#fff", background: rarityColors[card.rarity] || "#5a566e", borderRadius: 8, padding: "1px 6px" }}>
-            {card.rarity}
-          </span>
-        </div>
-
-        {/* Market value */}
-        {card.marketValue > 0 && (
-          <div style={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            background: "var(--bg-elevated)", borderRadius: 6, padding: "3px 6px",
-          }}>
-            <span style={{ fontSize: 9, color: "var(--text-muted)" }}>Piyasa Değeri</span>
-            <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 10, fontWeight: 700, color: "var(--text-primary)" }}>
-              ${card.marketValue.toFixed(2)}
-            </span>
-          </div>
-        )}
-
-      </div>
-      </Link>
+      )}
     </div>
   );
 }
@@ -346,6 +360,15 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
   const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [expandedIdx, setExpandedIdx] = useState(null);
+  const [imgErrs, setImgErrs] = useState({});
+
+  const resolveReviewCardImage = (card) => {
+    const fromMap = resolveCardImage(card);
+    if (fromMap) return fromMap;
+    const num = card.kartNo?.split("/")?.[0]?.trim();
+    if (!num || isNaN(+num)) return "";
+    return `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png`;
+  };
 
   const handleFile = (file) => {
     if (!file || !file.type.startsWith("image/")) {
@@ -506,77 +529,129 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
         {phase === "review" && (
           <>
             <div style={{ color: "#8b87a0", fontSize: 13, marginBottom: 14 }}>
-              {extractedCards.length} kart bulundu. Bilgileri kontrol edip duzenleyebilirsiniz.
+              {extractedCards.length} kart bulundu. Eklemek istediklerinizi onaylayın, istemeyenleri reddedin.
             </div>
             <div style={{ maxHeight: "55vh", overflowY: "auto", paddingRight: 4 }}>
-              {extractedCards.map((card, idx) => (
-                <div key={idx} className="review-card-row">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <span style={{ fontWeight: 700, color: "#e8e6f0", fontFamily: "'Rajdhani', sans-serif", fontSize: 16 }}>
-                      #{idx + 1} {card.nameEN || "—"}
-                    </span>
-                    <button className="btn-danger" style={{ padding: "4px 10px", fontSize: 11 }} onClick={() => removeCard(idx)}>&#x2715;</button>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-                    <div>
-                      <label style={lbl}>Ad</label>
-                      <input className="holo-input" style={{ width: "100%" }} value={card.nameEN} onChange={(e) => updateCard(idx, "nameEN", e.target.value)} />
-                    </div>
-                    <div>
-                      <label style={lbl}>Tur</label>
-                      <select className="holo-select" style={{ width: "100%" }} value={card.type} onChange={(e) => updateCard(idx, "type", e.target.value)}>
-                        {Object.keys(typeColors).map((t) => <option key={t}>{t}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label style={lbl}>HP</label>
-                      <input className="holo-input" style={{ width: "100%" }} type="number" value={card.hp} onChange={(e) => updateCard(idx, "hp", e.target.value)} />
-                    </div>
-                    <div>
-                      <label style={lbl}>Nadirlik</label>
-                      <select className="holo-select" style={{ width: "100%" }} value={card.rarity} onChange={(e) => updateCard(idx, "rarity", e.target.value)}>
-                        {Object.entries(rarityLabels).map(([k, v]) => <option key={k} value={k}>{k} - {v}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label style={lbl}>Asama</label>
-                      <select className="holo-select" style={{ width: "100%" }} value={card.stage} onChange={(e) => updateCard(idx, "stage", e.target.value)}>
-                        {["Temel", "1. Aşama", "2. Aşama", "Mega ex", "Temel ex", "Destekçi", "Eşya", "Araç", "Stadyum"].map((v) => <option key={v}>{v}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label style={lbl}>Kart No</label>
-                      <input className="holo-input" style={{ width: "100%" }} value={card.kartNo} onChange={(e) => updateCard(idx, "kartNo", e.target.value)} />
-                    </div>
-                  </div>
-                  <div style={{ marginTop: 8 }}>
-                    <button
-                      className="btn-glow"
-                      style={{ padding: "4px 12px", fontSize: 11 }}
-                      onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
-                    >
-                      {expandedIdx === idx ? "▲ Detaylari Gizle" : "▼ Detaylar"}
-                    </button>
-                    {expandedIdx === idx && (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
-                        {[["Saldiri 1", "attack1"], ["Hasar 1", "dmg1"], ["Saldiri 2", "attack2"], ["Hasar 2", "dmg2"],
-                          ["Zayiflik", "weakness"], ["Cekilme", "retreat"], ["Yetenek", "ability"],
-                        ].map(([l, k]) => (
-                          <div key={k}><label style={lbl}>{l}</label>
-                            <input className="holo-input" style={{ width: "100%" }} value={card[k]} onChange={(e) => updateCard(idx, k, e.target.value)} />
-                          </div>
-                        ))}
-                        <div><label style={lbl}>Kopya</label>
-                          <input className="holo-input" style={{ width: "100%" }} type="number" value={card.copies} onChange={(e) => updateCard(idx, "copies", e.target.value)} />
+              {extractedCards.map((card, idx) => {
+                const t = typeColors[card.type] || typeColors["Normal"];
+                const imgSrc = resolveReviewCardImage(card);
+                return (
+                  <div key={idx} className="review-card-row">
+                    {/* Approve/reject header row with card image */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      {/* Card image */}
+                      <div style={{
+                        width: 64, flexShrink: 0,
+                        aspectRatio: "5/7",
+                        borderRadius: 8,
+                        overflow: "hidden",
+                        background: "var(--bg-elevated)",
+                        display: "flex", justifyContent: "center", alignItems: "center",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                      }}>
+                        {imgSrc && !imgErrs[idx] ? (
+                          <img
+                            src={imgSrc}
+                            alt={card.nameEN}
+                            crossOrigin="anonymous"
+                            onError={() => setImgErrs((prev) => ({ ...prev, [idx]: true }))}
+                            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                          />
+                        ) : (
+                          <div style={{ fontSize: 28, opacity: 0.3 }}>{t.emoji}</div>
+                        )}
+                      </div>
+                      {/* Card info */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, color: "#e8e6f0", fontFamily: "'Rajdhani', sans-serif", fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {card.nameEN || "—"}
                         </div>
-                        <div><label style={lbl}>Piyasa Degeri (USD)</label>
-                          <input className="holo-input" style={{ width: "100%" }} type="number" step="0.01" value={card.marketValue} onChange={(e) => updateCard(idx, "marketValue", e.target.value)} placeholder="0.00" />
+                        <div style={{ color: "#8b87a0", fontSize: 12, marginTop: 2 }}>{card.kartNo || "—"}</div>
+                        <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+                          <span style={{ background: t.bg, color: t.text, fontSize: 10, fontWeight: 700, borderRadius: 6, padding: "2px 7px" }}>{card.type}</span>
+                          {card.rarity && <span style={{ background: "rgba(255,255,255,0.08)", color: "#c4bfda", fontSize: 10, fontWeight: 700, borderRadius: 6, padding: "2px 7px" }}>{card.rarity}</span>}
+                          {card.hp > 0 && <span style={{ background: "rgba(255,255,255,0.05)", color: "#8b87a0", fontSize: 10, borderRadius: 6, padding: "2px 7px" }}>HP {card.hp}</span>}
                         </div>
                       </div>
-                    )}
+                      {/* Approve / Reject */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 8, padding: "5px 10px" }}>
+                          <span style={{ color: "#10b981", fontSize: 13, fontWeight: 700 }}>&#x2713;</span>
+                          <span style={{ color: "#10b981", fontSize: 11, fontWeight: 600 }}>Onayla</span>
+                        </div>
+                        <button
+                          className="btn-danger"
+                          style={{ padding: "5px 10px", fontSize: 11, display: "flex", alignItems: "center", gap: 6 }}
+                          onClick={() => removeCard(idx)}
+                        >
+                          <span>&#x2715;</span> Reddet
+                        </button>
+                      </div>
+                    </div>
+                    {/* Collapsible edit fields */}
+                    <div style={{ marginTop: 10 }}>
+                      <button
+                        className="btn-glow"
+                        style={{ padding: "4px 12px", fontSize: 11 }}
+                        onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+                      >
+                        {expandedIdx === idx ? "▲ Düzenlemeyi Gizle" : "▼ Düzenle"}
+                      </button>
+                      {expandedIdx === idx && (
+                        <div style={{ marginTop: 10 }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 }}>
+                            <div>
+                              <label style={lbl}>Ad</label>
+                              <input className="holo-input" style={{ width: "100%" }} value={card.nameEN} onChange={(e) => updateCard(idx, "nameEN", e.target.value)} />
+                            </div>
+                            <div>
+                              <label style={lbl}>Tür</label>
+                              <select className="holo-select" style={{ width: "100%" }} value={card.type} onChange={(e) => updateCard(idx, "type", e.target.value)}>
+                                {Object.keys(typeColors).map((t) => <option key={t}>{t}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label style={lbl}>HP</label>
+                              <input className="holo-input" style={{ width: "100%" }} type="number" value={card.hp} onChange={(e) => updateCard(idx, "hp", e.target.value)} />
+                            </div>
+                            <div>
+                              <label style={lbl}>Nadirlik</label>
+                              <select className="holo-select" style={{ width: "100%" }} value={card.rarity} onChange={(e) => updateCard(idx, "rarity", e.target.value)}>
+                                {Object.entries(rarityLabels).map(([k, v]) => <option key={k} value={k}>{k} - {v}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label style={lbl}>Aşama</label>
+                              <select className="holo-select" style={{ width: "100%" }} value={card.stage} onChange={(e) => updateCard(idx, "stage", e.target.value)}>
+                                {["Temel", "1. Aşama", "2. Aşama", "Mega ex", "Temel ex", "Destekçi", "Eşya", "Araç", "Stadyum"].map((v) => <option key={v}>{v}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label style={lbl}>Kart No</label>
+                              <input className="holo-input" style={{ width: "100%" }} value={card.kartNo} onChange={(e) => updateCard(idx, "kartNo", e.target.value)} />
+                            </div>
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                            {[["Saldırı 1", "attack1"], ["Hasar 1", "dmg1"], ["Saldırı 2", "attack2"], ["Hasar 2", "dmg2"],
+                              ["Zayıflık", "weakness"], ["Çekilme", "retreat"], ["Yetenek", "ability"],
+                            ].map(([l, k]) => (
+                              <div key={k}><label style={lbl}>{l}</label>
+                                <input className="holo-input" style={{ width: "100%" }} value={card[k]} onChange={(e) => updateCard(idx, k, e.target.value)} />
+                              </div>
+                            ))}
+                            <div><label style={lbl}>Kopya</label>
+                              <input className="holo-input" style={{ width: "100%" }} type="number" value={card.copies} onChange={(e) => updateCard(idx, "copies", e.target.value)} />
+                            </div>
+                            <div><label style={lbl}>Piyasa Değeri (USD)</label>
+                              <input className="holo-input" style={{ width: "100%" }} type="number" step="0.01" value={card.marketValue} onChange={(e) => updateCard(idx, "marketValue", e.target.value)} placeholder="0.00" />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             {error && (
               <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(247,37,133,0.1)", border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10, color: "#ff4d6d", fontSize: 13 }}>
@@ -801,68 +876,77 @@ function BottomTabBar({ onAddClick }) {
     border: "none", textDecoration: "none", position: "relative",
     transition: "color 0.2s ease", fontFamily: "'DM Sans', sans-serif",
     fontSize: 10, fontWeight: 600,
-    color: active ? "#0d9488" : "#8b87a0",
+    color: active ? "var(--holo-1)" : "var(--text-secondary)",
     height: "100%",
   });
 
-  const indicator = (
-    <span style={{
-      width: 28, height: 2,
-      background: "#0d9488", borderRadius: 2, flexShrink: 0,
-    }} />
-  );
-
-  /* Simple SVG icons matching lucide design */
-  const iconChart = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>;
   const iconLayers = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
-  const iconPlus = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>;
-  const iconUsers = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
-  const iconSettings = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+  const iconChart = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>;
+  const iconUsers = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 1-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+  const iconSettings = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
 
   return (
     <nav className="bottom-tab-bar" style={{
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
-      height: 60, display: "flex", alignItems: "stretch",
+      height: 60, display: "flex", alignItems: "center",
       justifyContent: "space-around",
-      background: "#ffffffEB",
-      borderTop: "1px solid #e0dfe8",
+      background: "#0e0d14EB",
+      borderTop: "1px solid rgba(255,255,255,0.08)",
     }}>
       <Link to="/ozet" style={tabStyle(isOzet)}>
-        {iconChart(isOzet ? "#0d9488" : "#8b87a0")}
+        {iconChart(isOzet ? "var(--holo-1)" : "var(--text-secondary)")}
         <span>Özet</span>
-        {isOzet && indicator}
+        {isOzet && <span style={{ width: 28, height: 2, background: "var(--holo-1)", borderRadius: 2 }} />}
       </Link>
 
       <Link to="/" style={tabStyle(isHome)}>
-        {iconLayers(isHome ? "#0d9488" : "#8b87a0")}
+        {iconLayers(isHome ? "var(--holo-1)" : "var(--text-secondary)")}
         <span>Kartlarım</span>
-        {isHome && indicator}
+        {isHome && <span style={{ width: 28, height: 2, background: "var(--holo-1)", borderRadius: 2 }} />}
       </Link>
 
       <button onClick={onAddClick} style={{
         ...tabStyle(false),
-        color: "#00f5d4",
+        color: "transparent",
       }}>
-        {iconPlus("#00f5d4")}
-        <span>Kart Ekle</span>
+        <div style={{
+          width: 44, height: 44, borderRadius: 22,
+          background: "linear-gradient(135deg, #00c896, #00f5d4)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 4px 20px rgba(0,245,212,0.35)",
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#07060b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>
+          </svg>
+        </div>
       </button>
 
       <Link to="/egitmenler" style={tabStyle(isTrainers)}>
-        {iconUsers(isTrainers ? "#0d9488" : "#8b87a0")}
+        {iconUsers(isTrainers ? "var(--holo-1)" : "var(--text-secondary)")}
         <span>Eğitmenler</span>
-        {isTrainers && indicator}
+        {isTrainers && <span style={{ width: 28, height: 2, background: "var(--holo-1)", borderRadius: 2 }} />}
       </Link>
 
       <Link to="/ayarlar" style={tabStyle(isSettings)}>
-        {iconSettings(isSettings ? "#0d9488" : "#8b87a0")}
+        {iconSettings(isSettings ? "var(--holo-1)" : "var(--text-secondary)")}
         <span>Ayarlar</span>
-        {isSettings && indicator}
+        {isSettings && <span style={{ width: 28, height: 2, background: "var(--holo-1)", borderRadius: 2 }} />}
       </Link>
     </nav>
   );
 }
 
 /* ── Main App ── */
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+}
 
 function CatalogueView({ scrollRef, children }) {
   useEffect(() => {
@@ -891,7 +975,10 @@ export default function App() {
   const [theme, setTheme] = useState(loadTheme);
   const [ownerName, setOwnerName] = useState(loadOwner);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showSort, setShowSort] = useState(false);
   const scrollRef = useRef(0);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); } catch (_) {}
@@ -972,90 +1059,276 @@ export default function App() {
   const catalogueContent = (
     <>
       {/* Header */}
-      <div style={{
+      <div className="catalogue-header" style={{
         position: "sticky", top: 0, zIndex: 10,
-        background: "var(--bg-card)",
-        borderBottom: "1px solid var(--border-dim)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px 10px" }}>
-          <img src={TCG_LOGO} alt="Pokémon TCG" style={{ height: 28, width: "auto" }} />
-        </div>
-        <div className="type-filter-row" style={{ display: "flex", gap: 6, padding: "0 16px 10px", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-          {Object.entries(stats.types).sort((a, b) => b[1] - a[1]).map(([type, count]) => {
-            const isActive = typeFilter === type;
-            return (
-              <span key={type} className={`type-chip ${isActive ? "active" : ""}`}
-                onClick={() => setTypeFilter(typeFilter === type ? "Tümü" : type)}
-                style={{
-                  flexShrink: 0,
-                  background: isActive ? "#0d948815" : "var(--bg-elevated)",
-                  color: isActive ? "#0d9488" : "var(--text-secondary)",
-                  borderColor: isActive ? "#0d948850" : "var(--border-dim)",
-                  border: `1px solid ${isActive ? "#0d948850" : "var(--border-dim)"}`,
-                  borderRadius: 20, padding: "4px 10px", fontSize: 11, fontWeight: isActive ? 600 : 500,
-                  cursor: "pointer",
-                }}>
-                {type} ({count})
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: isMobile ? "14px 16px 10px" : "16px 28px 12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 10 : 14 }}>
+            <img
+              src={TCG_LOGO}
+              alt="Pokemon TCG"
+              style={{ height: isMobile ? 28 : 36, width: "auto", flexShrink: 0 }}
+            />
+            <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 1 : 2 }}>
+              <span style={{
+                fontFamily: "'Rajdhani', sans-serif", fontSize: isMobile ? 20 : 26, fontWeight: 700,
+                color: "var(--text-primary)", lineHeight: 1.1,
+              }}>
+                Pokemon Kart Kataloğu
               </span>
-            );
-          })}
+              <span style={{
+                fontSize: isMobile ? 10 : 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 400,
+                color: "var(--text-muted)",
+              }}>
+                {isMobile
+                  ? `${stats.total} tekil  ·  ${stats.copies} kopya  ·  $${stats.totalValue.toFixed(2)}`
+                  : `${stats.total} tekil kart  ·  ${stats.copies} toplam kopya  ·  Max HP: ${stats.maxHP}  ·  Koleksiyon Değeri: $${stats.totalValue.toFixed(2)}`
+                }
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Controls */}
-      <div style={{
-        display: "flex", gap: 8, alignItems: "center",
-        padding: "8px 16px",
-        background: "var(--bg-card)",
-        borderBottom: "1px solid var(--border-dim)",
+      {/* Control Bar */}
+      <div className="catalogue-control-bar" style={{
+        display: "flex", gap: isMobile ? 8 : 10, alignItems: "center",
+        padding: isMobile ? "8px 16px" : "10px 28px",
       }}>
-        <input className="holo-input" placeholder="&#x1F50D; Kart ara..." value={search}
-          onChange={(e) => setSearch(e.target.value)} style={{ flex: 1, height: 36, padding: "0 12px", fontSize: 12 }} />
+        {/* Search input — fixed small width */}
+        <div style={{
+          width: 140,
+          height: isMobile ? 36 : 38,
+          background: "var(--bg-elevated)", borderRadius: 10,
+          border: "1px solid rgba(255,255,255,0.06)",
+          display: "flex", alignItems: "center", gap: 6,
+          padding: "0 12px",
+          flexShrink: 0,
+        }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Ara..."
+            style={{
+              background: "transparent", border: "none", outline: "none",
+              color: "var(--text-primary)", fontSize: isMobile ? 12 : 13, fontFamily: "'DM Sans', sans-serif",
+              width: "100%",
+            }}
+          />
+        </div>
+
+        {/* Filters button */}
         <button
-          onClick={() => setShowFavoritesOnly((f) => !f)}
-          title="Yalnızca Favoriler"
+          onClick={() => { setShowFilters(f => !f); setShowSort(false); }}
+          title="Filtrele"
           style={{
-            width: 36, height: 36, borderRadius: 10, border: "1px solid var(--border-subtle)",
-            background: showFavoritesOnly ? "rgba(247,37,133,0.12)" : "var(--bg-elevated)",
+            height: isMobile ? 36 : 38,
+            background: showFilters ? "rgba(123,97,255,0.15)" : "var(--bg-elevated)",
+            borderRadius: 10,
+            border: `1px solid ${showFilters ? "rgba(123,97,255,0.4)" : "rgba(255,255,255,0.06)"}`,
+            display: "flex", alignItems: "center", gap: isMobile ? 0 : 6,
+            padding: isMobile ? "0 10px" : "0 14px",
+            cursor: "pointer", flexShrink: 0,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showFilters ? "#c4b5fd" : "var(--text-primary)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/>
+            <circle cx="12" cy="4" r="2"/><line x1="21" y1="12" x2="12" y2="12"/>
+            <line x1="8" y1="12" x2="3" y2="12"/><circle cx="10" cy="12" r="2"/>
+            <line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/>
+            <circle cx="14" cy="20" r="2"/>
+          </svg>
+          {!isMobile && (
+            <span style={{ fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: showFilters ? "#c4b5fd" : "var(--text-primary)" }}>
+              Filtrele
+            </span>
+          )}
+        </button>
+
+        {/* Sort button */}
+        {(() => {
+          const sortActive = showSort;
+          return (
+            <button
+              onClick={() => { setShowSort(s => !s); setShowFilters(false); }}
+              title="Sırala"
+              style={{
+                height: isMobile ? 36 : 38,
+                background: sortActive ? "rgba(123,97,255,0.15)" : "var(--bg-elevated)",
+                borderRadius: 10,
+                border: `1px solid ${sortActive ? "rgba(123,97,255,0.4)" : "rgba(255,255,255,0.06)"}`,
+                display: "flex", alignItems: "center", gap: isMobile ? 0 : 6,
+                padding: isMobile ? "0 10px" : "0 14px",
+                cursor: "pointer", flexShrink: 0,
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={sortActive ? "#c4b5fd" : "var(--text-primary)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 8L7 4L11 8"/><line x1="7" y1="4" x2="7" y2="20"/>
+                <path d="M21 16L17 20L13 16"/><line x1="17" y1="20" x2="17" y2="4"/>
+              </svg>
+              {!isMobile && (
+                <span style={{ fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: sortActive ? "#c4b5fd" : "var(--text-primary)" }}>
+                  Sırala
+                </span>
+              )}
+            </button>
+          );
+        })()}
+
+        {/* Favorites button */}
+        <button
+          onClick={() => setShowFavoritesOnly(v => !v)}
+          title={showFavoritesOnly ? "Tüm kartlar" : "Sadece favoriler"}
+          style={{
+            width: isMobile ? 36 : 38,
+            height: isMobile ? 36 : 38,
+            background: showFavoritesOnly ? "rgba(255,80,120,0.15)" : "var(--bg-elevated)",
+            borderRadius: 10,
+            border: `1px solid ${showFavoritesOnly ? "rgba(255,80,120,0.4)" : "rgba(255,255,255,0.06)"}`,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, color: "#f72585", flexShrink: 0,
+            flexShrink: 0,
           }}
         >
-          ♥
+          {showFavoritesOnly ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff5078" stroke="#ff5078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          )}
         </button>
-        <button
-          onClick={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
-          title={`Sırala: ${sortDir === "asc" ? "Artan" : "Azalan"}`}
-          style={{
-            width: 36, height: 36, borderRadius: 10, border: "1px solid var(--border-subtle)",
-            background: "var(--bg-elevated)", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, color: "var(--text-primary)", flexShrink: 0,
-          }}
-        >
-          ↕
-        </button>
-        <button
-          onClick={() => {
-            const rarities = ["Tümü", ...Object.keys(rarityLabels)];
-            const idx = rarities.indexOf(rarityFilter);
-            setRarityFilter(rarities[(idx + 1) % rarities.length]);
-          }}
-          title={`Filtre: ${rarityFilter === "Tümü" ? "Tümü" : rarityFilter}`}
-          style={{
-            width: 36, height: 36, borderRadius: 10, border: "1px solid var(--border-subtle)",
-            background: rarityFilter !== "Tümü" ? "rgba(13,148,136,0.12)" : "var(--bg-elevated)",
-            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, color: rarityFilter !== "Tümü" ? "#0d9488" : "var(--text-primary)", flexShrink: 0,
-          }}
-        >
-          ☰
-        </button>
+
+        <div style={{ flex: 1 }} />
+
+        {!isMobile && (
+          <button
+            onClick={() => { setCompareMode(!compareMode); if (compareMode && compareList.length >= 2) setShowCompare(true); }}
+            style={{
+              background: compareMode ? "rgba(123,97,255,0.15)" : "var(--bg-elevated)",
+              borderRadius: 10,
+              border: `1px solid ${compareMode ? "rgba(123,97,255,0.4)" : "rgba(255,255,255,0.1)"}`,
+              display: "flex", alignItems: "center", gap: 6, padding: "9px 18px",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={compareMode ? "#c4b5fd" : "var(--text-primary)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="m16 16 3.5 3.5"/><path d="M9.5 6.5 21 18v3h-3L6.5 9.5"/>
+              <path d="M11 5l-6 6"/><path d="m8 8-3.5-3.5"/>
+            </svg>
+            <span style={{ fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: compareMode ? "#c4b5fd" : "var(--text-primary)" }}>
+              Karşılaştır
+            </span>
+          </button>
+        )}
+        {!isMobile && (
+          <button
+            onClick={() => setShowAdd(true)}
+            style={{
+              borderRadius: 10, border: "none",
+              background: "linear-gradient(135deg, #00c896, #00f5d4)",
+              display: "flex", alignItems: "center", gap: 6, padding: "9px 20px",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#07060b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>
+            </svg>
+            <span style={{ fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: "#07060b" }}>
+              Fotoğraf ile Ekle
+            </span>
+          </button>
+        )}
       </div>
+
+      {/* Filter Panel */}
+      {showFilters && (
+        <div style={{
+          padding: isMobile ? "12px 16px" : "14px 28px",
+          background: "var(--bg-card)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap",
+        }}>
+          {/* Rarity dropdown */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}>Nadirlik</span>
+            <select
+              value={rarityFilter}
+              onChange={e => setRarityFilter(e.target.value)}
+              className="holo-select"
+              style={{ height: 34, fontSize: 13, fontFamily: "'DM Sans', sans-serif", borderRadius: 8, padding: "0 10px" }}
+            >
+              <option value="Tümü">Tümü</option>
+              {Object.keys(rarityLabels).map(r => (
+                <option key={r} value={r}>{rarityLabels[r]}</option>
+              ))}
+            </select>
+          </div>
+          {/* Type dropdown */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}>Tip</span>
+            <select
+              value={typeFilter}
+              onChange={e => setTypeFilter(e.target.value)}
+              className="holo-select"
+              style={{ height: 34, fontSize: 13, fontFamily: "'DM Sans', sans-serif", borderRadius: 8, padding: "0 10px" }}
+            >
+              <option value="Tümü">Tümü</option>
+              {Object.entries(stats.types).sort((a, b) => b[1] - a[1]).map(([type, count]) => (
+                <option key={type} value={type}>{type} ({count})</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      {/* Sort Panel */}
+      {showSort && (
+        <div style={{
+          padding: isMobile ? "12px 16px" : "14px 28px",
+          background: "var(--bg-card)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap",
+        }}>
+          <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>Sırala:</span>
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            className="holo-select"
+            style={{ height: 34, fontSize: 13, fontFamily: "'DM Sans', sans-serif", borderRadius: 8, padding: "0 10px" }}
+          >
+            <option value="rarity">Nadirlik</option>
+            <option value="hp">HP</option>
+            <option value="nameEN">İsim</option>
+            <option value="marketValue">Değer</option>
+          </select>
+          <button
+            onClick={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
+            title={sortDir === "asc" ? "Artan" : "Azalan"}
+            style={{
+              width: 34, height: 34, borderRadius: 8,
+              background: "var(--bg-elevated)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform: sortDir === "asc" ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }}>
+              <path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>
+            </svg>
+          </button>
+          <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>
+            {sortDir === "asc" ? "Artan" : "Azalan"}
+          </span>
+        </div>
+      )}
 
       {/* Card Grid */}
-      <div style={{ position: "relative", zIndex: 1, padding: "14px 16px", background: "var(--bg-deep)", minHeight: "100vh" }}>
-        <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 10 }}>
+      <div style={{ position: "relative", zIndex: 1, padding: isMobile ? "12px 16px" : "20px 28px", background: "var(--bg-deep)", minHeight: "100vh" }}>
+        <div style={{ fontSize: isMobile ? 11 : 12, fontFamily: "'DM Sans', sans-serif", color: "var(--text-muted)", marginBottom: isMobile ? 14 : 16 }}>
           {filtered.length} kart gösteriliyor
         </div>
         {filtered.length === 0 ? (
@@ -1078,7 +1351,7 @@ export default function App() {
           </div>
         ) : (
           <div className="card-grid" style={{
-            display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px 10px",
+            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: isMobile ? 12 : 18,
           }}>
             {filtered.map((c, i) => (
               <CardTile key={c.id} card={c} compareMode={compareMode}
