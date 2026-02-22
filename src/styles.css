@@ -1,0 +1,434 @@
+/* ═══════════════════════════════════════════════════
+   HOLOGRAPHIC COLLECTOR — Dark Premium Theme
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  --bg-deep: #07060b;
+  --bg-surface: #0e0d14;
+  --bg-card: #13121a;
+  --bg-elevated: #1a1825;
+  --bg-glass: rgba(18, 16, 28, 0.72);
+
+  --border-dim: rgba(255, 255, 255, 0.06);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-glow: rgba(255, 255, 255, 0.15);
+
+  --text-primary: #e8e6f0;
+  --text-secondary: #8b87a0;
+  --text-muted: #5a566e;
+
+  --holo-1: #00f5d4;
+  --holo-2: #7b61ff;
+  --holo-3: #f72585;
+  --holo-4: #ffd166;
+
+  --accent: #7b61ff;
+  --accent-glow: rgba(123, 97, 255, 0.35);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Grain texture overlay ── */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: rgba(123, 97, 255, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(123, 97, 255, 0.5); }
+
+/* ── Glass panels ── */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ── Holographic shimmer keyframes ── */
+@keyframes holoShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── Card base ── */
+.poke-card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.3s ease,
+              box-shadow 0.35s ease;
+  animation: cardReveal 0.5s ease both;
+  cursor: default;
+}
+
+.poke-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 17px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--holo-1),
+    var(--holo-2),
+    var(--holo-3),
+    var(--holo-4),
+    var(--holo-1)
+  );
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.poke-card:hover::before {
+  opacity: 1;
+  animation: holoShimmer 3s ease infinite;
+}
+
+.poke-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow:
+    0 12px 40px rgba(123, 97, 255, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.4);
+  border-color: transparent;
+}
+
+/* Holographic overlay for rare cards */
+.poke-card .holo-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(0, 245, 212, 0.08),
+    rgba(123, 97, 255, 0.08),
+    rgba(247, 37, 133, 0.08),
+    rgba(255, 209, 102, 0.08),
+    rgba(0, 245, 212, 0.08)
+  );
+  mix-blend-mode: screen;
+}
+
+.poke-card:hover .holo-overlay {
+  opacity: 1;
+}
+
+/* Shimmer streak on hover */
+.poke-card .shimmer-streak {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.poke-card .shimmer-streak::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.04),
+    transparent
+  );
+  transform: rotate(25deg) translateX(-200%);
+  transition: none;
+}
+
+.poke-card:hover .shimmer-streak::after {
+  animation: shimmerSlide 1.2s ease 0.15s;
+}
+
+/* Rarity-specific enhancements */
+.poke-card.rarity-M::before {
+  opacity: 0.25;
+  animation: holoShimmer 6s ease infinite;
+}
+
+.poke-card.rarity-RR::before {
+  opacity: 0.5;
+  animation: holoShimmer 4s ease infinite;
+}
+
+.poke-card.rarity-RR .holo-overlay {
+  opacity: 0.3;
+}
+
+.poke-card.selected {
+  border-color: var(--holo-4) !important;
+  box-shadow: 0 0 20px rgba(255, 209, 102, 0.2), inset 0 0 20px rgba(255, 209, 102, 0.03);
+}
+
+/* ── Inputs ── */
+.holo-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-dim);
+  color: var(--text-primary);
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.holo-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.holo-input::placeholder {
+  color: var(--text-muted);
+}
+
+.holo-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-dim);
+  color: var(--text-primary);
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.25s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b87a0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.holo-select:focus {
+  border-color: var(--accent);
+}
+
+.holo-select option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* ── Buttons ── */
+.btn-glow {
+  position: relative;
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.btn-glow:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 16px var(--accent-glow);
+  color: #fff;
+}
+
+.btn-glow.active {
+  background: rgba(123, 97, 255, 0.15);
+  border-color: var(--accent);
+  color: #c4b5fd;
+}
+
+.btn-accent {
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--holo-2), #9b59ff);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 12px var(--accent-glow);
+}
+
+.btn-accent:hover {
+  box-shadow: 0 4px 24px rgba(123, 97, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-emerald {
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #00c896, #00f5d4);
+  color: #07060b;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 12px rgba(0, 245, 212, 0.25);
+}
+
+.btn-emerald:hover {
+  box-shadow: 0 4px 24px rgba(0, 245, 212, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #f72585, #ff4d6d);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-danger:hover {
+  box-shadow: 0 4px 20px rgba(247, 37, 133, 0.4);
+}
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 2, 6, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  max-height: 92vh;
+  overflow: auto;
+  padding: 28px;
+  animation: floatIn 0.35s ease;
+}
+
+/* ── Type filter row (swipeable) ── */
+.type-filter-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Type chip in header ── */
+.type-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+}
+
+.type-chip:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-1px);
+}
+
+.type-chip.active {
+  border-color: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+}
+
+/* ── Checkbox ── */
+.holo-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  }
+}

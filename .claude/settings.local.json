@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm i:*)",
+      "Bash(vercel login:*)",
+      "Bash(vercel:*)",
+      "Bash(npm install:*)",
+      "Bash(npx vite build:*)",
+      "Bash(node -e:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(./node_modules/.bin/vite build:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
