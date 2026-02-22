@@ -28,3 +28,14 @@
 ### Project Config: CLAUDE.md
 - **[2026-02-22]** Created `CLAUDE.md` at project root with comprehensive project documentation for Claude Code
 - **[2026-02-22]** Covers: tech stack, project structure, code conventions, styling rules, data layer, API/serverless, deployment, workflow rules, and documentation file purposes
+
+### Feature: Trainer Detail Pages
+- **[2026-02-22]** Installed `react-router-dom` for client-side routing
+- **[2026-02-22]** Created `src/data/trainers.js` with 13 trainers (Ash, Misty, Brock, Dawn, Blaine, Prof. Oak, Cynthia, Red, Blue, Lance, N, Steven Stone, Team Rocket) — each with name, Japanese name, bio, lore, region, specialty, and signature Pokemon image
+- **[2026-02-22]** Added `trainer` field to all 101 cards in `initialCards`, mapping each Pokemon to its canonical trainer
+- **[2026-02-22]** Wrapped app with `BrowserRouter` in `main.jsx`, added `<Routes>` in `App.jsx` with `/` and `/trainer/:trainerSlug` routes
+- **[2026-02-22]** Updated `CardTile` to show clickable trainer name (🎯 link) below Pokemon name
+- **[2026-02-22]** Created `TrainerDetail.jsx` component with hero section, biography, lore, and associated cards grid — all matching holographic dark theme
+- **[2026-02-22]** Added trainer page CSS to `styles.css` (hero with holoShimmer border, glass sections, responsive layout)
+- **[2026-02-22]** State preservation: all filter/sort state stays in `App` (stays mounted across routes), scroll position saved to `useRef` and restored via `requestAnimationFrame`
+- **[2026-02-22]** Added `vercel.json` with SPA rewrite rules for production routing

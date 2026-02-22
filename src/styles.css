@@ -473,9 +473,190 @@ body {
   border-color: var(--border-subtle);
 }
 
+/* ── Trainer Link on Cards ── */
+.trainer-link {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+  margin-top: 2px;
+  position: relative;
+  z-index: 5;
+}
+
+.trainer-link:hover {
+  color: #c4b5fd;
+  text-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* ── Trainer Detail Page ── */
+.trainer-detail-page {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 28px 60px;
+  animation: floatIn 0.5s ease both;
+}
+
+.trainer-hero {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  padding: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 20px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.trainer-hero::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--holo-1), var(--holo-2), var(--holo-3), var(--holo-4), var(--holo-1));
+  background-size: 300% 300%;
+  animation: holoShimmer 6s ease infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.trainer-portrait {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px var(--accent-glow));
+  border-radius: 16px;
+  flex-shrink: 0;
+}
+
+.trainer-info h1 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #e8e6f0, #7b61ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.trainer-info .trainer-japanese {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 4px 0 12px;
+}
+
+.trainer-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trainer-meta span {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trainer-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.trainer-section:hover {
+  border-color: var(--border-subtle);
+}
+
+.trainer-section h2 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+
+.trainer-section p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.trainer-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.trainer-card-mini {
+  display: block;
+  background: rgba(19, 18, 26, 0.8);
+  border: 1px solid var(--border-dim);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.trainer-card-mini:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 16px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+.trainer-card-mini img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.trainer-card-mini .mini-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Rajdhani', sans-serif;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  }
+
+  .trainer-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .trainer-portrait {
+    width: 140px;
+    height: 140px;
+  }
+
+  .trainer-meta {
+    justify-content: center;
+  }
+
+  .trainer-detail-page {
+    padding: 16px 16px 40px;
   }
 }
