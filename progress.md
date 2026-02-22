@@ -1,5 +1,18 @@
 # Progress Log
 
+## Session 2 — 2026-02-22
+
+### Feature: Bilingual Card Schema + TCGdex Name-Based Image Lookup (Task #24)
+- **[2026-02-22]** Redesigned card data schema: renamed `kartNo→cardNumber`, `dmg1→damage1`, `dmg2→damage2`, removed `nameEN`
+- **[2026-02-22]** Added `original{}` object on each card to store raw card text as printed (Korean/English)
+- **[2026-02-22]** Added `translations.en{}` and `translations.tr{}` to each card for bilingual display
+- **[2026-02-22]** Added `tCard()`, `cardNum()`, `cardDmg()` helper functions in App.jsx and CardDetail.jsx for backward-compatible field access (old server cards with flat fields continue to work)
+- **[2026-02-22]** Rewrote GPT-4o prompt in api/analyze.js to return structured `original` + `translations.en` + `translations.tr` objects; type/stage mapping now only in `translations.tr`, keeping `original.type` as English energy label
+- **[2026-02-22]** Added TCGdex API name-based image lookup in api/analyze.js: after GPT-4o extracts card name, queries `tcgdex.net/v2/en/cards?name={enName}&set.id=me02` to get accurate image URL
+- **[2026-02-22]** Updated PhotoUploadModal review form: shows original name (read-only), separate TR/EN name fields, TR type/stage selectors
+- **[2026-02-22]** Wrapped `bio`/`lore` in `translations.tr` for all 13 trainers; added empty `translations.en` ready for future content
+- **[2026-02-22]** Build: zero errors. Committed bca65f2 and pushed to main.
+
 ## Session 1 — 2026-02-22
 
 ### Workflow Setup
