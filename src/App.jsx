@@ -785,62 +785,68 @@ function BottomTabBar({ onAddClick }) {
   const isHome = p === "/" || p.startsWith("/card/");
   const isTrainers = p === "/egitmenler" || p.startsWith("/trainer");
   const isSettings = p === "/ayarlar";
-  const isAdd = false;
 
   const tabStyle = (active) => ({
     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-    gap: 3, flex: 1, padding: "8px 0", cursor: "pointer", background: "transparent",
+    gap: 3, flex: 1, cursor: "pointer", background: "transparent",
     border: "none", textDecoration: "none", position: "relative",
     transition: "color 0.2s ease", fontFamily: "'DM Sans', sans-serif",
-    fontSize: 10, fontWeight: 600, letterSpacing: "0.03em",
-    color: active ? "#0d9488" : "var(--text-muted)",
+    fontSize: 10, fontWeight: 600,
+    color: active ? "#0d9488" : "#8b87a0",
+    height: "100%",
   });
 
   const indicator = (
     <span style={{
-      position: "absolute", bottom: 2, width: 28, height: 2,
-      background: "#0d9488", borderRadius: 2,
+      width: 28, height: 2,
+      background: "#0d9488", borderRadius: 2, flexShrink: 0,
     }} />
   );
+
+  /* Simple SVG icons matching lucide design */
+  const iconChart = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>;
+  const iconLayers = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+  const iconPlus = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>;
+  const iconUsers = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+  const iconSettings = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
 
   return (
     <nav className="bottom-tab-bar" style={{
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
       height: 60, display: "flex", alignItems: "stretch",
-      background: "var(--bg-card)",
-      borderTop: "1px solid var(--border-dim)",
-      backdropFilter: "blur(20px) saturate(1.5)",
-      WebkitBackdropFilter: "blur(20px) saturate(1.5)",
+      justifyContent: "space-around",
+      background: "#ffffffEB",
+      borderTop: "1px solid #e0dfe8",
     }}>
       <Link to="/ozet" style={tabStyle(isOzet)}>
-        <span style={{ fontSize: 18 }}>📊</span>
-        Özet
+        {iconChart(isOzet ? "#0d9488" : "#8b87a0")}
+        <span>Özet</span>
         {isOzet && indicator}
       </Link>
 
       <Link to="/" style={tabStyle(isHome)}>
-        <span style={{ fontSize: 18 }}>🃏</span>
-        Kartlarım
+        {iconLayers(isHome ? "#0d9488" : "#8b87a0")}
+        <span>Kartlarım</span>
         {isHome && indicator}
       </Link>
 
       <button onClick={onAddClick} style={{
-        ...tabStyle(isAdd),
+        ...tabStyle(false),
         color: "#00f5d4",
       }}>
-        <span style={{ fontSize: 18 }}>➕</span>
-        Kart Ekle
+        {iconPlus("#00f5d4")}
+        <span>Kart Ekle</span>
       </button>
 
       <Link to="/egitmenler" style={tabStyle(isTrainers)}>
-        <span style={{ fontSize: 18 }}>👥</span>
-        Eğitmenler
+        {iconUsers(isTrainers ? "#0d9488" : "#8b87a0")}
+        <span>Eğitmenler</span>
         {isTrainers && indicator}
       </Link>
 
       <Link to="/ayarlar" style={tabStyle(isSettings)}>
-        <span style={{ fontSize: 18 }}>⚙️</span>
-        Ayarlar
+        {iconSettings(isSettings ? "#0d9488" : "#8b87a0")}
+        <span>Ayarlar</span>
         {isSettings && indicator}
       </Link>
     </nav>
