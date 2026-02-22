@@ -191,3 +191,16 @@
 - **[2026-02-22]** Korean: 64 cards affected across all type sections (Ot, Ateş, Su, Elektrik, Psişik, Dövüş, Karanlık, Çelik, Normal)
 - **[2026-02-22]** Japanese: 5 cards affected (Arcanine, Magmar, Clefable, Sandshrew, Farfetch'd)
 - **[2026-02-22]** Cards with pure English attacks (Darkrai, Iron Jugulis, Fezandipiti, Scream Tail, Pumpkaboo, Poochyena, Lampent) were already clean — no changes needed
+
+### Feature: Add Server-Side PostgreSQL Collection Storage
+- **[2026-02-22]** Added `@vercel/postgres` dependency to `package.json` for server-side collection persistence
+- **[2026-02-22]** Created `api/collection.js` — Vercel serverless function exposing GET (load collection by phone) and POST (upsert collection by phone) endpoints; phone number used as row key in Postgres table
+- **[2026-02-22]** Removed localStorage as collection data source; Vercel Postgres is now the single source of truth for all collection data
+- **[2026-02-22]** Added `PhoneModal` sub-component to `App.jsx` — modal prompts user for Turkish mobile phone number on first launch; validates format (5XX XXX XX XX, no leading 0) before allowing access
+- **[2026-02-22]** Added `SyncIndicator` sub-component to `App.jsx` — displays real-time sync state (loading / syncing / synced / error) in the app header so users know when data is being saved to the server
+- **[2026-02-22]** App now starts blank with no cards shown until a valid phone number is entered and collection is fetched from server
+- **[2026-02-22]** Implemented Turkish mobile phone validation: accepts `5XX XXX XX XX` format, strips spaces, prepends `+90`, rejects numbers starting with 0 or invalid prefix
+- **[2026-02-22]** Debounced auto-sync (3 s delay) triggers a POST to `api/collection.js` on any collection change, preventing excessive API calls during rapid edits
+- **[2026-02-22]** All views (Kartlarım, Özet, Egitmenler, Kart Detay) updated to gracefully handle empty/loading/no-phone states with appropriate placeholder UI
+- **[2026-02-22]** Disconnect phone option added — clears phone number and all in-memory collection state immediately, returning app to blank/unauthenticated state
+- **[2026-02-22]** Updated `src/components/SettingsPage.jsx` with a cloud sync section: displays connected phone number, sync status badge, manual sync button, and disconnect option

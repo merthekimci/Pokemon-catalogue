@@ -1,6 +1,6 @@
 const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`;
 
-export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerNameChange }) {
+export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerNameChange, phone, onShowPhoneModal, onPhoneChange }) {
   const sectionStyle = {
     background: "var(--bg-card)", border: "1px solid var(--border-dim)",
     borderRadius: 16, padding: 20, marginBottom: 16,
@@ -113,6 +113,40 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
               placeholder="İsminizi girin"
             />
           </div>
+        </div>
+
+        {/* Cloud Sync Section */}
+        <div style={sectionStyle}>
+          <h2 style={{
+            fontFamily: "'Rajdhani', sans-serif", fontSize: 20, fontWeight: 700,
+            margin: "0 0 4px", color: "var(--text-primary)",
+          }}>Bulut Senkronizasyonu</h2>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "0 0 16px" }}>
+            Koleksiyonunuzu birden fazla cihazda senkronize edin
+          </p>
+          {phone ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+                color: "var(--holo-1)",
+              }}>
+                <span style={{ fontSize: 14 }}>&#x2714;</span>
+                {phone}
+              </span>
+              <button
+                className="btn-accent"
+                style={{ fontSize: 12, padding: "6px 14px" }}
+                onClick={() => onPhoneChange("")}
+              >
+                Bağlantıyı Kes
+              </button>
+            </div>
+          ) : (
+            <button className="btn-glow" onClick={onShowPhoneModal}>
+              Telefon Numarasıyla Bağlan
+            </button>
+          )}
         </div>
       </div>
     </div>

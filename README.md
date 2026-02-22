@@ -80,3 +80,29 @@ OPENAI_API_KEY=sk-...
 - localStorage ile kalici koleksiyon verisi
 - Pokemon gorselleri (PokeAPI sprites)
 - Turkce / Korece / Ingilizce kart bilgileri
+
+## Bulut Senkronizasyonu (Cloud Sync)
+
+Koleksiyon verileri artık yalnızca cihazda değil, **Vercel Postgres** veritabanında sunucu tarafında saklanmaktadır.
+
+### Nasıl Çalışır?
+
+- Uygulama ilk açıldığında bir **telefon numarası** girilmesi istenir.
+- Girilen numara koleksiyonunuzu sunucuda tanımlar — hesap veya şifre gerekmez.
+- Koleksiyonunuz otomatik olarak sunucuya senkronize edilir; herhangi bir cihazdan aynı telefon numarasıyla erişilebilir.
+- Koleksiyonda yapılan her değişiklik 3 saniye sonra otomatik olarak kaydedilir (debounced auto-sync).
+- Header'daki **SyncIndicator** bileşeni anlık senkronizasyon durumunu gösterir (yükleniyor / senkronize ediliyor / senkronize edildi / hata).
+
+### Telefon Numarası Formatı
+
+- **Türk mobil formatı:** `5XX XXX XX XX` (başında 0 olmadan)
+- Örnek: `532 123 45 67`
+- Numara otomatik olarak E.164 formatına (`+905321234567`) dönüştürülür ve veritabanında bu şekilde saklanır.
+
+### Teknik Detaylar
+
+- **Veritabanı:** Vercel Postgres (sunucu tarafı)
+- **API:** `api/collection.js` — GET (koleksiyonu yükle) ve POST (koleksiyonu kaydet/güncelle) uç noktaları
+- **localStorage kaldırıldı:** Tüm koleksiyon verisi artık yalnızca sunucuda tutulmaktadır.
+- **Bağlantıyı kes:** Ayarlar ekranından telefon bağlantısı kesilebilir; bu işlem tüm yerel durumu temizler.
+- **Gerekli ortam değişkeni:** `POSTGRES_URL` — Vercel dashboard'da tanımlanmalıdır.

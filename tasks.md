@@ -24,3 +24,4 @@
 | 20 | Add 16:9 detail images for all trainers | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 21 | Replace PokeAPI sprites with actual TCGdex physical card scan images | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 22 | Remove Korean and Japanese text from card attack/ability names | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 23 | Add server-side PostgreSQL collection storage | Completed | Claude | 2026-02-22 | 2026-02-22 |

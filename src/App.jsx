@@ -1,7 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import { trainers } from "./data/trainers";
-import { initialCards } from "./data/cards.js";
 import { resolveCardImage } from "./data/tcgdex-map";
 import TrainerDetail from "./components/TrainerDetail";
 import CardDetail from "./components/CardDetail";
@@ -29,27 +28,83 @@ const rarityOrder = { C: 1, U: 2, R: 3, M: 4, RR: 5, SR: 6 };
 const rarityColors = { C: "#5a566e", U: "#00c896", M: "#7b61ff", RR: "#ffd166", R: "#8b5cf6", SR: "#ec4899" };
 const rarityGlow = { C: "none", U: "0 0 8px rgba(0,200,150,0.3)", M: "0 0 12px rgba(123,97,255,0.4)", RR: "0 0 16px rgba(255,209,102,0.5)", R: "0 0 10px rgba(139,92,246,0.4)", SR: "0 0 16px rgba(236,72,153,0.5)" };
 
-const STORAGE_KEY = "pokemon_katalog_cards";
-const FAVORITES_KEY = "pokemon_katalog_favorites";
-const THEME_KEY = "pokemon_katalog_theme";
-const OWNER_KEY = "pokemon_katalog_owner";
+const PHONE_KEY = "pokemon_katalog_phone";
 
-function loadCards() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch (_) {}
-  return initialCards;
+function loadPhone() {
+  try { return localStorage.getItem(PHONE_KEY) || ""; } catch (_) { return ""; }
 }
-function loadFavorites() {
-  try { const s = localStorage.getItem(FAVORITES_KEY); if (s) return JSON.parse(s); } catch (_) {}
-  return [];
+
+function SyncIndicator({ status }) {
+  const configs = {
+    loading: { color: "var(--holo-4)", dot: "#ffd166", label: "Yükleniyor..." },
+    syncing: { color: "var(--holo-4)", dot: "#ffd166", label: "Senkronize ediliyor..." },
+    synced:  { color: "var(--holo-1)", dot: "#00f5d4", label: "Senkronize edildi" },
+    error:   { color: "#f72585",       dot: "#f72585", label: "Senkronizasyon hatası" },
+  };
+  const cfg = configs[status];
+  if (!cfg) return null;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 5,
+      fontSize: 10, fontFamily: "'DM Sans', sans-serif", color: cfg.color,
+    }}>
+      <span style={{
+        width: 6, height: 6, borderRadius: "50%",
+        background: cfg.dot,
+        boxShadow: (status === "syncing" || status === "loading") ? `0 0 8px ${cfg.dot}` : "none",
+        animation: (status === "syncing" || status === "loading") ? "glowPulse 1.2s ease-in-out infinite" : "none",
+      }} />
+      {cfg.label}
+    </span>
+  );
 }
-function loadTheme() {
-  try { return localStorage.getItem(THEME_KEY) || "light"; } catch (_) { return "light"; }
-}
-function loadOwner() {
-  try { return localStorage.getItem(OWNER_KEY) || "Koleksiyoncu"; } catch (_) { return "Koleksiyoncu"; }
+
+function PhoneModal({ onSave, onClose }) {
+  const [value, setValue] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = () => {
+    const digits = value.replace(/\D/g, "");
+    if (!/^5[0-9]{9}$/.test(digits)) {
+      setError("Geçerli bir Türkiye numarası girin: 5XX XXX XX XX (başında 0 olmadan)");
+      return;
+    }
+    onSave("+90" + digits);
+  };
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content" style={{ maxWidth: 400, width: "100%" }}>
+        <h2 style={{
+          fontFamily: "'Rajdhani', sans-serif", fontSize: 22, fontWeight: 700,
+          margin: "0 0 8px", color: "var(--text-primary)",
+        }}>
+          Bulut Senkronizasyonu
+        </h2>
+        <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'DM Sans', sans-serif" }}>
+          Koleksiyonunuzu cihazlar arasında senkronize etmek için telefon numaranızı girin.
+        </p>
+        <input
+          className="holo-input"
+          value={value}
+          onChange={(e) => { setValue(e.target.value); setError(""); }}
+          placeholder="5XX XXX XX XX"
+          type="tel"
+          style={{ width: "100%", marginBottom: 8, boxSizing: "border-box" }}
+          autoFocus
+        />
+        {error && (
+          <p style={{ color: "#f72585", fontSize: 12, margin: "0 0 12px", fontFamily: "'DM Sans', sans-serif" }}>
+            {error}
+          </p>
+        )}
+        <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+          <button className="btn-glow" style={{ flex: 1 }} onClick={handleSubmit}>Kaydet</button>
+          <button className="btn-accent" onClick={onClose}>İptal</button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 
@@ -961,7 +1016,7 @@ function CatalogueView({ scrollRef, children }) {
 }
 
 export default function App() {
-  const [cards, setCards] = useState(loadCards);
+  const [cards, setCards] = useState([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("Tümü");
   const [rarityFilter, setRarityFilter] = useState("Tümü");
@@ -972,31 +1027,88 @@ export default function App() {
   const [showCompare, setShowCompare] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [favorites, setFavorites] = useState(loadFavorites);
-  const [theme, setTheme] = useState(loadTheme);
-  const [ownerName, setOwnerName] = useState(loadOwner);
+  const [favorites, setFavorites] = useState([]);
+  const [theme, setTheme] = useState("dark");
+  const [ownerName, setOwnerName] = useState("Koleksiyoncu");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showSort, setShowSort] = useState(false);
+  const [phone, setPhone] = useState(loadPhone);
+  const [syncStatus, setSyncStatus] = useState("idle");
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
   const scrollRef = useRef(0);
+  const phoneRef = useRef(phone);
+  const skipSaveRef = useRef(false);
   const isMobile = useIsMobile();
 
+  // Keep phone in localStorage so it survives page refresh
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); } catch (_) {}
-  }, [cards]);
+    phoneRef.current = phone;
+    try { localStorage.setItem(PHONE_KEY, phone); } catch (_) {}
+  }, [phone]);
 
-  useEffect(() => {
-    try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); } catch (_) {}
-  }, [favorites]);
-
+  // Apply theme to document
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
-    try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
   }, [theme]);
 
+  // Fetch collection from server when phone changes
   useEffect(() => {
-    try { localStorage.setItem(OWNER_KEY, ownerName); } catch (_) {}
-  }, [ownerName]);
+    if (!phone) {
+      setCards([]);
+      setFavorites([]);
+      setTheme("dark");
+      setOwnerName("Koleksiyoncu");
+      setSyncStatus("idle");
+      skipSaveRef.current = false;
+      return;
+    }
+    skipSaveRef.current = true;
+    setSyncStatus("loading");
+    fetch(`/api/collection?phone=${encodeURIComponent(phone)}`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.exists && json.data) {
+          setCards(json.data.cards ?? []);
+          setFavorites(json.data.favorites ?? []);
+          setTheme(json.data.theme ?? "dark");
+          setOwnerName(json.data.owner_name ?? "Koleksiyoncu");
+        }
+        setSyncStatus("idle");
+      })
+      .catch(() => setSyncStatus("error"))
+      .finally(() => { skipSaveRef.current = false; });
+  }, [phone]);
+
+  // Debounced save to server on any collection change
+  useEffect(() => {
+    if (skipSaveRef.current || !phoneRef.current) return;
+    const t = setTimeout(() => {
+      setSyncStatus("syncing");
+      fetch("/api/collection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: phoneRef.current,
+          owner_name: ownerName,
+          theme,
+          cards,
+          favorites,
+        }),
+      })
+        .then((r) => { if (!r.ok) throw new Error(); setSyncStatus("synced"); })
+        .catch(() => setSyncStatus("error"));
+    }, 3000);
+    return () => clearTimeout(t);
+  }, [cards, favorites, theme, ownerName]);
+
+  // Auto-reset "synced" indicator after 3 seconds
+  useEffect(() => {
+    if (syncStatus === "synced") {
+      const t = setTimeout(() => setSyncStatus("idle"), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [syncStatus]);
 
   const toggleFavorite = (cardId) =>
     setFavorites((prev) => prev.includes(cardId) ? prev.filter((id) => id !== cardId) : [...prev, cardId]);
@@ -1081,15 +1193,18 @@ export default function App() {
               }}>
                 Pokemon Kart Kataloğu
               </span>
-              <span style={{
-                fontSize: isMobile ? 10 : 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 400,
-                color: "var(--text-muted)",
-              }}>
-                {isMobile
-                  ? `${stats.total} tekil  ·  ${stats.copies} kopya  ·  $${stats.totalValue.toFixed(2)}`
-                  : `${stats.total} tekil kart  ·  ${stats.copies} toplam kopya  ·  Max HP: ${stats.maxHP}  ·  Koleksiyon Değeri: $${stats.totalValue.toFixed(2)}`
-                }
-              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{
+                  fontSize: isMobile ? 10 : 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 400,
+                  color: "var(--text-muted)",
+                }}>
+                  {isMobile
+                    ? `${stats.total} tekil  ·  ${stats.copies} kopya  ·  $${stats.totalValue.toFixed(2)}`
+                    : `${stats.total} tekil kart  ·  ${stats.copies} toplam kopya  ·  Max HP: ${stats.maxHP}  ·  Koleksiyon Değeri: $${stats.totalValue.toFixed(2)}`
+                  }
+                </span>
+                <SyncIndicator status={syncStatus} />
+              </div>
             </div>
           </div>
         </div>
@@ -1333,37 +1448,57 @@ export default function App() {
 
       {/* Card Grid */}
       <div style={{ position: "relative", zIndex: 1, padding: isMobile ? "12px 16px" : "20px 28px", background: "var(--bg-deep)", minHeight: "100vh" }}>
-        <div style={{ fontSize: isMobile ? 11 : 12, fontFamily: "'DM Sans', sans-serif", color: "var(--text-muted)", marginBottom: isMobile ? 14 : 16 }}>
-          {filtered.length} kart gösteriliyor
-        </div>
-        {filtered.length === 0 ? (
-          <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center",
-            justifyContent: "center", padding: "60px 20px", textAlign: "center",
-          }}>
-            <img
-              src={TCG_LOGO}
-              alt=""
-              style={{
-                width: 180, height: "auto", opacity: 0.15,
-                filter: "grayscale(0.5)", marginBottom: 20,
-                userSelect: "none", pointerEvents: "none",
-              }}
-            />
-            <p style={{ color: "var(--text-muted)", fontSize: 14, fontFamily: "'DM Sans', sans-serif" }}>
-              Aramanızla eşleşen kart bulunamadı.
+        {syncStatus === "loading" ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", gap: 16 }}>
+            <div className="spinner" />
+            <p style={{ color: "var(--text-muted)", fontSize: 13, fontFamily: "'DM Sans', sans-serif", margin: 0 }}>
+              Koleksiyon yükleniyor...
+            </p>
+          </div>
+        ) : !phone ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", textAlign: "center", gap: 16 }}>
+            <img src={TCG_LOGO} alt="" style={{ width: 120, height: "auto", opacity: 0.12, filter: "grayscale(0.5)", userSelect: "none", pointerEvents: "none" }} />
+            <p style={{ color: "var(--text-primary)", fontSize: 15, fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, margin: 0 }}>
+              Koleksiyonunuz henüz bağlı değil
+            </p>
+            <p style={{ color: "var(--text-muted)", fontSize: 13, fontFamily: "'DM Sans', sans-serif", margin: 0, maxWidth: 280 }}>
+              Koleksiyonunuzu kaydetmek ve cihazlar arasında senkronize etmek için telefon numaranızı bağlayın.
+            </p>
+            <button className="btn-glow" onClick={() => setShowPhoneModal(true)}>
+              Telefon Numarasıyla Bağlan
+            </button>
+          </div>
+        ) : cards.length === 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", textAlign: "center", gap: 16 }}>
+            <img src={TCG_LOGO} alt="" style={{ width: 120, height: "auto", opacity: 0.12, filter: "grayscale(0.5)", userSelect: "none", pointerEvents: "none" }} />
+            <p style={{ color: "var(--text-primary)", fontSize: 15, fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, margin: 0 }}>
+              Henüz kart yok
+            </p>
+            <p style={{ color: "var(--text-muted)", fontSize: 13, fontFamily: "'DM Sans', sans-serif", margin: 0, maxWidth: 260 }}>
+              İlk kartınızı eklemek için kamera butonuna dokunun.
             </p>
           </div>
         ) : (
-          <div className="card-grid" style={{
-            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: isMobile ? 12 : 18,
-          }}>
-            {filtered.map((c, i) => (
-              <CardTile key={c.id} card={c} compareMode={compareMode}
-                isSelected={compareList.includes(c.id)} onToggle={toggle} index={i} scrollRef={scrollRef}
-                onDelete={setDeleteTarget} favorites={favorites} onToggleFavorite={toggleFavorite} />
-            ))}
-          </div>
+          <>
+            <div style={{ fontSize: isMobile ? 11 : 12, fontFamily: "'DM Sans', sans-serif", color: "var(--text-muted)", marginBottom: isMobile ? 14 : 16 }}>
+              {filtered.length} kart gösteriliyor
+            </div>
+            {filtered.length === 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px 20px", textAlign: "center", gap: 12 }}>
+                <p style={{ color: "var(--text-muted)", fontSize: 14, fontFamily: "'DM Sans', sans-serif", margin: 0 }}>
+                  {showFavoritesOnly ? "Henüz favori kart yok." : "Aramanızla eşleşen kart bulunamadı."}
+                </p>
+              </div>
+            ) : (
+              <div className="card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: isMobile ? 12 : 18 }}>
+                {filtered.map((c, i) => (
+                  <CardTile key={c.id} card={c} compareMode={compareMode}
+                    isSelected={compareList.includes(c.id)} onToggle={toggle} index={i} scrollRef={scrollRef}
+                    onDelete={setDeleteTarget} favorites={favorites} onToggleFavorite={toggleFavorite} />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -1385,11 +1520,12 @@ export default function App() {
         <Route path="/ozet" element={<SummaryView stats={stats} cards={cards} favorites={favorites} />} />
         <Route path="/card/:cardId" element={<CardDetail cards={cards} favorites={favorites} onToggleFavorite={toggleFavorite} typeColors={typeColors} />} />
         <Route path="/egitmenler" element={<TrainersList cards={cards} typeColors={typeColors} />} />
-        <Route path="/ayarlar" element={<SettingsPage theme={theme} onThemeChange={setTheme} ownerName={ownerName} onOwnerNameChange={setOwnerName} />} />
+        <Route path="/ayarlar" element={<SettingsPage theme={theme} onThemeChange={setTheme} ownerName={ownerName} onOwnerNameChange={setOwnerName} phone={phone} onShowPhoneModal={() => setShowPhoneModal(true)} onPhoneChange={(p) => { setPhone(p); if (!p) { setCards([]); setFavorites([]); setTheme("dark"); setOwnerName("Koleksiyoncu"); } }} />} />
       </Routes>
       <BottomTabBar onAddClick={() => setShowAdd(true)} />
       {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} nextId={Math.max(0, ...cards.map((c) => c.id)) + 1} />}
       {deleteTarget && <DeleteConfirmModal card={deleteTarget} onConfirm={handleDeleteCard} onClose={() => setDeleteTarget(null)} />}
+      {showPhoneModal && <PhoneModal onSave={(p) => { setPhone(p); setShowPhoneModal(false); }} onClose={() => setShowPhoneModal(false)} />}
     </div>
   );
 }
