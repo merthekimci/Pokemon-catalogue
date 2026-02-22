@@ -1039,7 +1039,7 @@ export default function App() {
       </div>
 
       {/* Card Grid */}
-      <div style={{ position: "relative", zIndex: 1, padding: "14px 16px" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "14px 16px", background: "var(--bg-deep)", minHeight: "100vh" }}>
         <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 10 }}>
           {filtered.length} kart gösteriliyor
         </div>
