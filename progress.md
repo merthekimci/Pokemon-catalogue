@@ -118,3 +118,11 @@
 - **[2026-02-22]** Translated all 13 trainer `bio` and `lore` fields from English to Turkish
 - **[2026-02-22]** Updated `.trainer-portrait` CSS: `object-fit: cover` + `object-position: top` + `border-radius: 50%` for circular character portraits
 - **[2026-02-22]** Removed `crossOrigin="anonymous"` from trainer portrait img (no longer needed for local images)
+
+### Infra: Test vs Production Card Data Separation
+- **[2026-02-22]** Extracted `initialCards` (90 cards) and `sp()` helper from `App.jsx` into `src/data/cards.prod.js`
+- **[2026-02-22]** Created `src/data/cards.dev.js` with 8 representative test cards covering all types, rarities, and special categories
+- **[2026-02-22]** Created `src/data/cards.js` router module — uses `import.meta.env.MODE` to serve dev cards in development, prod cards in production
+- **[2026-02-22]** Updated `App.jsx` to import from `./data/cards.js` instead of inline array
+- **[2026-02-22]** Vite tree-shakes dev data out of production bundle (verified: exactly 90 `kartNo` entries in built JS)
+- **[2026-02-22]** No Vite config changes needed — `import.meta.env.MODE` is built-in
