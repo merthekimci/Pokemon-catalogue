@@ -223,6 +223,27 @@ body {
   opacity: 0.3;
 }
 
+/* ── Card delete button (hover reveal) ── */
+.card-delete-btn {
+  opacity: 0 !important;
+  transition: opacity 0.2s ease, background 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.poke-card:hover .card-delete-btn {
+  opacity: 1 !important;
+}
+
+.card-delete-btn:hover {
+  background: rgba(247, 37, 133, 0.35) !important;
+  box-shadow: 0 0 12px rgba(247, 37, 133, 0.4) !important;
+}
+
+@media (hover: none) {
+  .card-delete-btn {
+    opacity: 0.7 !important;
+  }
+}
+
 .poke-card.selected {
   border-color: var(--holo-4) !important;
   box-shadow: 0 0 20px rgba(255, 209, 102, 0.2), inset 0 0 20px rgba(255, 209, 102, 0.03);

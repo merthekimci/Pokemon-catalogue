@@ -9,3 +9,4 @@
 | 5 | Create CLAUDE.md project configuration file | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 6 | Add trainer detail pages with clickable trainer names on cards | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 7 | Add sticky bottom tab bar (Kartlarım, Ekle, Özet) with routing | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 8 | Add remove card from collection feature with confirmation modal | Completed | mhekimci | 2026-02-22 | 2026-02-22 |

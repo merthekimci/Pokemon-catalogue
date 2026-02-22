@@ -48,3 +48,12 @@
 - **[2026-02-22]** Tab bar uses glassmorphism styling (blur + semi-transparent bg), active tab indicator with --holo-1 color
 - **[2026-02-22]** Added bottom spacer to catalogue content and increased trainer-detail-page padding to prevent content being hidden behind tab bar
 - **[2026-02-22]** Tab bar visible on all routes (catalogue, trainer detail, summary) for consistent mobile navigation
+
+### Feature: Remove Card from Collection
+- **[2026-02-22]** Added delete button (✕) on each CardTile — hidden by default, revealed on hover via CSS transition
+- **[2026-02-22]** Delete button hidden during compare mode to avoid conflict with selection checkbox
+- **[2026-02-22]** Created `DeleteConfirmModal` inline component following existing modal pattern (`.modal-overlay` + `.modal-content`)
+- **[2026-02-22]** Confirmation modal shows card image, name, type badge, and rarity badge for clear identification
+- **[2026-02-22]** Turkish confirmation text: "Bu kartı koleksiyonunuzdan silmek istediğinize emin misiniz?" with warning "Bu işlem geri alınamaz."
+- **[2026-02-22]** Added `@media (hover: none)` CSS rule so delete button is visible on touch devices (opacity: 0.7)
+- **[2026-02-22]** Card removal persists automatically via existing localStorage useEffect

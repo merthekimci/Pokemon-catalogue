@@ -178,7 +178,7 @@ function RarityBadge({ rarity }) {
   );
 }
 
-function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef }) {
+function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, onDelete }) {
   const [imgErr, setImgErr] = useState(false);
   const t = typeColors[card.type] || typeColors["Normal"];
   const rarityClass = `rarity-${card.rarity}`;
@@ -205,6 +205,28 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef })
       }}>
         ×{card.copies}
       </div>
+
+      {!compareMode && onDelete && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(card); }}
+          className="card-delete-btn"
+          title="Kartı Sil"
+          style={{
+            position: "absolute", top: 10, left: 10, zIndex: 10,
+            width: 28, height: 28,
+            background: "rgba(247,37,133,0.15)",
+            border: "1px solid rgba(247,37,133,0.3)",
+            borderRadius: "50%",
+            color: "#ff4d6d",
+            fontSize: 13, fontWeight: 700,
+            cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          ✕
+        </button>
+      )}
 
       <div style={{
         padding: "20px 16px 12px", display: "flex", justifyContent: "center",
@@ -626,6 +648,61 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
   );
 }
 
+function DeleteConfirmModal({ card, onConfirm, onClose }) {
+  const t = typeColors[card.type] || typeColors["Normal"];
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" style={{ maxWidth: 420, width: "100%", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
+        <h2 style={{
+          fontSize: 22, fontWeight: 700, marginBottom: 16,
+          fontFamily: "'Rajdhani', sans-serif", color: "#e8e6f0",
+        }}>
+          🗑️ Kartı Sil
+        </h2>
+
+        <div style={{
+          display: "flex", flexDirection: "column", alignItems: "center",
+          marginBottom: 20, padding: 16,
+          background: `radial-gradient(ellipse at 50% 80%, ${t.glow}, transparent 70%)`,
+          borderRadius: 12,
+        }}>
+          {card.img && (
+            <img src={card.img} alt={card.nameEN}
+              style={{
+                maxHeight: 120, objectFit: "contain",
+                filter: `drop-shadow(0 4px 16px ${t.glow})`,
+                marginBottom: 12,
+              }} crossOrigin="anonymous" />
+          )}
+          <div style={{
+            fontWeight: 700, fontSize: 18, color: "#e8e6f0",
+            fontFamily: "'Rajdhani', sans-serif",
+          }}>
+            {card.nameEN}
+          </div>
+          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+            <TypeBadge type={card.type} />
+            <RarityBadge rarity={card.rarity} />
+          </div>
+        </div>
+
+        <p style={{ color: "#8b87a0", fontSize: 14, marginBottom: 24 }}>
+          Bu kartı koleksiyonunuzdan silmek istediğinize emin misiniz?
+          <br />
+          <span style={{ color: "#ff4d6d", fontSize: 12 }}>Bu işlem geri alınamaz.</span>
+        </p>
+
+        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <button className="btn-glow" onClick={onClose}>İptal</button>
+          <button className="btn-danger" onClick={() => onConfirm(card.id)}>
+            🗑️ Sil
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SummaryView({ stats }) {
   return (
     <div style={{
@@ -750,6 +827,7 @@ export default function App() {
   const [compareList, setCompareList] = useState([]);
   const [showCompare, setShowCompare] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const scrollRef = useRef(0);
 
   useEffect(() => {
@@ -784,6 +862,11 @@ export default function App() {
 
   const toggle = (id) =>
     setCompareList((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < 4 ? [...p, id] : p));
+
+  const handleDeleteCard = (id) => {
+    setCards((prev) => prev.filter((c) => c.id !== id));
+    setDeleteTarget(null);
+  };
 
   const stats = useMemo(() => {
     const types = {};
@@ -908,7 +991,8 @@ export default function App() {
         }}>
           {filtered.map((c, i) => (
             <CardTile key={c.id} card={c} compareMode={compareMode}
-              isSelected={compareList.includes(c.id)} onToggle={toggle} index={i} scrollRef={scrollRef} />
+              isSelected={compareList.includes(c.id)} onToggle={toggle} index={i} scrollRef={scrollRef}
+              onDelete={setDeleteTarget} />
           ))}
         </div>
       </div>
@@ -932,6 +1016,7 @@ export default function App() {
       </Routes>
       <BottomTabBar onAddClick={() => setShowAdd(true)} />
       {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} nextId={Math.max(0, ...cards.map((c) => c.id)) + 1} />}
+      {deleteTarget && <DeleteConfirmModal card={deleteTarget} onConfirm={handleDeleteCard} onClose={() => setDeleteTarget(null)} />}
     </div>
   );
 }
