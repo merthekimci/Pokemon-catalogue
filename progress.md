@@ -142,3 +142,14 @@
 - **[2026-02-22]** Wrapped `CardTile` body in `<Link to={/card/${card.id}}>` for card detail navigation
 - **[2026-02-22]** Extended `stats` useMemo with `rarityCounts`, `topCard`, `favoritesCount`
 - **[2026-02-22]** Build verified: `npm run build` passes cleanly
+
+### Fix: Default Light Theme + Kartlarım Screen Redesign
+- **[2026-02-22]** Changed default theme from "dark" to "light" in `loadTheme()` fallback
+- **[2026-02-22]** Header redesign: replaced dark gradient header with clean white header, TCG logo only (28px), no title text
+- **[2026-02-22]** Type chips: removed emoji icons, pill-shaped (borderRadius 20), teal active state (#0d9488), counts shown
+- **[2026-02-22]** Controls bar: replaced complex bar (dropdowns, compare, add photo) with minimal search + 3 icon buttons (favorites heart, sort, filter)
+- **[2026-02-22]** Card grid: changed to `repeat(2, 1fr)` 2-column layout with `gap: 12px 10px`, padding `14px 16px`
+- **[2026-02-22]** CardTile complete rewrite: compact TCG-style with name+HP row, 120px art frame, trainer row, attack section, weakness/retreat footer, type/rarity badges, market value row
+- **[2026-02-22]** CardTile: added heart overlay on art frame for favorites toggle, copies badge (top-left), removed holo overlays and dark hardcoded colors
+- **[2026-02-22]** CSS: updated `.poke-card` borderRadius to 14px, softened hover effect, disabled holographic border in light theme, added `--card-section-border` variable
+- **[2026-02-22]** All colors now use CSS variables (`var(--text-primary)`, `var(--bg-elevated)`, etc.) for proper light/dark theme support

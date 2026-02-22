@@ -45,7 +45,7 @@ function loadFavorites() {
   return [];
 }
 function loadTheme() {
-  try { return localStorage.getItem(THEME_KEY) || "dark"; } catch (_) { return "dark"; }
+  try { return localStorage.getItem(THEME_KEY) || "light"; } catch (_) { return "light"; }
 }
 function loadOwner() {
   try { return localStorage.getItem(OWNER_KEY) || "Koleksiyoncu"; } catch (_) { return "Koleksiyoncu"; }
@@ -94,33 +94,22 @@ function RarityBadge({ rarity }) {
   );
 }
 
-function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, onDelete }) {
+function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, onDelete, favorites, onToggleFavorite }) {
   const [imgErr, setImgErr] = useState(false);
   const t = typeColors[card.type] || typeColors["Normal"];
-  const rarityClass = `rarity-${card.rarity}`;
+  const isFav = favorites && favorites.includes(card.id);
+  const trainer = card.trainer && trainers[card.trainer];
 
   return (
     <div
-      className={`poke-card ${rarityClass} ${isSelected ? "selected" : ""}`}
-      style={{ animationDelay: `${Math.min(index * 0.04, 0.8)}s` }}
+      className={`poke-card ${isSelected ? "selected" : ""}`}
+      style={{ animationDelay: `${Math.min(index * 0.04, 0.8)}s`, padding: 4 }}
     >
-      <div className="holo-overlay" />
-      <div className="shimmer-streak" />
-
       {compareMode && (
-        <div style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }}>
+        <div style={{ position: "absolute", top: 8, left: 8, zIndex: 10 }}>
           <input type="checkbox" className="holo-checkbox" checked={isSelected} onChange={() => onToggle(card.id)} />
         </div>
       )}
-
-      <div style={{
-        position: "absolute", top: 10, right: 10, zIndex: 10,
-        background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.1)",
-        color: "#e8e6f0", padding: "2px 9px", borderRadius: 20,
-        fontSize: 11, fontWeight: 700, backdropFilter: "blur(8px)",
-      }}>
-        ×{card.copies}
-      </div>
 
       {!compareMode && onDelete && (
         <button
@@ -128,16 +117,15 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
           className="card-delete-btn"
           title="Kartı Sil"
           style={{
-            position: "absolute", top: 10, left: 10, zIndex: 10,
-            width: 28, height: 28,
+            position: "absolute", top: 8, left: 8, zIndex: 10,
+            width: 24, height: 24,
             background: "rgba(247,37,133,0.15)",
             border: "1px solid rgba(247,37,133,0.3)",
             borderRadius: "50%",
             color: "#ff4d6d",
-            fontSize: 13, fontWeight: 700,
+            fontSize: 11, fontWeight: 700,
             cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            backdropFilter: "blur(8px)",
           }}
         >
           ✕
@@ -146,101 +134,125 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
 
       <Link to={`/card/${card.id}`} style={{ textDecoration: "none", color: "inherit" }}
         onClick={() => { if (scrollRef) scrollRef.current = window.scrollY; }}>
-      <div style={{
-        padding: "20px 16px 12px", display: "flex", justifyContent: "center",
-        alignItems: "center", minHeight: 180,
-        background: `radial-gradient(ellipse at 50% 80%, ${t.glow}, transparent 70%)`,
-        position: "relative",
-      }}>
-        {card.img && !imgErr ? (
-          <img src={card.img} alt={card.nameEN} onError={() => setImgErr(true)}
-            style={{ maxHeight: 155, maxWidth: "85%", objectFit: "contain",
-              filter: `drop-shadow(0 6px 20px ${t.glow})`,
-              transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1)",
-            }} crossOrigin="anonymous" />
-        ) : (
-          <div style={{ fontSize: 64, opacity: 0.4 }}>{t.emoji}</div>
-        )}
-      </div>
+      <div style={{ borderRadius: 10, background: "var(--bg-card)", padding: 6, display: "flex", flexDirection: "column", gap: 3 }}>
 
-      <div style={{ padding: "10px 14px 14px", borderTop: `1px solid ${t.bg}22` }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 6 }}>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: "#e8e6f0",
-              fontFamily: "'Rajdhani', sans-serif", letterSpacing: "0.01em" }}>
-              {card.nameEN}
-            </div>
-            {card.trainer && trainers[card.trainer] && (
-              <Link
-                to={`/trainer/${card.trainer}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (scrollRef) scrollRef.current = window.scrollY;
-                }}
-                className="trainer-link"
-              >
-                🎯 {trainers[card.trainer].name}
-              </Link>
-            )}
-          </div>
+        {/* Name + HP row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 6px" }}>
+          <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 12, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 4 }}>
+            {card.nameEN}
+          </span>
           {card.hp > 0 && (
-            <span style={{
-              fontWeight: 800, fontSize: 16, fontFamily: "'Rajdhani', sans-serif",
-              color: card.hp >= 150 ? "#ff4d6d" : card.hp >= 100 ? "#ffd166" : "#00f5d4",
-              whiteSpace: "nowrap",
-              textShadow: card.hp >= 150 ? "0 0 12px rgba(255,77,109,0.4)" : "none",
-            }}>
-              HP {card.hp}
+            <span style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: 12, color: t.bg }}>
+                HP {card.hp}
+              </span>
+              <span style={{ width: 12, height: 12, borderRadius: 3, background: t.bg, flexShrink: 0 }} />
             </span>
           )}
         </div>
 
-        <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
-          <TypeBadge type={card.type} />
-          <RarityBadge rarity={card.rarity} />
-          <span style={{ fontSize: 10, color: "#5a566e", fontFamily: "monospace" }}>{card.kartNo}</span>
-        </div>
-
-        {card.attack1 && (
-          <div style={{ fontSize: 12, color: "#8b87a0", marginBottom: 2 }}>
-            <span style={{ color: "#ff4d6d" }}>&#x2694;</span>{" "}
-            {card.attack1} — <b style={{ color: "#ff4d6d" }}>{card.dmg1 || "—"}</b>
-          </div>
-        )}
-        {card.attack2 && (
-          <div style={{ fontSize: 12, color: "#8b87a0" }}>
-            <span style={{ color: "#ff4d6d" }}>&#x2694;</span>{" "}
-            {card.attack2} — <b style={{ color: "#ff4d6d" }}>{card.dmg2 || "—"}</b>
-          </div>
-        )}
-
-        {card.ability && (
-          <div style={{
-            marginTop: 6, background: "rgba(123,97,255,0.1)",
-            border: "1px solid rgba(123,97,255,0.2)", padding: "4px 8px",
-            borderRadius: 8, fontSize: 11, color: "#c4b5fd", fontWeight: 600,
+        {/* Art frame */}
+        <div style={{
+          height: 120, borderRadius: 6, overflow: "hidden", position: "relative",
+          border: `1px solid ${t.bg}33`,
+          display: "flex", justifyContent: "center", alignItems: "center",
+          background: "var(--bg-elevated)",
+        }}>
+          {card.img && !imgErr ? (
+            <img src={card.img} alt={card.nameEN} onError={() => setImgErr(true)}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              crossOrigin="anonymous" />
+          ) : (
+            <div style={{ fontSize: 48, opacity: 0.3 }}>{t.emoji}</div>
+          )}
+          {/* Copies badge */}
+          <span style={{
+            position: "absolute", top: 4, left: 4,
+            background: "rgba(255,255,255,0.87)", borderRadius: 10,
+            padding: "1px 6px", fontSize: 9, fontWeight: 700, color: "var(--text-primary)",
           }}>
-            &#x2728; {card.ability}
+            ×{card.copies}
+          </span>
+          {/* Favorite heart */}
+          {onToggleFavorite && (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(card.id); }}
+              style={{
+                position: "absolute", top: 4, right: 4,
+                width: 22, height: 22, borderRadius: 12,
+                background: isFav ? "rgba(247,37,133,0.13)" : "rgba(255,255,255,0.87)",
+                border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 12, color: isFav ? "#f72585" : "#c0bdd0",
+                padding: 0,
+              }}
+            >
+              {isFav ? "♥" : "♡"}
+            </button>
+          )}
+        </div>
+
+        {/* Trainer + kartNo row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 6px" }}>
+          <span style={{ fontSize: 9, fontWeight: 600, color: "var(--accent)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {trainer ? trainer.name : "—"}
+          </span>
+          <span style={{ fontSize: 8, color: "var(--text-muted)", flexShrink: 0 }}>{card.kartNo}</span>
+        </div>
+
+        {/* Attack section */}
+        {card.attack1 && (
+          <div style={{ padding: "3px 6px", borderTop: "1px solid var(--card-section-border)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ width: 10, height: 10, borderRadius: 2, background: t.bg, flexShrink: 0 }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-primary)", flex: 1 }}>{card.attack1}</span>
+              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 14, fontWeight: 800, color: "var(--text-primary)" }}>{card.dmg1 || "—"}</span>
+            </div>
+            {card.attack2 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+                <span style={{ width: 10, height: 10, borderRadius: 2, background: t.bg, flexShrink: 0 }} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-primary)", flex: 1 }}>{card.attack2}</span>
+                <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 14, fontWeight: 800, color: "var(--text-primary)" }}>{card.dmg2 || "—"}</span>
+              </div>
+            )}
           </div>
         )}
 
-        <div style={{ marginTop: 6, fontSize: 11, color: "#5a566e" }}>
-          Zayıflık: <span style={{ color: "#ff4d6d", fontWeight: 600 }}>{card.weakness}</span>
-          {" · "}Çekilme: {card.retreat}
+        {/* Footer: weakness + retreat */}
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 6px", borderTop: "1px solid var(--card-section-border)" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+            <span style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "lowercase" }}>zayıflık</span>
+            <span style={{ fontSize: 9, fontWeight: 600, color: "var(--text-secondary)" }}>{card.weakness || "—"}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+            <span style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "lowercase" }}>çekilme</span>
+            <span style={{ fontSize: 9, fontWeight: 600, color: "var(--text-secondary)" }}>{card.retreat || "—"}</span>
+          </div>
         </div>
 
+        {/* Badge row */}
+        <div style={{ display: "flex", gap: 4, padding: "2px 6px" }}>
+          <span style={{ fontSize: 8, fontWeight: 700, color: "#fff", background: t.bg, borderRadius: 8, padding: "1px 6px" }}>
+            {card.type}
+          </span>
+          <span style={{ fontSize: 8, fontWeight: 700, color: "#fff", background: rarityColors[card.rarity] || "#5a566e", borderRadius: 8, padding: "1px 6px" }}>
+            {card.rarity}
+          </span>
+        </div>
+
+        {/* Market value */}
         {card.marketValue > 0 && (
           <div style={{
-            marginTop: 6, display: "flex", justifyContent: "space-between", alignItems: "center",
-            background: "rgba(0,245,212,0.06)", border: "1px solid rgba(0,245,212,0.15)",
-            padding: "4px 8px", borderRadius: 8,
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            background: "var(--bg-elevated)", borderRadius: 6, padding: "3px 6px",
           }}>
-            <span style={{ fontSize: 11, color: "#5a566e" }}>Piyasa Değeri</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#00f5d4", fontFamily: "'Rajdhani', sans-serif" }}>
+            <span style={{ fontSize: 9, color: "var(--text-muted)" }}>Piyasa Değeri</span>
+            <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 10, fontWeight: 700, color: "var(--text-primary)" }}>
               ${card.marketValue.toFixed(2)}
             </span>
           </div>
         )}
+
       </div>
       </Link>
     </div>
@@ -946,54 +958,29 @@ export default function App() {
     <>
       {/* Header */}
       <div style={{
-        position: "sticky", top: 0, zIndex: 10, padding: "16px 28px 14px",
-        background: "linear-gradient(180deg, rgba(7,6,11,0.92) 0%, rgba(7,6,11,0.85) 100%)",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+        position: "sticky", top: 0, zIndex: 10,
+        background: "var(--bg-card)",
+        borderBottom: "1px solid var(--border-dim)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 4 }}>
-          <img
-            src={TCG_LOGO}
-            alt="Pokémon Trading Card Game"
-            style={{
-              height: 48, width: "auto",
-              filter: "drop-shadow(0 0 10px rgba(123,97,255,0.5)) drop-shadow(0 0 20px rgba(0,245,212,0.2))",
-            }}
-          />
-          <div>
-            <h1 style={{
-              fontSize: 20, fontWeight: 700, margin: 0,
-              fontFamily: "'Rajdhani', sans-serif",
-              background: "linear-gradient(135deg, #e8e6f0, #7b61ff)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              letterSpacing: "0.02em", lineHeight: 1.1,
-            }}>
-              Kart Kataloğu
-            </h1>
-            <p style={{ margin: 0, color: "#5a566e", fontSize: 12 }}>
-              Japonca/İngilizce Baskı —{" "}
-              <span style={{ color: "#8b87a0" }}>{stats.total}</span> tekil{" · "}
-              <span style={{ color: "#8b87a0" }}>{stats.copies}</span> toplam{" · "}
-              Max HP: <span style={{ color: "#ff4d6d", fontWeight: 700 }}>{stats.maxHP}</span>{" · "}
-              Koleksiyon: <span style={{ color: "#00f5d4", fontWeight: 700 }}>${stats.totalValue.toFixed(2)}</span>
-            </p>
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px 10px" }}>
+          <img src={TCG_LOGO} alt="Pokémon TCG" style={{ height: 28, width: "auto" }} />
         </div>
-        <div className="type-filter-row" style={{ display: "flex", gap: 8, marginTop: 14, overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none", paddingBottom: 4 }}>
+        <div className="type-filter-row" style={{ display: "flex", gap: 6, padding: "0 16px 10px", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {Object.entries(stats.types).sort((a, b) => b[1] - a[1]).map(([type, count]) => {
             const isActive = typeFilter === type;
-            const t = typeColors[type];
             return (
               <span key={type} className={`type-chip ${isActive ? "active" : ""}`}
                 onClick={() => setTypeFilter(typeFilter === type ? "Tümü" : type)}
                 style={{
                   flexShrink: 0,
-                  background: isActive ? `${t.bg}22` : "rgba(255,255,255,0.03)",
-                  color: isActive ? t.bg : "#8b87a0",
-                  borderColor: isActive ? `${t.bg}55` : "transparent",
+                  background: isActive ? "#0d948815" : "var(--bg-elevated)",
+                  color: isActive ? "#0d9488" : "var(--text-secondary)",
+                  borderColor: isActive ? "#0d948850" : "var(--border-dim)",
+                  border: `1px solid ${isActive ? "#0d948850" : "var(--border-dim)"}`,
+                  borderRadius: 20, padding: "4px 10px", fontSize: 11, fontWeight: isActive ? 600 : 500,
+                  cursor: "pointer",
                 }}>
-                {t?.emoji} {type} ({count})
+                {type} ({count})
               </span>
             );
           })}
@@ -1002,66 +989,58 @@ export default function App() {
 
       {/* Controls */}
       <div style={{
-        position: "relative", zIndex: 1, padding: "12px 28px",
-        display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
-        background: "rgba(14,13,20,0.6)", backdropFilter: "blur(12px)",
+        display: "flex", gap: 8, alignItems: "center",
+        padding: "8px 16px",
+        background: "var(--bg-card)",
+        borderBottom: "1px solid var(--border-dim)",
       }}>
         <input className="holo-input" placeholder="&#x1F50D; Kart ara..." value={search}
-          onChange={(e) => setSearch(e.target.value)} style={{ width: 200 }} />
+          onChange={(e) => setSearch(e.target.value)} style={{ flex: 1, height: 36, padding: "0 12px", fontSize: 12 }} />
         <button
-          className={`btn-glow ${showFavoritesOnly ? "active" : ""}`}
           onClick={() => setShowFavoritesOnly((f) => !f)}
           title="Yalnızca Favoriler"
           style={{
-            padding: "9px 14px",
-            color: showFavoritesOnly ? "#f72585" : "var(--text-muted)",
-            borderColor: showFavoritesOnly ? "#f72585" : undefined,
-            background: showFavoritesOnly ? "rgba(247,37,133,0.12)" : undefined,
+            width: 36, height: 36, borderRadius: 10, border: "1px solid var(--border-subtle)",
+            background: showFavoritesOnly ? "rgba(247,37,133,0.12)" : "var(--bg-elevated)",
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 14, color: "#f72585", flexShrink: 0,
           }}
         >
-          {showFavoritesOnly ? "♥" : "♡"} Favoriler
+          ♥
         </button>
-        <select className="holo-select" value={rarityFilter} onChange={(e) => setRarityFilter(e.target.value)}>
-          <option value="Tümü">Tüm Nadirlikler</option>
-          {Object.entries(rarityLabels).map(([k, v]) => <option key={k} value={k}>{k} - {v}</option>)}
-        </select>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#8b87a0", whiteSpace: "nowrap" }}>Sırala:</span>
-          <select className="holo-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="rarity">Nadirlik</option>
-            <option value="kartNo">Kart No</option>
-            <option value="hp">HP</option>
-            <option value="nameEN">İsim</option>
-            <option value="copies">Kopya</option>
-            <option value="marketValue">Piyasa Değeri</option>
-            <option value="type">Tip</option>
-            <option value="stage">Aşama</option>
-            <option value="dmg1">Saldırı 1 Hasar</option>
-            <option value="dmg2">Saldırı 2 Hasar</option>
-            <option value="weakness">Zayıflık</option>
-            <option value="retreat">Geri Çekilme</option>
-          </select>
-          <button className="holo-select" onClick={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
-            style={{ cursor: "pointer", minWidth: 38, textAlign: "center", padding: "6px 10px" }}
-            title={sortDir === "asc" ? "Artan" : "Azalan"}>
-            {sortDir === "asc" ? "↑" : "↓"}
-          </button>
-        </div>
-        <div style={{ flex: 1 }} />
-        <button className={`btn-glow ${compareMode ? "active" : ""}`}
-          onClick={() => { setCompareMode(!compareMode); setCompareList([]); }}>
-          &#x2694; Karşılaştır{compareMode && compareList.length > 0 ? ` (${compareList.length}/4)` : ""}
+        <button
+          onClick={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
+          title={`Sırala: ${sortDir === "asc" ? "Artan" : "Azalan"}`}
+          style={{
+            width: 36, height: 36, borderRadius: 10, border: "1px solid var(--border-subtle)",
+            background: "var(--bg-elevated)", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 14, color: "var(--text-primary)", flexShrink: 0,
+          }}
+        >
+          ↕
         </button>
-        {compareMode && compareList.length >= 2 && (
-          <button className="btn-accent" onClick={() => setShowCompare(true)}>Göster &#x2192;</button>
-        )}
-        <button className="btn-emerald" onClick={() => setShowAdd(true)}>&#x1F4F7; Fotoğraf ile Ekle</button>
+        <button
+          onClick={() => {
+            const rarities = ["Tümü", ...Object.keys(rarityLabels)];
+            const idx = rarities.indexOf(rarityFilter);
+            setRarityFilter(rarities[(idx + 1) % rarities.length]);
+          }}
+          title={`Filtre: ${rarityFilter === "Tümü" ? "Tümü" : rarityFilter}`}
+          style={{
+            width: 36, height: 36, borderRadius: 10, border: "1px solid var(--border-subtle)",
+            background: rarityFilter !== "Tümü" ? "rgba(13,148,136,0.12)" : "var(--bg-elevated)",
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 14, color: rarityFilter !== "Tümü" ? "#0d9488" : "var(--text-primary)", flexShrink: 0,
+          }}
+        >
+          ☰
+        </button>
       </div>
 
       {/* Card Grid */}
-      <div style={{ position: "relative", zIndex: 1, padding: "24px 28px" }}>
-        <div style={{ fontSize: 12, color: "#5a566e", marginBottom: 14 }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "14px 16px" }}>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 10 }}>
           {filtered.length} kart gösteriliyor
         </div>
         {filtered.length === 0 ? (
@@ -1084,12 +1063,12 @@ export default function App() {
           </div>
         ) : (
           <div className="card-grid" style={{
-            display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 18,
+            display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px 10px",
           }}>
             {filtered.map((c, i) => (
               <CardTile key={c.id} card={c} compareMode={compareMode}
                 isSelected={compareList.includes(c.id)} onToggle={toggle} index={i} scrollRef={scrollRef}
-                onDelete={setDeleteTarget} />
+                onDelete={setDeleteTarget} favorites={favorites} onToggleFavorite={toggleFavorite} />
             ))}
           </div>
         )}

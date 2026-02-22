@@ -24,6 +24,7 @@
 
   --accent: #7b61ff;
   --accent-glow: rgba(123, 97, 255, 0.35);
+  --card-section-border: rgba(255, 255, 255, 0.08);
 }
 
 * { box-sizing: border-box; }
@@ -104,7 +105,7 @@ body {
 /* ── Card base ── */
 .poke-card {
   position: relative;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: var(--bg-card);
   border: 1px solid var(--border-dim);
@@ -146,10 +147,10 @@ body {
 }
 
 .poke-card:hover {
-  transform: translateY(-6px) scale(1.01);
+  transform: translateY(-4px);
   box-shadow:
-    0 12px 40px rgba(123, 97, 255, 0.12),
-    0 4px 16px rgba(0, 0, 0, 0.4);
+    0 8px 24px rgba(123, 97, 255, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.15);
   border-color: transparent;
 }
 
@@ -665,7 +666,7 @@ body {
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 
   .trainer-hero {
@@ -722,6 +723,7 @@ body {
   --text-muted: #8b87a0;
 
   --accent-glow: rgba(123, 97, 255, 0.2);
+  --card-section-border: #e8e7ed;
 }
 
 [data-theme="light"] body {
@@ -737,8 +739,12 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+[data-theme="light"] .poke-card::before {
+  display: none;
+}
+
 [data-theme="light"] .poke-card:hover {
-  box-shadow: 0 8px 32px rgba(123, 97, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme="light"] .poke-card .shimmer-streak::after {

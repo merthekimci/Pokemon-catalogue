@@ -19,3 +19,4 @@
 | 15 | Pencil design: Create Özet (Summary) screen with dashboard widgets | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 16 | Separate test vs production card data (dev: 8 cards, prod: 90 cards) | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 17 | Implement mobile screens from .pen design (5-tab nav, light theme, card detail, trainers list, settings, favorites, özet dashboard) | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 18 | Default theme to light + Kartlarım screen redesign to match .pen design | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
