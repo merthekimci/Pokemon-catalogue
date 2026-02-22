@@ -24,3 +24,7 @@
 - **[2026-02-22]** Supports single card photos and full binder page photos (multi-card extraction)
 - **[2026-02-22]** Added dev proxy in vite.config.js for local development with `vercel dev`
 - **[2026-02-22]** OpenAI prompt maps card symbols to Turkish type/stage/rarity values matching existing schema
+
+### Project Config: CLAUDE.md
+- **[2026-02-22]** Created `CLAUDE.md` at project root with comprehensive project documentation for Claude Code
+- **[2026-02-22]** Covers: tech stack, project structure, code conventions, styling rules, data layer, API/serverless, deployment, workflow rules, and documentation file purposes
