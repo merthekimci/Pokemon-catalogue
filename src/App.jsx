@@ -9,6 +9,27 @@ import SettingsPage from "./components/SettingsPage";
 
 const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`;
 
+// Translation-aware card field accessor.
+// Reads from translations[lang][field], falls back to original[field], then card[field] (backward compat).
+function tCard(card, field, lang = "tr") {
+  return card?.translations?.[lang]?.[field]
+    ?? card?.original?.[field]
+    ?? card?.[field]
+    ?? "";
+}
+
+// Backward-compatible card number accessor (new: cardNumber, old: kartNo)
+function cardNum(card) {
+  return card?.cardNumber ?? card?.kartNo ?? "";
+}
+
+// Backward-compatible damage accessor (new: damage1/damage2, old: dmg1/dmg2)
+function cardDmg(card, n) {
+  return n === 1
+    ? (card?.damage1 ?? card?.dmg1 ?? "")
+    : (card?.damage2 ?? card?.dmg2 ?? "");
+}
+
 /* ── Type colors with neon glow variants ── */
 const typeColors = {
   "Ot":       { bg: "#00c853", glow: "rgba(0,200,83,0.35)", dark: "#0a2e16", emoji: "🌿" },
@@ -152,7 +173,7 @@ function RarityBadge({ rarity }) {
 
 function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, onDelete, favorites, onToggleFavorite }) {
   const [imgErr, setImgErr] = useState(false);
-  const t = typeColors[card.type] || typeColors["Normal"];
+  const t = typeColors[tCard(card, "type")] || typeColors["Normal"];
   const isFav = favorites && favorites.includes(card.id);
   const trainer = card.trainer && trainers[card.trainer];
 
@@ -178,7 +199,7 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
           background: "var(--bg-elevated)",
         }}>
           {resolveCardImage(card) && !imgErr ? (
-            <img src={resolveCardImage(card)} alt={card.nameEN} onError={() => setImgErr(true)}
+            <img src={resolveCardImage(card)} alt={tCard(card, "name")} onError={() => setImgErr(true)}
               style={{ width: "100%", height: "100%", objectFit: "contain" }}
               crossOrigin="anonymous" />
           ) : (
@@ -212,7 +233,7 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               flex: 1,
             }}>
-              {card.nameEN}
+              {tCard(card, "name")}
             </span>
           </div>
 
@@ -240,7 +261,7 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
               fontSize: 11, fontWeight: 700, color: "#fff",
               background: t.bg, borderRadius: 20, padding: "3px 10px",
             }}>
-              {card.type}
+              {tCard(card, "type")}
             </span>
             <span style={{
               fontSize: 11, fontWeight: 700, color: "#fff",
@@ -250,7 +271,7 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
               {card.rarity}
             </span>
             <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: "auto" }}>
-              {card.kartNo}
+              {cardNum(card)}
             </span>
           </div>
 
@@ -349,7 +370,7 @@ function CompareView({ cards, onClose }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(cards.length, 4)}, 1fr)`, gap: 16 }}>
           {cards.map((card) => {
-            const t = typeColors[card.type] || typeColors["Normal"];
+            const t = typeColors[tCard(card, "type")] || typeColors["Normal"];
             return (
               <div key={card.id} style={{
                 border: `2px solid ${t.bg}`, borderRadius: 16, overflow: "hidden",
@@ -359,7 +380,7 @@ function CompareView({ cards, onClose }) {
                 <div style={{ padding: 16, display: "flex", justifyContent: "center",
                   background: `radial-gradient(ellipse at 50% 80%, ${t.glow}, transparent 70%)` }}>
                   {resolveCardImage(card) ? (
-                    <img src={resolveCardImage(card)} alt={card.nameEN}
+                    <img src={resolveCardImage(card)} alt={tCard(card, "name")}
                       style={{ maxHeight: 110, objectFit: "contain", filter: `drop-shadow(0 4px 16px ${t.glow})` }}
                       crossOrigin="anonymous" />
                   ) : (
@@ -368,15 +389,15 @@ function CompareView({ cards, onClose }) {
                 </div>
                 <div style={{ padding: "0 14px 14px" }}>
                   <div style={{ textAlign: "center", marginBottom: 10 }}>
-                    <TypeBadge type={card.type} size="lg" />
+                    <TypeBadge type={tCard(card, "type")} size="lg" />
                     <h3 style={{ fontSize: 16, fontWeight: 700, margin: "8px 0 2px", fontFamily: "'Rajdhani', sans-serif", color: "#e8e6f0" }}>
-                      {card.nameEN}
+                      {tCard(card, "name")}
                     </h3>
-                    <div style={{ fontSize: 11, color: "#5a566e" }}>{card.kartNo}</div>
+                    <div style={{ fontSize: 11, color: "#5a566e" }}>{cardNum(card)}</div>
                   </div>
-                  {[["HP", card.hp > 0 ? card.hp : "-"], ["Aşama", card.stage],
+                  {[["HP", card.hp > 0 ? card.hp : "-"], ["Aşama", tCard(card, "stage")],
                     ["Nadirlik", `${card.rarity} (${rarityLabels[card.rarity] || ""})`],
-                    ["Zayıflık", card.weakness], ["Çekilme", card.retreat], ["Kopya", `×${card.copies}`],
+                    ["Zayıflık", card.weakness ?? card.original?.weakness], ["Çekilme", card.retreat], ["Kopya", `×${card.copies}`],
                     ["Piyasa Değeri", `$${(card.marketValue || 0).toFixed(2)}`],
                   ].map(([l, v]) => (
                     <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0",
@@ -387,13 +408,13 @@ function CompareView({ cards, onClose }) {
                   ))}
                   <div style={{ marginTop: 8 }}>
                     <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 4, color: "#8b87a0" }}>Saldırılar</div>
-                    {card.attack1 && <div style={{ fontSize: 11, color: "#8b87a0" }}>{card.attack1}: <b style={{ color: "#ff4d6d" }}>{card.dmg1 || "—"}</b></div>}
-                    {card.attack2 && <div style={{ fontSize: 11, color: "#8b87a0" }}>{card.attack2}: <b style={{ color: "#ff4d6d" }}>{card.dmg2 || "—"}</b></div>}
+                    {tCard(card, "attack1") && <div style={{ fontSize: 11, color: "#8b87a0" }}>{tCard(card, "attack1")}: <b style={{ color: "#ff4d6d" }}>{cardDmg(card, 1) || "—"}</b></div>}
+                    {tCard(card, "attack2") && <div style={{ fontSize: 11, color: "#8b87a0" }}>{tCard(card, "attack2")}: <b style={{ color: "#ff4d6d" }}>{cardDmg(card, 2) || "—"}</b></div>}
                   </div>
-                  {card.ability && (
+                  {tCard(card, "ability") && (
                     <div style={{ marginTop: 6, background: "rgba(123,97,255,0.1)", border: "1px solid rgba(123,97,255,0.2)",
                       padding: "4px 8px", borderRadius: 8, fontSize: 11, color: "#c4b5fd" }}>
-                      &#x2728; {card.ability}
+                      &#x2728; {tCard(card, "ability")}
                     </div>
                   )}
                 </div>
@@ -418,9 +439,11 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
   const [imgErrs, setImgErrs] = useState({});
 
   const resolveReviewCardImage = (card) => {
+    // Prefer card.img set by TCGdex name lookup in the API
+    if (card.img) return card.img;
     const fromMap = resolveCardImage(card);
     if (fromMap) return fromMap;
-    const num = card.kartNo?.split("/")?.[0]?.trim();
+    const num = cardNum(card)?.split("/")?.[0]?.trim();
     if (!num || isNaN(+num)) return "";
     return `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png`;
   };
@@ -474,6 +497,9 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
         hp: +c.hp || 0,
         copies: +c.copies || 1,
         marketValue: +c.marketValue || 0,
+        // Ensure nested objects exist for new schema
+        original: c.original || {},
+        translations: c.translations || { en: {}, tr: {} },
       }));
       setExtractedCards(withIds);
       setPhase("review");
@@ -486,6 +512,16 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
   const updateCard = (idx, field, value) =>
     setExtractedCards((prev) =>
       prev.map((c, i) => (i === idx ? { ...c, [field]: value } : c))
+    );
+
+  // Update a nested translation field: updateCardTranslation(idx, "tr", "type", "Ot")
+  const updateCardTranslation = (idx, lang, field, value) =>
+    setExtractedCards((prev) =>
+      prev.map((c, i) =>
+        i === idx
+          ? { ...c, translations: { ...c.translations, [lang]: { ...c.translations?.[lang], [field]: value } } }
+          : c
+      )
     );
 
   const removeCard = (idx) =>
@@ -588,7 +624,7 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
             </div>
             <div style={{ maxHeight: "55vh", overflowY: "auto", paddingRight: 4 }}>
               {extractedCards.map((card, idx) => {
-                const t = typeColors[card.type] || typeColors["Normal"];
+                const t = typeColors[tCard(card, "type")] || typeColors["Normal"];
                 const imgSrc = resolveReviewCardImage(card);
                 return (
                   <div key={idx} className="review-card-row">
@@ -607,7 +643,7 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
                         {imgSrc && !imgErrs[idx] ? (
                           <img
                             src={imgSrc}
-                            alt={card.nameEN}
+                            alt={tCard(card, "name")}
                             crossOrigin="anonymous"
                             onError={() => setImgErrs((prev) => ({ ...prev, [idx]: true }))}
                             style={{ width: "100%", height: "100%", objectFit: "contain" }}
@@ -619,11 +655,16 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
                       {/* Card info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: 700, color: "#e8e6f0", fontFamily: "'Rajdhani', sans-serif", fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {card.nameEN || "—"}
+                          {tCard(card, "name") || "—"}
                         </div>
-                        <div style={{ color: "#8b87a0", fontSize: 12, marginTop: 2 }}>{card.kartNo || "—"}</div>
+                        {card.original?.name && card.original.name !== tCard(card, "name") && (
+                          <div style={{ color: "#5a566e", fontSize: 11, marginTop: 1, fontStyle: "italic" }}>
+                            {card.original.name}
+                          </div>
+                        )}
+                        <div style={{ color: "#8b87a0", fontSize: 12, marginTop: 2 }}>{cardNum(card) || "—"}</div>
                         <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
-                          <span style={{ background: t.bg, color: t.text, fontSize: 10, fontWeight: 700, borderRadius: 6, padding: "2px 7px" }}>{card.type}</span>
+                          <span style={{ background: t.bg, color: t.text, fontSize: 10, fontWeight: 700, borderRadius: 6, padding: "2px 7px" }}>{tCard(card, "type")}</span>
                           {card.rarity && <span style={{ background: "rgba(255,255,255,0.08)", color: "#c4bfda", fontSize: 10, fontWeight: 700, borderRadius: 6, padding: "2px 7px" }}>{card.rarity}</span>}
                           {card.hp > 0 && <span style={{ background: "rgba(255,255,255,0.05)", color: "#8b87a0", fontSize: 10, borderRadius: 6, padding: "2px 7px" }}>HP {card.hp}</span>}
                         </div>
@@ -656,12 +697,20 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
                         <div style={{ marginTop: 10 }}>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 }}>
                             <div>
-                              <label style={lbl}>Ad</label>
-                              <input className="holo-input" style={{ width: "100%" }} value={card.nameEN} onChange={(e) => updateCard(idx, "nameEN", e.target.value)} />
+                              <label style={lbl}>Ad (Orijinal)</label>
+                              <input className="holo-input" style={{ width: "100%", opacity: 0.7 }} value={card.original?.name ?? ""} readOnly title="Karttaki orijinal ad" />
                             </div>
                             <div>
-                              <label style={lbl}>Tür</label>
-                              <select className="holo-select" style={{ width: "100%" }} value={card.type} onChange={(e) => updateCard(idx, "type", e.target.value)}>
+                              <label style={lbl}>Ad (TR)</label>
+                              <input className="holo-input" style={{ width: "100%" }} value={tCard(card, "name", "tr")} onChange={(e) => updateCardTranslation(idx, "tr", "name", e.target.value)} />
+                            </div>
+                            <div>
+                              <label style={lbl}>Ad (EN)</label>
+                              <input className="holo-input" style={{ width: "100%" }} value={tCard(card, "name", "en")} onChange={(e) => updateCardTranslation(idx, "en", "name", e.target.value)} />
+                            </div>
+                            <div>
+                              <label style={lbl}>Tür (TR)</label>
+                              <select className="holo-select" style={{ width: "100%" }} value={tCard(card, "type", "tr")} onChange={(e) => updateCardTranslation(idx, "tr", "type", e.target.value)}>
                                 {Object.keys(typeColors).map((t) => <option key={t}>{t}</option>)}
                               </select>
                             </div>
@@ -676,24 +725,34 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
                               </select>
                             </div>
                             <div>
-                              <label style={lbl}>Aşama</label>
-                              <select className="holo-select" style={{ width: "100%" }} value={card.stage} onChange={(e) => updateCard(idx, "stage", e.target.value)}>
+                              <label style={lbl}>Aşama (TR)</label>
+                              <select className="holo-select" style={{ width: "100%" }} value={tCard(card, "stage", "tr")} onChange={(e) => updateCardTranslation(idx, "tr", "stage", e.target.value)}>
                                 {["Temel", "1. Aşama", "2. Aşama", "Mega ex", "Temel ex", "Destekçi", "Eşya", "Araç", "Stadyum"].map((v) => <option key={v}>{v}</option>)}
                               </select>
                             </div>
                             <div>
                               <label style={lbl}>Kart No</label>
-                              <input className="holo-input" style={{ width: "100%" }} value={card.kartNo} onChange={(e) => updateCard(idx, "kartNo", e.target.value)} />
+                              <input className="holo-input" style={{ width: "100%" }} value={cardNum(card)} onChange={(e) => updateCard(idx, "cardNumber", e.target.value)} />
                             </div>
                           </div>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                            {[["Saldırı 1", "attack1"], ["Hasar 1", "dmg1"], ["Saldırı 2", "attack2"], ["Hasar 2", "dmg2"],
-                              ["Zayıflık", "weakness"], ["Çekilme", "retreat"], ["Yetenek", "ability"],
-                            ].map(([l, k]) => (
+                            {[["Saldırı 1 (TR)", "attack1"], ["Saldırı 2 (TR)", "attack2"], ["Yetenek (TR)", "ability"]].map(([l, k]) => (
                               <div key={k}><label style={lbl}>{l}</label>
-                                <input className="holo-input" style={{ width: "100%" }} value={card[k]} onChange={(e) => updateCard(idx, k, e.target.value)} />
+                                <input className="holo-input" style={{ width: "100%" }} value={tCard(card, k, "tr")} onChange={(e) => updateCardTranslation(idx, "tr", k, e.target.value)} />
                               </div>
                             ))}
+                            <div><label style={lbl}>Hasar 1</label>
+                              <input className="holo-input" style={{ width: "100%" }} value={cardDmg(card, 1)} onChange={(e) => updateCard(idx, "damage1", e.target.value)} />
+                            </div>
+                            <div><label style={lbl}>Hasar 2</label>
+                              <input className="holo-input" style={{ width: "100%" }} value={cardDmg(card, 2)} onChange={(e) => updateCard(idx, "damage2", e.target.value)} />
+                            </div>
+                            <div><label style={lbl}>Zayıflık</label>
+                              <input className="holo-input" style={{ width: "100%" }} value={card.original?.weakness ?? card.weakness ?? ""} onChange={(e) => updateCard(idx, "weakness", e.target.value)} />
+                            </div>
+                            <div><label style={lbl}>Çekilme</label>
+                              <input className="holo-input" style={{ width: "100%" }} value={card.retreat ?? ""} onChange={(e) => updateCard(idx, "retreat", e.target.value)} />
+                            </div>
                             <div><label style={lbl}>Kopya</label>
                               <input className="holo-input" style={{ width: "100%" }} type="number" value={card.copies} onChange={(e) => updateCard(idx, "copies", e.target.value)} />
                             </div>
@@ -729,7 +788,7 @@ function PhotoUploadModal({ onClose, onAdd, nextId }) {
 }
 
 function DeleteConfirmModal({ card, onConfirm, onClose }) {
-  const t = typeColors[card.type] || typeColors["Normal"];
+  const t = typeColors[tCard(card, "type")] || typeColors["Normal"];
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" style={{ maxWidth: 420, width: "100%", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
@@ -747,7 +806,7 @@ function DeleteConfirmModal({ card, onConfirm, onClose }) {
           borderRadius: 12,
         }}>
           {resolveCardImage(card) && (
-            <img src={resolveCardImage(card)} alt={card.nameEN}
+            <img src={resolveCardImage(card)} alt={tCard(card, "name")}
               style={{
                 maxHeight: 120, objectFit: "contain",
                 filter: `drop-shadow(0 4px 16px ${t.glow})`,
@@ -758,10 +817,10 @@ function DeleteConfirmModal({ card, onConfirm, onClose }) {
             fontWeight: 700, fontSize: 18, color: "#e8e6f0",
             fontFamily: "'Rajdhani', sans-serif",
           }}>
-            {card.nameEN}
+            {tCard(card, "name")}
           </div>
           <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-            <TypeBadge type={card.type} />
+            <TypeBadge type={tCard(card, "type")} />
             <RarityBadge rarity={card.rarity} />
           </div>
         </div>
@@ -875,16 +934,16 @@ function SummaryView({ stats, cards, favorites }) {
             </div>
             <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
               {resolveCardImage(stats.topCard) && (
-                <img src={resolveCardImage(stats.topCard)} alt={stats.topCard.nameEN}
+                <img src={resolveCardImage(stats.topCard)} alt={tCard(stats.topCard, "name")}
                   style={{ width: 56, height: 56, objectFit: "contain", borderRadius: 8 }}
                   crossOrigin="anonymous" />
               )}
               <div>
                 <div style={{ fontWeight: 700, fontSize: 15, fontFamily: "'Rajdhani', sans-serif", color: "var(--text-primary)" }}>
-                  {stats.topCard.nameEN}
+                  {tCard(stats.topCard, "name")}
                 </div>
                 <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                  {stats.topCard.rarity} · {stats.topCard.type}
+                  {stats.topCard.rarity} · {tCard(stats.topCard, "type")}
                 </div>
                 <div style={{ fontWeight: 700, fontSize: 14, fontFamily: "'Rajdhani', sans-serif", color: "#0d9488" }}>
                   ${(stats.topCard.marketValue || 0).toFixed(2)}
@@ -1116,9 +1175,11 @@ export default function App() {
   const filtered = useMemo(() => {
     let r = cards.filter((c) => {
       const q = search.toLowerCase();
+      const name = tCard(c, "name").toLowerCase();
+      const num = cardNum(c);
       return (
-        (!q || c.nameEN.toLowerCase().includes(q) || c.kartNo.includes(q)) &&
-        (typeFilter === "Tümü" || c.type === typeFilter) &&
+        (!q || name.includes(q) || num.includes(q)) &&
+        (typeFilter === "Tümü" || tCard(c, "type") === typeFilter) &&
         (rarityFilter === "Tümü" || c.rarity === rarityFilter) &&
         (!showFavoritesOnly || favorites.includes(c.id))
       );
@@ -1128,12 +1189,15 @@ export default function App() {
       let cmp;
       if (sortBy === "rarity") {
         cmp = (rarityOrder[a.rarity] || 0) - (rarityOrder[b.rarity] || 0);
-      } else if (sortBy === "dmg1" || sortBy === "dmg2" || sortBy === "retreat") {
-        cmp = (parseFloat(a[sortBy]) || 0) - (parseFloat(b[sortBy]) || 0);
+      } else if (sortBy === "name") {
+        cmp = tCard(a, "name").localeCompare(tCard(b, "name"));
+      } else if (sortBy === "damage1" || sortBy === "damage2" || sortBy === "retreat") {
+        cmp = (parseFloat(cardDmg(a, sortBy === "damage1" ? 1 : 2) || a[sortBy]) || 0)
+            - (parseFloat(cardDmg(b, sortBy === "damage1" ? 1 : 2) || b[sortBy]) || 0);
       } else if (typeof a[sortBy] === "number") {
         cmp = a[sortBy] - b[sortBy];
       } else {
-        cmp = String(a[sortBy]).localeCompare(String(b[sortBy]));
+        cmp = String(a[sortBy] ?? "").localeCompare(String(b[sortBy] ?? ""));
       }
       return cmp * dir;
     });
@@ -1157,7 +1221,8 @@ export default function App() {
     const rarityCounts = {};
     let topCard = null;
     cards.forEach((c) => {
-      types[c.type] = (types[c.type] || 0) + 1;
+      const ctype = tCard(c, "type");
+      types[ctype] = (types[ctype] || 0) + 1;
       rarityCounts[c.rarity] = (rarityCounts[c.rarity] || 0) + 1;
       if (!topCard || (c.marketValue || 0) > (topCard.marketValue || 0)) topCard = c;
     });
@@ -1421,7 +1486,7 @@ export default function App() {
           >
             <option value="rarity">Nadirlik</option>
             <option value="hp">HP</option>
-            <option value="nameEN">İsim</option>
+            <option value="name">İsim</option>
             <option value="marketValue">Değer</option>
           </select>
           <button

@@ -20,6 +20,18 @@ const typeColors = {
 const rarityLabels = { C: "Common", U: "Uncommon", M: "Holo Rare", RR: "Double Rare", R: "Rare", SR: "Secret Rare" };
 const rarityColors = { C: "#5a566e", U: "#00c896", M: "#7b61ff", RR: "#ffd166", R: "#8b5cf6", SR: "#ec4899" };
 
+// Translation-aware card field accessors (mirrors App.jsx helpers)
+function tCard(card, field, lang = "tr") {
+  return card?.translations?.[lang]?.[field]
+    ?? card?.original?.[field]
+    ?? card?.[field]
+    ?? "";
+}
+function cardNum(card) { return card?.cardNumber ?? card?.kartNo ?? ""; }
+function cardDmg(card, n) {
+  return n === 1 ? (card?.damage1 ?? card?.dmg1 ?? "") : (card?.damage2 ?? card?.dmg2 ?? "");
+}
+
 const affiliationIcons = {
   flame: "🔥", leaf: "🌿", droplet: "💧", zap: "⚡", "map-pin": "📍",
   sparkles: "✨", ghost: "👻", fist: "👊",
@@ -167,7 +179,7 @@ function SectionWrapper({ children, isDesktop, padding }) {
 }
 
 function RelationCard({ card, reason, isFoe, resolveImg }) {
-  const tc = typeColors[card.type] || typeColors["Normal"];
+  const tc = typeColors[tCard(card, "type")] || typeColors["Normal"];
   return (
     <Link to={`/card/${card.id}`} style={{
       flexShrink: 0, width: 120, textDecoration: "none",
@@ -177,13 +189,13 @@ function RelationCard({ card, reason, isFoe, resolveImg }) {
     }}>
       <div style={{ height: 80, background: `linear-gradient(135deg, ${tc.bg}15, ${tc.bg}05)`, display: "flex", justifyContent: "center", alignItems: "center" }}>
         {resolveImg(card) ? (
-          <img src={resolveImg(card)} alt={card.nameEN} style={{ height: 60, objectFit: "contain" }} crossOrigin="anonymous" />
+          <img src={resolveImg(card)} alt={tCard(card, "name")} style={{ height: 60, objectFit: "contain" }} crossOrigin="anonymous" />
         ) : (
           <span style={{ fontSize: 32, opacity: 0.3 }}>{tc.emoji}</span>
         )}
       </div>
       <div style={{ padding: "8px 10px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'DM Sans', sans-serif" }}>{card.nameEN}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'DM Sans', sans-serif" }}>{tCard(card, "name")}</div>
         <div style={{ fontSize: 10, color: isFoe ? "#ff4444" : tc.bg, fontFamily: "'DM Sans', sans-serif" }}>{reason}</div>
       </div>
     </Link>
@@ -192,7 +204,8 @@ function RelationCard({ card, reason, isFoe, resolveImg }) {
 
 // ─── Physical Card (Desktop left column) ───
 function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensity, tiltMagnitude, cardRef, handlers }) {
-  const weaknessType = card.weakness?.match(/^(\S+)/)?.[1];
+  const weaknessStr = card.original?.weakness ?? card.weakness ?? "";
+  const weaknessType = weaknessStr?.match(/^(\S+)/)?.[1];
   const weaknessColor = Object.entries(typeColors).find(([k]) => k === weaknessType)?.[1]?.bg || "#8b87a0";
 
   return (
@@ -229,7 +242,7 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
             {/* Name Bar */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px" }}>
               <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 22, color: "#2a2838" }}>
-                {card.nameEN}
+                {tCard(card, "name")}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 20, color: t.bg }}>
@@ -246,7 +259,7 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
               background: resolveCardImage(card) ? undefined : `radial-gradient(ellipse at 50% 80%, ${t.glow}, transparent 70%)`,
             }}>
               {resolveCardImage(card) ? (
-                <img src={resolveCardImage(card)} alt={card.nameEN}
+                <img src={resolveCardImage(card)} alt={tCard(card, "name")}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   crossOrigin="anonymous" />
               ) : (
@@ -276,20 +289,20 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
               <span style={{ fontSize: 13, fontWeight: 600, color: "#0d9488", fontFamily: "'DM Sans', sans-serif" }}>
                 {card.trainer ? (trainers[card.trainer]?.name || card.trainer) : "—"}
               </span>
-              <span style={{ fontSize: 12, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>{card.kartNo}</span>
+              <span style={{ fontSize: 12, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>{cardNum(card)}</span>
             </div>
 
             {/* Attack Section */}
-            {card.attack1 && (
+            {tCard(card, "attack1") && (
               <div style={{ padding: "6px 10px", borderTop: `1px solid ${t.bg}40`, display: "flex", flexDirection: "column", gap: 4 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>⚔ {card.attack1}</span>
-                  <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{card.dmg1 || "—"}</span>
+                  <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>⚔ {tCard(card, "attack1")}</span>
+                  <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 1) || "—"}</span>
                 </div>
-                {card.attack2 && (
+                {tCard(card, "attack2") && (
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>⚔ {card.attack2}</span>
-                    <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{card.dmg2 || "—"}</span>
+                    <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>⚔ {tCard(card, "attack2")}</span>
+                    <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 2) || "—"}</span>
                   </div>
                 )}
               </div>
@@ -324,7 +337,7 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
             {/* Badges */}
             <div style={{ display: "flex", gap: 8, padding: "4px 10px", alignItems: "center" }}>
               <span style={{ background: t.bg, color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
-                {card.type}
+                {tCard(card, "type")}
               </span>
               <span style={{ background: rarityColors[card.rarity] || "#5a566e", color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
                 {card.rarity}
@@ -399,7 +412,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
     );
   }
 
-  const t = typeColors[card.type] || typeColors["Normal"];
+  const t = typeColors[tCard(card, "type")] || typeColors["Normal"];
   const isFavorite = favorites.includes(card.id);
   const trainer = card.trainer && trainers[card.trainer];
   const meta = pokemonMeta[card.id];
@@ -419,8 +432,8 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
   const foeCards = (meta?.foes || []).map(f => ({ ...f, card: cards.find(c => c.id === f.cardId) })).filter(f => f.card);
 
   // Fallback: same-type cards if no friends defined
-  const sameTypeCards = cards.filter((c) => c.type === card.type && c.id !== card.id).slice(0, 4);
-  const displayFriends = friendCards.length > 0 ? friendCards : sameTypeCards.map(c => ({ card: c, reason: `${c.type} Tipi` }));
+  const sameTypeCards = cards.filter((c) => tCard(c, "type") === tCard(card, "type") && c.id !== card.id).slice(0, 4);
+  const displayFriends = friendCards.length > 0 ? friendCards : sameTypeCards.map(c => ({ card: c, reason: `${tCard(c, "type")} Tipi` }));
 
   const pad = isDesktop ? "24px 28px" : "16px";
 
@@ -432,16 +445,16 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
         <h1 style={{
           fontFamily: "'Rajdhani', sans-serif", fontSize: isDesktop ? 36 : 28,
           fontWeight: 700, margin: 0, color: "var(--text-primary)",
-        }}>{card.nameEN}</h1>
+        }}>{tCard(card, "name")}</h1>
         <div style={{ fontSize: isDesktop ? 14 : 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>
-          {meta?.japaneseName || `${card.kartNo} · ${card.stage}`}
+          {meta?.japaneseName || `${cardNum(card)} · ${tCard(card, "stage")}`}
         </div>
         <div style={{ display: "flex", gap: 10, marginTop: 4, alignItems: "center" }}>
           <span style={{
             background: `${t.bg}1A`, color: t.bg, borderRadius: 6,
             padding: "4px 12px", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
           }}>
-            {card.stage || "Temel Pokemon"}
+            {tCard(card, "stage") || "Temel Pokemon"}
           </span>
           {card.hp > 0 && (
             <span style={{
@@ -475,7 +488,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
       {/* Info Grid */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: isDesktop ? 16 : 10 }}>
-          <StatCard label="Tip" value={card.type} orbColor={t.bg} />
+          <StatCard label="Tip" value={tCard(card, "type")} orbColor={t.bg} />
           <StatCard label="Nadirlik" value={`${rarityLabels[card.rarity] || card.rarity} (${card.rarity})`} />
           <StatCard label="Piyasa Degeri" value={`$${(card.marketValue || 0).toFixed(2)}`} />
           <StatCard label="Kopya Sayisi" value={`${card.copies} adet`} />
@@ -483,8 +496,8 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
         <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: isDesktop ? 16 : 10 }}>
           <StatCard
             label="Zayiflik"
-            value={card.weakness && card.weakness !== "-" ? card.weakness : "—"}
-            orbColor={card.weakness && card.weakness !== "-" ? (Object.entries(typeColors).find(([k]) => card.weakness.includes(k))?.[1]?.bg) : undefined}
+            value={(card.original?.weakness ?? card.weakness) && (card.original?.weakness ?? card.weakness) !== "-" ? (card.original?.weakness ?? card.weakness) : "—"}
+            orbColor={(card.original?.weakness ?? card.weakness) && (card.original?.weakness ?? card.weakness) !== "-" ? (Object.entries(typeColors).find(([k]) => (card.original?.weakness ?? card.weakness ?? "").includes(k))?.[1]?.bg) : undefined}
           />
           <StatCard label="Dayaniklilik" value="—" />
           <StatCard
@@ -492,7 +505,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             value={card.retreat && card.retreat !== "-" ? `${card.retreat} Enerji` : "—"}
             orbColor={card.retreat && card.retreat !== "-" ? "#8b87a0" : undefined}
           />
-          <StatCard label="Kart Numarasi" value={card.kartNo} />
+          <StatCard label="Kart Numarasi" value={cardNum(card)} />
         </div>
       </div>
     </div>
@@ -598,7 +611,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                     position: "relative",
                   }}>
                     {resolveCardImage(card) ? (
-                      <img src={resolveCardImage(card)} alt={card.nameEN}
+                      <img src={resolveCardImage(card)} alt={tCard(card, "name")}
                         style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: 12 }}
                         crossOrigin="anonymous" />
                     ) : (
@@ -640,13 +653,13 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
         )}
 
         {/* ═══ ABILITY ═══ */}
-        {card.ability && (
+        {tCard(card, "ability") && (
           <div style={{
             background: "rgba(123,97,255,0.08)", border: "1px solid rgba(123,97,255,0.2)",
             padding: "12px 14px", borderRadius: 12,
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>✨ Yetenek</div>
-            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{card.ability}</div>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{tCard(card, "ability")}</div>
           </div>
         )}
 

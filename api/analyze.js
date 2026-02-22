@@ -18,26 +18,45 @@ Extract the data for EVERY card visible and return a JSON array.
 Each card object must have these exact fields (use empty string "" for unknown text fields, 0 for unknown numeric fields):
 
 {
-  "kartNo": "card set number e.g. 025/080 or - if not visible",
-  "nameEN": "English or romanized Pokémon name",
-  "type": one of ["Ot","Ateş","Su","Elektrik","Dövüş","Çelik","Normal","Destekçi","Karanlık","Psişik"],
+  "cardNumber": "card set number exactly as printed on card e.g. 025/080, or - if not visible",
   "hp": numeric HP value (0 for trainer/item/supporter cards),
-  "stage": one of ["Temel","1. Aşama","2. Aşama","Mega ex","Temel ex","Destekçi","Eşya","Araç","Stadyum"],
-  "attack1": "first attack name",
-  "dmg1": "first attack damage as string e.g. '30' or '30+' or '-'",
-  "attack2": "second attack name or empty string",
-  "dmg2": "second attack damage as string or empty string",
-  "weakness": "weakness type and multiplier e.g. 'Ateş ×2' or '-'",
-  "retreat": "retreat cost as string number e.g. '2' or '0'",
   "rarity": one of ["C","U","R","M","RR","SR"],
-  "ability": "ability name if present, else empty string",
+  "retreat": "retreat cost as string number e.g. '2' or '0' or '-'",
+  "damage1": "first attack damage as string e.g. '30' or '30+' or '-' or empty",
+  "damage2": "second attack damage as string or empty string",
   "copies": 1,
-  "img": "",
-  "marketValue": 0
+  "marketValue": 0,
+  "original": {
+    "name": "the exact name text as printed on the card — keep original language (Korean/Japanese/English)",
+    "type": "energy type in English exactly as used in TCG: one of [Grass, Fire, Water, Lightning, Fighting, Metal, Colorless, Darkness, Psychic, Supporter, Item, Tool, Stadium]",
+    "stage": "stage in English: one of [Basic, Stage 1, Stage 2, Mega ex, Basic ex, Supporter, Item, Tool, Stadium]",
+    "attack1": "first attack name exactly as on card",
+    "attack2": "second attack name or empty string",
+    "ability": "ability name if present, else empty string",
+    "weakness": "weakness type and multiplier e.g. 'Fire ×2' or '-'"
+  },
+  "translations": {
+    "en": {
+      "name": "English name of the Pokémon or card",
+      "type": "English type: one of [Grass, Fire, Water, Lightning, Fighting, Metal, Colorless, Darkness, Psychic, Supporter, Item, Tool, Stadium]",
+      "stage": "English stage: one of [Basic, Stage 1, Stage 2, Mega ex, Basic ex, Supporter, Item, Tool, Stadium]",
+      "attack1": "English attack name",
+      "attack2": "English second attack name or empty string",
+      "ability": "English ability name or empty string"
+    },
+    "tr": {
+      "name": "Turkish or romanized name (Pokémon names usually unchanged)",
+      "type": "Turkish type: one of [Ot, Ateş, Su, Elektrik, Dövüş, Çelik, Normal, Destekçi, Karanlık, Psişik]",
+      "stage": "Turkish stage: one of [Temel, 1. Aşama, 2. Aşama, Mega ex, Temel ex, Destekçi, Eşya, Araç, Stadyum]",
+      "attack1": "Turkish attack name (translate if known, else use English)",
+      "attack2": "Turkish second attack name or empty string",
+      "ability": "Turkish ability name or empty string"
+    }
+  }
 }
 
-Type mapping from card energy symbols: Grass→Ot, Fire→Ateş, Water→Su, Lightning→Elektrik, Fighting→Dövüş, Metal→Çelik, Colorless→Normal, Darkness→Karanlık, Psychic→Psişik. For Trainer/Supporter/Item cards use type "Destekçi".
-Stage mapping: Basic→Temel, Stage 1→1. Aşama, Stage 2→2. Aşama, Supporter→Destekçi, Item→Eşya, Tool→Araç, Stadium→Stadyum.
+Type mappings for translations.tr.type: Grass→Ot, Fire→Ateş, Water→Su, Lightning→Elektrik, Fighting→Dövüş, Metal→Çelik, Colorless→Normal, Darkness→Karanlık, Psychic→Psişik. Trainer/Supporter/Item/Tool/Stadium cards→Destekçi.
+Stage mappings for translations.tr.stage: Basic→Temel, Stage 1→1. Aşama, Stage 2→2. Aşama, Supporter→Destekçi, Item→Eşya, Tool→Araç, Stadium→Stadyum.
 Rarity mapping from card symbols: circle→C, diamond→U, star→R, star-holographic→M, two-stars→RR, gold/rainbow/special-art→SR.
 
 Return ONLY the raw JSON array, no markdown, no explanation.`;
@@ -79,7 +98,35 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
     const text = data.choices?.[0]?.message?.content || "[]";
     const json = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const cards = JSON.parse(json);
-    return res.status(200).json({ cards });
+
+    // For each card, attempt a TCGdex image lookup by English name
+    const cardsWithImages = await Promise.all(
+      cards.map(async (card) => {
+        if (card.img) return card; // already has an image
+        const enName = card.translations?.en?.name || card.original?.name;
+        if (!enName) return card;
+        try {
+          const tcgRes = await fetch(
+            `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}&set.id=me02`
+          );
+          if (tcgRes.ok) {
+            const results = await tcgRes.json();
+            if (Array.isArray(results) && results.length > 0 && results[0].image) {
+              return { ...card, img: results[0].image + "/high.png" };
+            }
+          }
+        } catch (_) {
+          // TCGdex lookup failed — fall back to card-number URL construction
+          const num = card.cardNumber?.split("/")?.[0]?.trim();
+          if (num && !isNaN(+num)) {
+            return { ...card, img: `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png` };
+          }
+        }
+        return card;
+      })
+    );
+
+    return res.status(200).json({ cards: cardsWithImages });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

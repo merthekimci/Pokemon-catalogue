@@ -2,6 +2,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { trainers } from '../data/trainers';
 import { resolveCardImage } from '../data/tcgdex-map';
 
+function tCard(card, field, lang = "tr") {
+  return card?.translations?.[lang]?.[field] ?? card?.original?.[field] ?? card?.[field] ?? "";
+}
+
 export default function TrainerDetail({ cards, typeColors }) {
   const { trainerSlug } = useParams();
   const navigate = useNavigate();
@@ -93,7 +97,7 @@ export default function TrainerDetail({ cards, typeColors }) {
         </div>
 
         {/* Biography */}
-        {trainer.bio && (
+        {(trainer.translations?.tr?.bio || trainer.bio) && (
           <div style={{
             background: "var(--bg-card)", borderRadius: 14,
             border: "1px solid var(--border-dim)", padding: 16, marginBottom: 20,
@@ -103,13 +107,13 @@ export default function TrainerDetail({ cards, typeColors }) {
               color: "var(--text-primary)", margin: "0 0 10px",
             }}>Biyografi</h2>
             <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
-              {trainer.bio}
+              {trainer.translations?.tr?.bio ?? trainer.bio}
             </p>
           </div>
         )}
 
         {/* Lore */}
-        {trainer.lore && (
+        {(trainer.translations?.tr?.lore || trainer.lore) && (
           <div style={{
             background: "var(--bg-card)", borderRadius: 14,
             border: "1px solid var(--border-dim)", padding: 16, marginBottom: 20,
@@ -119,7 +123,7 @@ export default function TrainerDetail({ cards, typeColors }) {
               color: "var(--text-primary)", margin: "0 0 10px",
             }}>Hikaye</h2>
             <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
-              {trainer.lore}
+              {trainer.translations?.tr?.lore ?? trainer.lore}
             </p>
           </div>
         )}
@@ -139,7 +143,7 @@ export default function TrainerDetail({ cards, typeColors }) {
               display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10,
             }}>
               {associatedCards.map((card) => {
-                const tc = typeColors ? typeColors[card.type] : null;
+                const tc = typeColors ? typeColors[tCard(card, "type")] : null;
                 return (
                   <Link
                     key={card.id}
@@ -156,21 +160,21 @@ export default function TrainerDetail({ cards, typeColors }) {
                       {resolveCardImage(card) && (
                         <img
                           src={resolveCardImage(card)}
-                          alt={card.nameEN}
+                          alt={tCard(card, "name")}
                           crossOrigin="anonymous"
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
                         />
                       )}
                     </div>
                     <span style={{ fontSize: 10, fontWeight: 600, color: "var(--text-primary)", textAlign: "center" }}>
-                      {card.nameEN}
+                      {tCard(card, "name")}
                     </span>
                     {tc && (
                       <span style={{
                         background: tc.bg, color: tc.bg === "#ffd600" ? "#2a2838" : "#fff",
                         borderRadius: 8, padding: "2px 8px", fontSize: 9, fontWeight: 700,
                       }}>
-                        {card.type}
+                        {tCard(card, "type")}
                       </span>
                     )}
                   </Link>
