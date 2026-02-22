@@ -153,3 +153,15 @@
 - **[2026-02-22]** CardTile: added heart overlay on art frame for favorites toggle, copies badge (top-left), removed holo overlays and dark hardcoded colors
 - **[2026-02-22]** CSS: updated `.poke-card` borderRadius to 14px, softened hover effect, disabled holographic border in light theme, added `--card-section-border` variable
 - **[2026-02-22]** All colors now use CSS variables (`var(--text-primary)`, `var(--bg-elevated)`, etc.) for proper light/dark theme support
+
+### Feature: 3D Interactive Card Rotation with Flip
+- **[2026-02-22]** Added `useCardTilt` custom hook to `CardDetail.jsx` — tracks pointer/touch drag to rotate card in 3D on all axes
+- **[2026-02-22]** Uses `useRef` for animation state (pointer position, rotation targets, rAF ID) to avoid excessive re-renders at 60Hz
+- **[2026-02-22]** Implemented two-face card structure: front face (existing card content) + back face (Pokemon TCG card back image from pokemontcg.io)
+- **[2026-02-22]** CSS 3D: `perspective: 900px`, `transformStyle: preserve-3d`, `backfaceVisibility: hidden` on both faces
+- **[2026-02-22]** Holographic shine overlay on front face: radial gradient (white highlight) + linear gradient (rainbow using `--holo-1` through `--holo-4` palette), `mix-blend-mode: screen`, opacity proportional to tilt magnitude
+- **[2026-02-22]** Spring-back animation: on release, card snaps to nearest face (0° or 180°) using lerp factor 0.08 + cubic-bezier CSS transition
+- **[2026-02-22]** Dynamic box-shadow grows with tilt magnitude and includes type-colored glow during interaction
+- **[2026-02-22]** Native `touchmove` listener with `{ passive: false }` to prevent page scroll while dragging card on mobile
+- **[2026-02-22]** Desktop: click+drag; Mobile: touch+swipe — both supported via unified pointer tracking
+- **[2026-02-22]** Sensitivity: 0.4 deg/px — full card-width swipe ≈ 140° rotation, enough to flip to back face
