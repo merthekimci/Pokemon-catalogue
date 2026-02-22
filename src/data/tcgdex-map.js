@@ -128,5 +128,7 @@ export const tcgdexImageMap = {
 };
 
 export function resolveCardImage(card) {
-  return card.img || tcgdexImageMap[card.id] || "";
+  // PokeAPI sprite URLs are legacy placeholders — ignore them, prefer TCGdex card scans
+  const hasCardImg = card.img && !card.img.includes("githubusercontent.com/PokeAPI");
+  return hasCardImg ? card.img : (tcgdexImageMap[card.id] || "");
 }
