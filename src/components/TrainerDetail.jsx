@@ -9,24 +9,13 @@ export default function TrainerDetail({ cards, typeColors }) {
 
   if (!trainer) {
     return (
-      <div className="trainer-detail-page" style={{ textAlign: 'center', paddingTop: 80 }}>
-        <p style={{ fontSize: 20, marginBottom: 24, color: '#e8e6f0' }}>Eğitmen bulunamadı</p>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            background: 'rgba(123,97,255,0.15)',
-            border: '1px solid rgba(123,97,255,0.3)',
-            color: '#c4b5fd',
-            borderRadius: 12,
-            padding: '10px 20px',
-            cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: 14,
-            fontFamily: "'Rajdhani', sans-serif",
-          }}
-        >
-          ← Kataloğa Dön
-        </button>
+      <div style={{ background: "var(--bg-deep)", minHeight: "100vh", padding: "60px 20px", textAlign: "center" }}>
+        <p style={{ fontSize: 18, color: "var(--text-primary)", marginBottom: 16 }}>Eğitmen bulunamadı</p>
+        <button onClick={() => navigate(-1)} style={{
+          background: "var(--bg-elevated)", border: "1px solid var(--border-dim)",
+          color: "var(--text-primary)", borderRadius: 10, padding: "10px 20px",
+          cursor: "pointer", fontWeight: 600, fontSize: 14,
+        }}>← Geri Dön</button>
       </div>
     );
   }
@@ -36,131 +25,164 @@ export default function TrainerDetail({ cards, typeColors }) {
     : [];
 
   return (
-    <div className="trainer-detail-page">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          background: 'rgba(123,97,255,0.15)',
-          border: '1px solid rgba(123,97,255,0.3)',
-          color: '#c4b5fd',
-          borderRadius: 12,
-          padding: '10px 20px',
-          cursor: 'pointer',
-          fontWeight: 600,
-          fontSize: 14,
-          fontFamily: "'Rajdhani', sans-serif",
-          marginBottom: 32,
-          display: 'inline-block',
-          transition: 'all 0.25s ease',
-        }}
-        onMouseEnter={(e) => { e.target.style.background = 'rgba(123,97,255,0.25)'; e.target.style.boxShadow = '0 0 16px rgba(123,97,255,0.35)'; }}
-        onMouseLeave={(e) => { e.target.style.background = 'rgba(123,97,255,0.15)'; e.target.style.boxShadow = 'none'; }}
-      >
-        ← Kataloğa Dön
-      </button>
+    <div style={{ background: "var(--bg-deep)", minHeight: "100vh", position: "relative", zIndex: 1 }}>
+      {/* Header */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        padding: "14px 16px",
+        background: "var(--bg-card)",
+        borderBottom: "1px solid var(--border-dim)",
+        position: "sticky", top: 0, zIndex: 10,
+      }}>
+        <button onClick={() => navigate(-1)} style={{
+          background: "none", border: "none", cursor: "pointer",
+          fontSize: 20, color: "var(--text-primary)", padding: 0,
+        }}>←</button>
+        <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+          {trainer.name}
+        </span>
+      </div>
 
-      {/* Hero Section */}
-      <div className="trainer-hero">
-        {trainer.picture && (
-          <img
-            src={`${import.meta.env.BASE_URL}${trainer.picture}`}
-            alt={trainer.name}
-            className="trainer-portrait"
-          />
-        )}
+      {/* Content */}
+      <div style={{ padding: "20px 16px 100px", maxWidth: 600, margin: "0 auto" }}>
 
-        <div className="trainer-info">
-          <h1>{trainer.name}</h1>
-
-          {trainer.japaneseName && (
-            <p className="trainer-japanese">{trainer.japaneseName}</p>
+        {/* Hero Section */}
+        <div style={{
+          background: "var(--bg-card)", borderRadius: 16,
+          border: "1px solid var(--border-dim)", overflow: "hidden", marginBottom: 20,
+        }}>
+          {trainer.picture && (
+            <img
+              src={`${import.meta.env.BASE_URL}${trainer.picture}`}
+              alt={trainer.name}
+              style={{
+                width: "100%", height: 200, objectFit: "cover", objectPosition: "top",
+                borderRadius: "12px 12px 0 0", display: "block",
+              }}
+            />
           )}
-
-          <div className="trainer-meta">
+          <div style={{ padding: "14px 16px 0" }}>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 28, fontWeight: 700, color: "var(--text-primary)" }}>
+              {trainer.name}
+            </div>
+            {trainer.japaneseName && (
+              <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4 }}>
+                {trainer.japaneseName}
+              </div>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: 8, padding: "12px 16px 16px" }}>
             {trainer.region && (
               <span style={{
-                background: 'rgba(0,245,212,0.12)',
-                border: '1px solid rgba(0,245,212,0.3)',
-                color: '#00f5d4',
+                background: "#0d94881A", color: "#0d9488",
+                borderRadius: 14, padding: "5px 14px", fontSize: 12, fontWeight: 600,
               }}>
                 {trainer.region}
               </span>
             )}
             {trainer.specialty && (
               <span style={{
-                background: 'rgba(255,209,102,0.12)',
-                border: '1px solid rgba(255,209,102,0.3)',
-                color: '#ffd166',
+                background: "#7b61ff1A", color: "#7b61ff",
+                borderRadius: 14, padding: "5px 14px", fontSize: 12, fontWeight: 600,
               }}>
                 {trainer.specialty}
               </span>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Biography Section */}
-      {trainer.bio && (
-        <div className="trainer-section">
-          <h2>Biyografi</h2>
-          <p>{trainer.bio}</p>
-        </div>
-      )}
-
-      {/* Lore Section */}
-      {trainer.lore && (
-        <div className="trainer-section">
-          <h2>Hikaye</h2>
-          <p>{trainer.lore}</p>
-        </div>
-      )}
-
-      {/* Associated Cards Section */}
-      <div className="trainer-section">
-        <h2>{trainer.name} Kartları ({associatedCards.length})</h2>
-
-        {associatedCards.length > 0 ? (
-          <div className="trainer-cards-grid">
-            {associatedCards.map((card) => {
-              const tc = typeColors ? typeColors[card.type] : null;
-              return (
-                <Link
-                  key={card.id}
-                  to="/"
-                  className="trainer-card-mini"
-                >
-                  {card.img && (
-                    <img
-                      src={card.img}
-                      alt={card.nameEN}
-                      crossOrigin="anonymous"
-                    />
-                  )}
-                  <div className="mini-name">{card.nameEN}</div>
-                  {tc && (
-                    <span style={{
-                      background: `${tc.bg}22`,
-                      border: `1px solid ${tc.bg}44`,
-                      color: tc.bg,
-                      borderRadius: 6,
-                      padding: '2px 8px',
-                      fontSize: 10,
-                      fontWeight: 600,
-                      fontFamily: "'Rajdhani', sans-serif",
-                    }}>
-                      {tc.emoji} {card.type}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+        {/* Biography */}
+        {trainer.bio && (
+          <div style={{
+            background: "var(--bg-card)", borderRadius: 14,
+            border: "1px solid var(--border-dim)", padding: 16, marginBottom: 20,
+          }}>
+            <h2 style={{
+              fontFamily: "'Rajdhani', sans-serif", fontSize: 20, fontWeight: 700,
+              color: "var(--text-primary)", margin: "0 0 10px",
+            }}>Biyografi</h2>
+            <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
+              {trainer.bio}
+            </p>
           </div>
-        ) : (
-          <p style={{ color: '#8b87a0', fontSize: 14, margin: 0 }}>
-            Bu eğitmene ait kart bulunamadı.
-          </p>
         )}
+
+        {/* Lore */}
+        {trainer.lore && (
+          <div style={{
+            background: "var(--bg-card)", borderRadius: 14,
+            border: "1px solid var(--border-dim)", padding: 16, marginBottom: 20,
+          }}>
+            <h2 style={{
+              fontFamily: "'Rajdhani', sans-serif", fontSize: 20, fontWeight: 700,
+              color: "var(--text-primary)", margin: "0 0 10px",
+            }}>Hikaye</h2>
+            <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
+              {trainer.lore}
+            </p>
+          </div>
+        )}
+
+        {/* Associated Cards */}
+        <div style={{
+          background: "var(--bg-card)", borderRadius: 14,
+          border: "1px solid var(--border-dim)", padding: 16,
+        }}>
+          <h2 style={{
+            fontFamily: "'Rajdhani', sans-serif", fontSize: 20, fontWeight: 700,
+            color: "var(--text-primary)", margin: "0 0 12px",
+          }}>{trainer.name} Kartları ({associatedCards.length})</h2>
+
+          {associatedCards.length > 0 ? (
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10,
+            }}>
+              {associatedCards.map((card) => {
+                const tc = typeColors ? typeColors[card.type] : null;
+                return (
+                  <Link
+                    key={card.id}
+                    to={`/card/${card.id}`}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "center",
+                      gap: 6, textDecoration: "none",
+                    }}
+                  >
+                    <div style={{
+                      width: 70, height: 70, borderRadius: 35, overflow: "hidden",
+                      background: "var(--bg-elevated)", flexShrink: 0,
+                    }}>
+                      {card.img && (
+                        <img
+                          src={card.img}
+                          alt={card.nameEN}
+                          crossOrigin="anonymous"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      )}
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: "var(--text-primary)", textAlign: "center" }}>
+                      {card.nameEN}
+                    </span>
+                    {tc && (
+                      <span style={{
+                        background: tc.bg, color: tc.bg === "#ffd600" ? "#2a2838" : "#fff",
+                        borderRadius: 8, padding: "2px 8px", fontSize: 9, fontWeight: 700,
+                      }}>
+                        {card.type}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <p style={{ color: "var(--text-muted)", fontSize: 13, margin: 0 }}>
+              Bu eğitmene ait kart bulunamadı.
+            </p>
+          )}
+        </div>
+
       </div>
     </div>
   );
