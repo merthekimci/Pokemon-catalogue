@@ -15,3 +15,5 @@
 | 11 | Pencil design: Light theme, settings screen, TCG card style, logo | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 12 | Pencil design: Mobile-first pivot — create mobile Settings, Card Detail, Trainer Detail screens | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
 | 13 | Pencil design: Reconfigure bottom tab bar (5 tabs) + add favorites filter | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 14 | Pencil design: Update mobile catalogue cards to match light theme | Completed | mhekimci | 2026-02-22 | 2026-02-22 |
+| 15 | Pencil design: Create Özet (Summary) screen with dashboard widgets | Completed | mhekimci | 2026-02-22 | 2026-02-22 |

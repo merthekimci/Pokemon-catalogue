@@ -94,6 +94,23 @@
 - **[2026-02-22]** Fixed `plus-circle` → `circle-plus` (correct lucide icon name)
 - **[2026-02-22]** All 4 screens verified via screenshots
 
+### Design (Pencil): Phase 4 — Catalogue Card Refresh + Light Theme Fix
+- **[2026-02-22]** Fixed Mobile Catalogue screen background: hardcoded `#07060b` → `$bg-deep` variable (matching other screens)
+- **[2026-02-22]** Redesigned card tiles: white backgrounds with subtle shadows, replaced heavy type-colored fills
+- **[2026-02-22]** Generated AI Pokemon art (Charmander, Pikachu, Empoleon, Gardevoir) replacing Unsplash stock photos
+- **[2026-02-22]** Updated overlay badges to frosted glass style, refined section separators to neutral gray
+- **[2026-02-22]** Fixed Turkish characters: Ateş, Psişik, zayıflık, çekilme, Piyasa Değeri
+
+### Design (Pencil): Phase 5 — Özet Summary Screen + Logo Fix
+- **[2026-02-22]** Fixed logo alignment: reduced logo frame width (150→110px) on Catalogue and Settings headers
+- **[2026-02-22]** Created Mobile Özet screen (390×844px, `A7dtP`) at x=5240 with light theme
+- **[2026-02-22]** Widget 1: Koleksiyon Değeri — total collection value ($34.75), links to cards sorted by value
+- **[2026-02-22]** Widget 2: Kartlarım — card count (87) with rarity breakdown chips (C/U/R/RR/M), links to default card list
+- **[2026-02-22]** Widget 3: Favoriler — favorites count (12) with pink heart, links to favorites-filtered card list
+- **[2026-02-22]** Widget 4: En Değerli Kart — most valuable card (Empoleon ex, $24.50) with AI thumbnail, links to card detail
+- **[2026-02-22]** Widget 5: Tür Dağılımı — type distribution with colored chips (Ateş, Su, Ot, Elektrik, Psişik, Diğer)
+- **[2026-02-22]** Tab bar with Özet active (teal indicator), consistent 5-tab layout
+
 ### Bugfix: Trainer Detail Page — Portraits & Turkish Translation
 - **[2026-02-22]** Fixed trainer portraits: replaced Pokemon sprite URLs with actual trainer character artwork from Bulbapedia (official Ken Sugimori / anime artwork)
 - **[2026-02-22]** Downloaded 13 trainer images to `public/trainers/` for local serving (Ash, Misty, Brock, Dawn, Blaine, Prof. Oak, Cynthia, Red, Blue, Lance, N, Steven Stone, Team Rocket)
