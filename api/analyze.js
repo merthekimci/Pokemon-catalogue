@@ -1,3 +1,52 @@
+// Score TCGdex candidates by attribute similarity.
+// localId match is the strongest signal (same card number = very likely same variant).
+function scoreCandidates(candidates, extractedCardNum) {
+  return candidates
+    .filter((r) => r.image)
+    .map((r) => ({ r, score: r.localId === extractedCardNum ? 10 : 0 }))
+    .sort((a, b) => b.score - a.score);
+}
+
+// Use GPT-4o vision to pick the best-matching candidate when attribute scoring is ambiguous.
+// Image 1 = the user's uploaded card photo; Images 2..N = candidate TCGdex scans.
+async function pickBestByVision(imageBase64, mimeType, candidates, apiKey) {
+  const urls = candidates.map((r) => r.image + "/high.png");
+  const content = [
+    {
+      type: "text",
+      text:
+        `The first image is a photo of a physical Pokémon TCG card. ` +
+        `The following ${urls.length} images are candidate card scans from a database. ` +
+        `Which candidate number (1 to ${urls.length}) best matches the card variant in the first image? ` +
+        `Consider card artwork, set symbol, and overall visual design. ` +
+        `Respond with ONLY a single integer — the candidate number.`,
+    },
+    {
+      type: "image_url",
+      image_url: { url: `data:${mimeType || "image/jpeg"};base64,${imageBase64}`, detail: "low" },
+    },
+    ...urls.map((url) => ({ type: "image_url", image_url: { url, detail: "low" } })),
+  ];
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        max_tokens: 10,
+        messages: [{ role: "user", content }],
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const idx = parseInt(data.choices?.[0]?.message?.content?.trim(), 10);
+    if (isNaN(idx) || idx < 1 || idx > urls.length) return null;
+    return candidates[idx - 1];
+  } catch (_) {
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -113,45 +162,67 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
       }
     });
 
-    // For each card, resolve the TCGdex image by English name.
-    // Priority: ME02 set first (primary collection set), then any set.
-    // We use results.find(r => r.image) instead of results[0] to skip entries
-    // that lack images. We do NOT fall back to card-number ME02 URL because
-    // imported cards may be from other sets (e.g. a 182-card set), and card
-    // position N in ME02 is a completely different Pokémon.
+    // Resolve the correct TCGdex card image for each extracted card.
+    //
+    // Strategy:
+    //   1. Fetch candidates by name from ME02 (primary set) then from all sets.
+    //   2. Score candidates: localId match with extracted card number = +10 pts.
+    //   3. If the top-scoring candidate is uniquely best → use it (no extra API call).
+    //   4. If scores are tied or no localId match exists → use GPT-4o vision to pick
+    //      the best visual match among the top-4 candidates.
+    //
+    // We never fall back to card-number + ME02 URL because the card may be from a
+    // different set (e.g. 073/182 ≠ ME02's 80-card set), and position N in ME02
+    // would be a completely different Pokémon.
     const cardsWithImages = await Promise.all(
       cards.map(async (card) => {
-        if (card.img) return card; // already has an image
+        if (card.img) return card;
 
         const enName = card.translations?.en?.name || card.original?.name;
         if (!enName) return card;
 
-        // 1. Try ME02 set first — the primary set for this collection
+        const extractedNum = card.cardNumber?.split("/")?.[0]?.trim();
+        let allCandidates = [];
+
+        // 1. ME02 set — primary collection set
         try {
           const me02Res = await fetch(
             `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}&set.id=me02`
           );
           if (me02Res.ok) {
             const me02Results = await me02Res.json();
-            const me02Match = Array.isArray(me02Results) && me02Results.find((r) => r.image);
-            if (me02Match) return { ...card, img: me02Match.image + "/high.png" };
+            if (Array.isArray(me02Results)) allCandidates.push(...me02Results);
           }
         } catch (_) {}
 
-        // 2. Search all sets — use the first result that actually has an image
+        // 2. All sets — broaden the candidate pool
         try {
           const tcgRes = await fetch(
             `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}`
           );
           if (tcgRes.ok) {
-            const results = await tcgRes.json();
-            const anyMatch = Array.isArray(results) && results.find((r) => r.image);
-            if (anyMatch) return { ...card, img: anyMatch.image + "/high.png" };
+            const allResults = await tcgRes.json();
+            if (Array.isArray(allResults)) {
+              // Merge, deduplicate by id
+              const seen = new Set(allCandidates.map((r) => r.id));
+              allResults.forEach((r) => { if (!seen.has(r.id)) allCandidates.push(r); });
+            }
           }
         } catch (_) {}
 
-        // No image found — return card without img rather than guessing a wrong set URL
-        return card;
+        const scored = scoreCandidates(allCandidates, extractedNum);
+        if (scored.length === 0) return card;
+
+        // Unique best by attributes — no vision call needed
+        const isUnique = scored.length === 1 || scored[0].score > scored[1].score;
+        if (isUnique) {
+          return { ...card, img: scored[0].r.image + "/high.png" };
+        }
+
+        // Ambiguous — use GPT-4o vision to pick the correct variant
+        const topCandidates = scored.slice(0, 4).map((s) => s.r);
+        const best = await pickBestByVision(imageBase64, mimeType, topCandidates, apiKey);
+        return { ...card, img: (best ?? scored[0].r).image + "/high.png" };
       })
     );
 
