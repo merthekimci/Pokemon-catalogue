@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { trainers } from "../data/trainers";
 
-const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`;
+import PokeballIcon from "./PokeballIcon";
 
 export default function TrainersList({ cards, typeColors }) {
   return (
@@ -12,7 +12,7 @@ export default function TrainersList({ cards, typeColors }) {
         padding: "14px 16px 10px",
         background: "var(--bg-card)",
       }}>
-        <img src={TCG_LOGO} alt="" style={{ height: 28, width: "auto" }} />
+        <PokeballIcon size={28} />
         <h1 style={{
           fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700,
           margin: 0, color: "var(--text-primary)",

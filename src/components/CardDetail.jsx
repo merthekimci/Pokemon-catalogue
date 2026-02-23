@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { trainers } from "../data/trainers";
 import { resolveCardImage } from "../data/tcgdex-map";
 import { pokemonMeta } from "../data/pokemon-meta";
+import PokeballIcon from "./PokeballIcon";
 
 const typeColors = {
   "Ot":       { bg: "#00c853", glow: "rgba(0,200,83,0.35)", dark: "#0a2e16", emoji: "🌿" },
@@ -537,12 +538,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
           padding: "16px 28px 12px",
           background: "var(--bg-card)",
         }}>
-          <img
-            src={`${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`}
-            alt="Pokemon TCG"
-            style={{ height: 48, width: "auto", objectFit: "contain" }}
-            onError={(e) => { e.target.style.display = "none"; }}
-          />
+          <PokeballIcon size={48} />
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'Comic Neue', cursive" }}>
             <Link to="/" style={{ color: "#2A75BB", fontSize: 13, fontWeight: 500, textDecoration: "none" }}>Kartlarim</Link>
             <span style={{ color: "var(--text-muted)", fontSize: 13 }}>/</span>

@@ -7,7 +7,7 @@ import CardDetail from "./components/CardDetail";
 import TrainersList from "./components/TrainersList";
 import SettingsPage from "./components/SettingsPage";
 
-const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`;
+import PokeballIcon from "./components/PokeballIcon";
 
 // Translation-aware card field accessor.
 // Reads from translations[lang][field], falls back to original[field], then card[field] (backward compat).
@@ -586,14 +586,7 @@ function PhotoUploadModal({ onClose, onAdd }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" style={{ maxWidth: 700, width: "100%" }} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <img
-            src={TCG_LOGO}
-            alt=""
-            style={{
-              height: 28, width: "auto",
-              filter: "drop-shadow(0 0 6px rgba(255,203,5,0.4))",
-            }}
-          />
+          <PokeballIcon size={28} style={{ filter: "drop-shadow(0 0 6px rgba(255,203,5,0.4))" }} />
           <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, fontFamily: "'Bangers', cursive", color: "var(--text-primary)" }}>
             Fotoğraftan Kart Ekle
           </h2>
@@ -972,7 +965,7 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
       padding: "20px 16px 100px", maxWidth: 600, margin: "0 auto",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-        <img src={TCG_LOGO} alt="" style={{ height: 28, width: "auto" }} />
+        <PokeballIcon size={28} />
         <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Özet</h2>
       </div>
 
@@ -1430,17 +1423,13 @@ export default function App() {
       }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: isMobile ? "14px 16px 10px" : "16px 28px 12px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 10 : 14 }}>
-            <img
-              src={TCG_LOGO}
-              alt="Pokemon TCG"
-              style={{ height: isMobile ? 28 : 36, width: "auto", flexShrink: 0 }}
-            />
+            <PokeballIcon size={isMobile ? 28 : 36} style={{ flexShrink: 0 }} />
             <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 1 : 2 }}>
               <span style={{
                 fontFamily: "'Bangers', cursive", fontSize: isMobile ? 20 : 26, fontWeight: 700,
                 color: "var(--text-primary)", lineHeight: 1.1,
               }}>
-                Pokemon Kart Kataloğu
+                Kartlarım
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <span style={{
@@ -1707,7 +1696,7 @@ export default function App() {
           </div>
         ) : cards.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", textAlign: "center", gap: 16 }}>
-            <img src={TCG_LOGO} alt="" style={{ width: 120, height: "auto", opacity: 0.12, filter: "grayscale(0.5)", userSelect: "none", pointerEvents: "none" }} />
+            <PokeballIcon size={80} style={{ opacity: 0.12, filter: "grayscale(0.5)", userSelect: "none", pointerEvents: "none" }} />
             <p style={{ color: "var(--text-primary)", fontSize: 15, fontFamily: "'Bangers', cursive", fontWeight: 700, margin: 0 }}>
               Henüz kart yok
             </p>
@@ -1751,7 +1740,7 @@ export default function App() {
         display: "flex", flexDirection: "column", alignItems: "center",
         justifyContent: "center", padding: 20,
       }}>
-        <img src={TCG_LOGO} alt="Pokémon TCG" style={{ width: 160, height: "auto", marginBottom: 12 }} />
+        <PokeballIcon size={80} style={{ marginBottom: 12 }} />
         <h1 style={{
           fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
           color: "#ffffff", margin: "0 0 32px", textShadow: "0 2px 8px rgba(0,0,0,0.3)",

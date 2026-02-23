@@ -1,4 +1,4 @@
-const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`;
+import PokeballIcon from "./PokeballIcon";
 
 export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerNameChange, phone, deviceId, onShowPhoneModal, onPhoneChange }) {
   const sectionStyle = {
@@ -14,7 +14,7 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
         padding: "14px 16px 10px",
         background: "var(--bg-card)",
       }}>
-        <img src={TCG_LOGO} alt="" style={{ height: 28, width: "auto" }} />
+        <PokeballIcon size={28} />
         <span style={{ fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
           Ayarlar
         </span>

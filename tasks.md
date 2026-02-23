@@ -43,3 +43,4 @@
 | 39 | Fix background visibility + switch fonts to Bangers + Comic Neue | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 40 | Remove all background filters/overlays — show gradient clearly | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 41 | Fix background image not rendering — use fixed div instead of body bg | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 42 | Replace TCG logo with inline Pokeball SVG + rename catalogue title to "Kartlarım" | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |

@@ -337,6 +337,13 @@
 - Free tier: 100 requests/day without API key (sufficient for personal collection use)
 - Build verified: `npm run build` passes cleanly
 
+### Replace TCG Logo with Pokeball SVG (Task #42)
+- **[2026-02-24]** Created `src/components/PokeballIcon.jsx` — inline SVG Pokeball component (classic red/white design)
+- **[2026-02-24]** Replaced all `TCG_LOGO` image references across 4 files: `App.jsx`, `CardDetail.jsx`, `TrainersList.jsx`, `SettingsPage.jsx`
+- **[2026-02-24]** Renamed catalogue header title from "Pokemon Kart Kataloğu" → "Kartlarım"
+- **[2026-02-24]** Screens updated: catalogue header, summary, add-modal, empty state, login/splash, card detail, trainers list, settings
+- **[2026-02-24]** Build verified: `npm run build` passes cleanly
+
 ### 2026-02-23 — Fix Wrong Image on Photo-Imported Cards (Bug #6)
 - Fixed bug where photo-imported cards displayed wrong image in confirmation dialog and card detail page
 - Root cause: `analyze.js` TCGdex name lookup priority overrode reliable card-number-based URL — `results[0]` from a name search is non-deterministic and often returned a different set variant
