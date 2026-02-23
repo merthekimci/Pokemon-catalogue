@@ -337,6 +337,10 @@
 - Free tier: 100 requests/day without API key (sufficient for personal collection use)
 - Build verified: `npm run build` passes cleanly
 
+### Restore TCG Logo on Login/Onboarding Page (Task #43)
+- **[2026-02-24]** Restored original Pokemon TCG logo image on the login/splash screen (phone-entry page)
+- **[2026-02-24]** All other screens retain the Pokeball SVG icon
+
 ### Replace TCG Logo with Pokeball SVG (Task #42)
 - **[2026-02-24]** Created `src/components/PokeballIcon.jsx` — inline SVG Pokeball component (classic red/white design)
 - **[2026-02-24]** Replaced all `TCG_LOGO` image references across 4 files: `App.jsx`, `CardDetail.jsx`, `TrainersList.jsx`, `SettingsPage.jsx`

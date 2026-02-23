@@ -1740,7 +1740,7 @@ export default function App() {
         display: "flex", flexDirection: "column", alignItems: "center",
         justifyContent: "center", padding: 20,
       }}>
-        <PokeballIcon size={80} style={{ marginBottom: 12 }} />
+        <img src={`${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`} alt="Pokémon TCG" style={{ width: 160, height: "auto", marginBottom: 12 }} />
         <h1 style={{
           fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
           color: "#ffffff", margin: "0 0 32px", textShadow: "0 2px 8px rgba(0,0,0,0.3)",
