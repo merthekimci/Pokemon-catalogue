@@ -49,3 +49,5 @@
 | 45 | Apply dark navy modal style to all widgets across all pages | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 46 | Fix 3D card drag flicker after intro spin animation | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 47 | Redirect to KOLEKSİYONUM summary page after login/registration | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 48 | Separate global card metadata from collector ownership — new DB tables, cache-aware import, migration | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 49 | Make KART EKLE button 1.2x larger | Done | Claude | 2026-02-24 | 2026-02-24 |

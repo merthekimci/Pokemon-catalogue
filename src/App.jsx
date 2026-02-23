@@ -1168,6 +1168,7 @@ function BottomTabBar({ onAddClick }) {
       <button className="tab-add-btn" onClick={onAddClick} style={{
         ...tabStyle(false),
         fontSize: 18,
+        transform: "scale(1.2)",
       }}>
         <span>Kart Ekle</span>
       </button>
@@ -1314,7 +1315,13 @@ export default function App() {
           phone: phoneRef.current,
           owner_name: ownerName,
           theme,
-          cards,
+          catalogue: cards.map((c) => ({
+            card_number: cardNum(c),
+            collector_id: c.id,
+            copies: c.copies,
+            trainer: c.trainer || "ash-ketchum",
+            added_at: c.addedAt,
+          })),
           favorites,
           device_id: getDeviceId(),
           ...(portraitDirtyRef.current ? { portrait } : {}),

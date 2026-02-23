@@ -2,6 +2,16 @@
 
 ## Session 5 — 2026-02-24
 
+### Global Card Metadata Separation (Task #48)
+- **[2026-02-24]** Created `card_metadata` table (card_number PK, hp, rarity, retreat, damage, img, market_value, original JSONB, translations JSONB) — global card data shared across all collectors
+- **[2026-02-24]** Created `collection_cards` table (phone + card_number unique, collector_id, copies, trainer, added_at) — per-collector ownership references
+- **[2026-02-24]** Added cache layer to `api/analyze.js`: queries `card_metadata` before calling GPT-4o image resolution + price lookup. Cache hit → instant return. Cache miss → full pipeline then upserts metadata for future use
+- **[2026-02-24]** Refactored `GET /api/collection`: JOINs `collection_cards` with `card_metadata` to assemble cards array, falls back to JSONB for pre-migration data
+- **[2026-02-24]** Refactored `POST /api/collection`: accepts `catalogue` array (ownership-only data), upserts to `collection_cards`, preserves backward compat with `cards` JSONB
+- **[2026-02-24]** Updated frontend debounced save (`App.jsx`) to send `catalogue` array instead of full card objects
+- **[2026-02-24]** Created `api/migrate-cards.js` — one-time migration endpoint to backfill both tables from existing JSONB data (protected by MIGRATE_SECRET header)
+- **[2026-02-24]** Files modified: `api/collection.js`, `api/analyze.js`, `src/App.jsx`. New file: `api/migrate-cards.js`
+
 ### Redirect to KOLEKSİYONUM after login (Task #47)
 - **[2026-02-24]** Added `useNavigate()` to `App` component and `navigate("/ozet")` in login PhoneModal callback
 - **[2026-02-24]** After entering phone number, users now land on the collection summary page instead of the card catalogue
@@ -374,3 +384,7 @@
 - Root cause: `analyze.js` TCGdex name lookup priority overrode reliable card-number-based URL — `results[0]` from a name search is non-deterministic and often returned a different set variant
 - Fix: card-number-based ME02 URL (`https://assets.tcgdex.net/en/me/me02/{cardNumber}/high.png`) now tried first; TCGdex name lookups are now fallbacks only for when GPT-4o does not detect a card number
 - Committed and pushed to main
+
+### 2026-02-24 — Make KART EKLE button 1.2x larger
+- Added `transform: "scale(1.2)"` to the "Kart Ekle" button inline style in `src/App.jsx`
+- Single-line change to the bottom tab bar navigation button
