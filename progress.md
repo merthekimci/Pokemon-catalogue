@@ -1,5 +1,15 @@
 # Progress Log
 
+## Session 4 — 2026-02-23
+
+### Feature: Mandatory Phone Number Onboarding (Task #31)
+- **[2026-02-23]** Added `allowClose` prop to `PhoneModal` component (default `true`). When `false`: hides Cancel button, changes title to "Hoş Geldiniz!", changes subtitle to onboarding-friendly text, changes button label to "Giriş Yap"
+- **[2026-02-23]** Added early return gate in `App()` — if `phone` is empty, renders full-screen onboarding view with `PhoneModal allowClose={false}` instead of app routes. No navigation, no content visible until phone is entered
+- **[2026-02-23]** Removed dead empty-state "Koleksiyonunuz henüz bağlı değil" block from `catalogueContent` (unreachable now that the phone gate prevents reaching the catalogue without a phone)
+- **[2026-02-23]** Returning users who re-enter their phone number get their existing collection restored (phone is DB primary key)
+- **[2026-02-23]** No SMS/OTP verification — phone number is entered directly, same validation as before (`5XX XXX XX XX` format)
+- **[2026-02-23]** Build verified: `npm run build` passes cleanly
+
 ## Session 3 — 2026-02-23
 
 ### Feature: Pokeball Favicon + OG Social Sharing Tags (Task #30)

@@ -103,7 +103,7 @@ function SyncIndicator({ status }) {
   );
 }
 
-function PhoneModal({ onSave, onClose }) {
+function PhoneModal({ onSave, onClose, allowClose = true }) {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
 
@@ -123,10 +123,12 @@ function PhoneModal({ onSave, onClose }) {
           fontFamily: "'Rajdhani', sans-serif", fontSize: 22, fontWeight: 700,
           margin: "0 0 8px", color: "var(--text-primary)",
         }}>
-          Bulut Senkronizasyonu
+          {allowClose ? "Bulut Senkronizasyonu" : "Hoş Geldiniz!"}
         </h2>
         <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'DM Sans', sans-serif" }}>
-          Koleksiyonunuzu cihazlar arasında senkronize etmek için telefon numaranızı girin.
+          {allowClose
+            ? "Koleksiyonunuzu cihazlar arasında senkronize etmek için telefon numaranızı girin."
+            : "Koleksiyonunuza erişmek için telefon numaranızı girin."}
         </p>
         <input
           className="holo-input"
@@ -143,8 +145,10 @@ function PhoneModal({ onSave, onClose }) {
           </p>
         )}
         <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-          <button className="btn-glow" style={{ flex: 1 }} onClick={handleSubmit}>Kaydet</button>
-          <button className="btn-accent" onClick={onClose}>İptal</button>
+          <button className="btn-glow" style={{ flex: 1 }} onClick={handleSubmit}>
+            {allowClose ? "Kaydet" : "Giriş Yap"}
+          </button>
+          {allowClose && <button className="btn-accent" onClick={onClose}>İptal</button>}
         </div>
       </div>
     </div>
@@ -1560,19 +1564,6 @@ export default function App() {
               Koleksiyon yükleniyor...
             </p>
           </div>
-        ) : !phone ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", textAlign: "center", gap: 16 }}>
-            <img src={TCG_LOGO} alt="" style={{ width: 120, height: "auto", opacity: 0.12, filter: "grayscale(0.5)", userSelect: "none", pointerEvents: "none" }} />
-            <p style={{ color: "var(--text-primary)", fontSize: 15, fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, margin: 0 }}>
-              Koleksiyonunuz henüz bağlı değil
-            </p>
-            <p style={{ color: "var(--text-muted)", fontSize: 13, fontFamily: "'DM Sans', sans-serif", margin: 0, maxWidth: 280 }}>
-              Koleksiyonunuzu kaydetmek ve cihazlar arasında senkronize etmek için telefon numaranızı bağlayın.
-            </p>
-            <button className="btn-glow" onClick={() => setShowPhoneModal(true)}>
-              Telefon Numarasıyla Bağlan
-            </button>
-          </div>
         ) : cards.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", textAlign: "center", gap: 16 }}>
             <img src={TCG_LOGO} alt="" style={{ width: 120, height: "auto", opacity: 0.12, filter: "grayscale(0.5)", userSelect: "none", pointerEvents: "none" }} />
@@ -1611,6 +1602,18 @@ export default function App() {
       <div className="bottom-tab-bar-spacer" />
     </>
   );
+
+  if (!phone) {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
+        <PhoneModal
+          allowClose={false}
+          onSave={(p) => { setPhone(p); setShowPhoneModal(false); }}
+          onClose={() => {}}
+        />
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", position: "relative" }}>
