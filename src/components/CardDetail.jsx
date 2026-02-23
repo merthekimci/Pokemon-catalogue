@@ -161,10 +161,10 @@ function StatCard({ label, value, orbColor }) {
       border: "1px solid var(--border-dim)", display: "flex",
       flexDirection: "column", gap: 4,
     }}>
-      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>{label}</span>
+      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive" }}>{label}</span>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         {orbColor && <span style={{ width: 12, height: 12, borderRadius: "50%", background: orbColor, flexShrink: 0 }} />}
-        <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Nunito', sans-serif" }}>{value}</span>
+        <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Comic Neue', cursive" }}>{value}</span>
       </div>
     </div>
   );
@@ -173,7 +173,7 @@ function StatCard({ label, value, orbColor }) {
 function SectionTitle({ children, isDesktop }) {
   return (
     <h3 style={{
-      fontFamily: "'Fredoka', sans-serif", fontSize: isDesktop ? 22 : 20,
+      fontFamily: "'Bangers', cursive", fontSize: isDesktop ? 22 : 20,
       fontWeight: 700, color: "var(--text-primary)", margin: 0,
     }}>{children}</h3>
   );
@@ -209,8 +209,8 @@ function RelationCard({ card, reason, isFoe, resolveImg }) {
         )}
       </div>
       <div style={{ padding: "8px 10px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Nunito', sans-serif" }}>{tCard(card, "name")}</div>
-        <div style={{ fontSize: 10, color: isFoe ? "#ff4444" : tc.bg, fontFamily: "'Nunito', sans-serif" }}>{reason}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Comic Neue', cursive" }}>{tCard(card, "name")}</div>
+        <div style={{ fontSize: 10, color: isFoe ? "#ff4444" : tc.bg, fontFamily: "'Comic Neue', cursive" }}>{reason}</div>
       </div>
     </Link>
   );
@@ -255,11 +255,11 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
           }}>
             {/* Name Bar */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px" }}>
-              <span style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 22, color: "#2a2838" }}>
+              <span style={{ fontFamily: "'Bangers', cursive", fontWeight: 700, fontSize: 22, color: "#2a2838" }}>
                 {tCard(card, "name")}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 20, color: t.bg }}>
+                <span style={{ fontFamily: "'Bangers', cursive", fontWeight: 700, fontSize: 20, color: t.bg }}>
                   HP {card.hp}
                 </span>
                 <span style={{ width: 16, height: 16, borderRadius: "50%", background: t.bg, display: "inline-block" }} />
@@ -285,7 +285,7 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
                   position: "absolute", top: 8, left: 8,
                   background: "rgba(0,0,0,0.8)", borderRadius: 10, padding: "2px 8px",
                 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "'Nunito', sans-serif" }}>x{card.copies}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "'Comic Neue', cursive" }}>x{card.copies}</span>
                 </div>
               )}
               {/* Heart badge */}
@@ -300,23 +300,23 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
 
             {/* Trainer Row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#2A75BB", fontFamily: "'Nunito', sans-serif" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#2A75BB", fontFamily: "'Comic Neue', cursive" }}>
                 {card.trainer ? (trainers[card.trainer]?.name || card.trainer) : "—"}
               </span>
-              <span style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>{cardNum(card)}</span>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive" }}>{cardNum(card)}</span>
             </div>
 
             {/* Attack Section */}
             {tCard(card, "attack1") && (
               <div style={{ padding: "6px 10px", borderTop: `1px solid ${t.bg}40`, display: "flex", flexDirection: "column", gap: 4 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'Nunito', sans-serif" }}>⚔ {tCard(card, "attack1")}</span>
-                  <span style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 1) || "—"}</span>
+                  <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'Comic Neue', cursive" }}>⚔ {tCard(card, "attack1")}</span>
+                  <span style={{ fontFamily: "'Bangers', cursive", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 1) || "—"}</span>
                 </div>
                 {tCard(card, "attack2") && (
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'Nunito', sans-serif" }}>⚔ {tCard(card, "attack2")}</span>
-                    <span style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 2) || "—"}</span>
+                    <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'Comic Neue', cursive" }}>⚔ {tCard(card, "attack2")}</span>
+                    <span style={{ fontFamily: "'Bangers', cursive", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 2) || "—"}</span>
                   </div>
                 )}
               </div>
@@ -328,20 +328,20 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
               padding: "4px 10px", borderTop: `1px solid ${t.bg}40`,
             }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>zayiflik</span>
+                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive" }}>zayiflik</span>
                 {card.weakness && card.weakness !== "-" ? (
                   <>
                     <span style={{ width: 14, height: 14, borderRadius: "50%", background: weaknessColor, display: "inline-block" }} />
-                    <span style={{ fontSize: 10, fontWeight: 600, color: "#2a2838", fontFamily: "'Nunito', sans-serif" }}>x2</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: "#2a2838", fontFamily: "'Comic Neue', cursive" }}>x2</span>
                   </>
                 ) : <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>—</span>}
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>dayaniklilik</span>
+                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive" }}>dayaniklilik</span>
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>—</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>cekilme</span>
+                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive" }}>cekilme</span>
                 {card.retreat && card.retreat !== "-" ? (
                   <span style={{ width: 14, height: 14, borderRadius: "50%", background: "var(--text-secondary)", display: "inline-block" }} />
                 ) : <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>—</span>}
@@ -350,10 +350,10 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
 
             {/* Badges */}
             <div style={{ display: "flex", gap: 8, padding: "4px 10px", alignItems: "center" }}>
-              <span style={{ background: t.bg, color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Nunito', sans-serif" }}>
+              <span style={{ background: t.bg, color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Comic Neue', cursive" }}>
                 {tCard(card, "type")}
               </span>
-              <span style={{ background: rarityColors[card.rarity] || "var(--text-muted)", color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Nunito', sans-serif" }}>
+              <span style={{ background: rarityColors[card.rarity] || "var(--text-muted)", color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Comic Neue', cursive" }}>
                 {card.rarity}
               </span>
             </div>
@@ -364,8 +364,8 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "6px 10px", borderRadius: 8, background: `${t.bg}0D`,
               }}>
-                <span style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>Piyasa Degeri</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "#2a2838", fontFamily: "'Nunito', sans-serif" }}>${card.marketValue.toFixed(2)}</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive" }}>Piyasa Degeri</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#2a2838", fontFamily: "'Comic Neue', cursive" }}>${card.marketValue.toFixed(2)}</span>
               </div>
             )}
           </div>
@@ -460,23 +460,23 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
       {/* Name Section */}
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h1 style={{
-          fontFamily: "'Fredoka', sans-serif", fontSize: isDesktop ? 36 : 28,
+          fontFamily: "'Bangers', cursive", fontSize: isDesktop ? 36 : 28,
           fontWeight: 700, margin: 0, color: "var(--text-primary)",
         }}>{tCard(card, "name")}</h1>
-        <div style={{ fontSize: isDesktop ? 14 : 13, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>
+        <div style={{ fontSize: isDesktop ? 14 : 13, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive" }}>
           {meta?.japaneseName || `${cardNum(card)} · ${tCard(card, "stage")}`}
         </div>
         <div style={{ display: "flex", gap: 10, marginTop: 4, alignItems: "center" }}>
           <span style={{
             background: `${t.bg}1A`, color: t.bg, borderRadius: 6,
-            padding: "4px 12px", fontSize: 12, fontWeight: 600, fontFamily: "'Nunito', sans-serif",
+            padding: "4px 12px", fontSize: 12, fontWeight: 600, fontFamily: "'Comic Neue', cursive",
           }}>
             {tCard(card, "stage") || "Temel Pokemon"}
           </span>
           {card.hp > 0 && (
             <span style={{
               background: `${t.bg}1A`, color: t.bg, borderRadius: 6,
-              padding: "4px 12px", fontSize: 14, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
+              padding: "4px 12px", fontSize: 14, fontWeight: 700, fontFamily: "'Bangers', cursive",
               display: "inline-flex", alignItems: "center", gap: 6,
             }}>
               HP {card.hp}
@@ -494,7 +494,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
           background: isFavorite ? "rgba(247,37,133,0.1)" : "var(--bg-elevated)",
           border: `1px solid ${isFavorite ? "rgba(247,37,133,0.3)" : "var(--border-dim)"}`,
           color: isFavorite ? "#f72585" : "var(--text-primary)",
-          fontWeight: 600, fontSize: isDesktop ? 14 : 13, fontFamily: "'Nunito', sans-serif",
+          fontWeight: 600, fontSize: isDesktop ? 14 : 13, fontFamily: "'Comic Neue', cursive",
           transition: "all 0.2s ease",
         }}>
           <span style={{ fontSize: 18, color: "#f72585" }}>{isFavorite ? "♥" : "♡"}</span>
@@ -543,7 +543,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             style={{ height: 48, width: "auto", objectFit: "contain" }}
             onError={(e) => { e.target.style.display = "none"; }}
           />
-          <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'Nunito', sans-serif" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'Comic Neue', cursive" }}>
             <Link to="/" style={{ color: "#2A75BB", fontSize: 13, fontWeight: 500, textDecoration: "none" }}>Kartlarim</Link>
             <span style={{ color: "var(--text-muted)", fontSize: 13 }}>/</span>
             <span style={{ color: "var(--text-primary)", fontSize: 13, fontWeight: 600 }}>Kart Detayi</span>
@@ -554,7 +554,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             padding: "8px 16px", borderRadius: 10, cursor: "pointer",
             background: "var(--bg-elevated)", border: "1px solid var(--border-dim)",
             color: "var(--text-primary)", fontSize: 13, fontWeight: 600,
-            fontFamily: "'Nunito', sans-serif",
+            fontFamily: "'Comic Neue', cursive",
           }}>
             ← Kartlarima Don
           </button>
@@ -570,7 +570,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             background: "none", border: "none", cursor: "pointer",
             fontSize: 20, color: "var(--text-primary)", padding: 0,
           }}>←</button>
-          <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+          <span style={{ fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
             Kart Detayi
           </span>
         </div>
@@ -686,7 +686,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             <SectionTitle isDesktop={isDesktop}>Biyografi</SectionTitle>
             <p style={{
               fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
-              color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif",
+              color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive",
             }}>{meta.bio}</p>
           </SectionWrapper>
         )}
@@ -697,7 +697,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             <SectionTitle isDesktop={isDesktop}>Hikaye</SectionTitle>
             <p style={{
               fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
-              color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif",
+              color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive",
             }}>{meta.lore}</p>
           </SectionWrapper>
         )}
@@ -720,15 +720,15 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                   }} />
               )}
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: isDesktop ? 16 : 14, color: "var(--text-primary)", fontFamily: "'Nunito', sans-serif" }}>{trainer.name}</div>
-                <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>{trainer.region} Bolgesi · {trainer.specialty}</div>
+                <div style={{ fontWeight: 700, fontSize: isDesktop ? 16 : 14, color: "var(--text-primary)", fontFamily: "'Comic Neue', cursive" }}>{trainer.name}</div>
+                <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive" }}>{trainer.region} Bolgesi · {trainer.specialty}</div>
               </div>
               {isDesktop && (
                 <div style={{
                   display: "flex", alignItems: "center", gap: 4,
                   padding: "8px 14px", borderRadius: 8,
                   background: "rgba(42,117,187,0.1)",
-                  color: "#2A75BB", fontSize: 12, fontWeight: 600, fontFamily: "'Nunito', sans-serif",
+                  color: "#2A75BB", fontSize: 12, fontWeight: 600, fontFamily: "'Comic Neue', cursive",
                 }}>
                   ↗ Profil
                 </div>
@@ -748,7 +748,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                   padding: isDesktop ? "6px 16px" : "5px 12px",
                   borderRadius: isDesktop ? 20 : 16,
                   background: `${aff.color}1A`,
-                  color: aff.color, fontSize: 13, fontWeight: 600, fontFamily: "'Nunito', sans-serif",
+                  color: aff.color, fontSize: 13, fontWeight: 600, fontFamily: "'Comic Neue', cursive",
                 }}>
                   {affiliationIcons[aff.icon] || "✨"} {aff.label}
                 </span>

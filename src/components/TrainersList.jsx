@@ -14,7 +14,7 @@ export default function TrainersList({ cards, typeColors }) {
       }}>
         <img src={TCG_LOGO} alt="" style={{ height: 28, width: "auto" }} />
         <h1 style={{
-          fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700,
+          fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700,
           margin: 0, color: "var(--text-primary)",
         }}>Eğitmenler</h1>
       </div>
@@ -46,7 +46,7 @@ export default function TrainersList({ cards, typeColors }) {
                 />
               )}
               <div style={{
-                fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 15,
+                fontFamily: "'Bangers', cursive", fontWeight: 700, fontSize: 15,
                 color: "var(--text-primary)", marginBottom: 2,
               }}>
                 {trainer.name}

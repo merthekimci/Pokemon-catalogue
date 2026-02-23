@@ -100,7 +100,7 @@ function SyncIndicator({ status }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 5,
-      fontSize: 10, fontFamily: "'Nunito', sans-serif", color: cfg.color,
+      fontSize: 10, fontFamily: "'Comic Neue', cursive", color: cfg.color,
     }}>
       <span style={{
         width: 6, height: 6, borderRadius: "50%",
@@ -129,12 +129,12 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
   const content = (
     <div className="modal-content" style={{ maxWidth: 400, width: "100%" }}>
       <h2 style={{
-        fontFamily: "'Fredoka', sans-serif", fontSize: 22, fontWeight: 700,
+        fontFamily: "'Bangers', cursive", fontSize: 22, fontWeight: 700,
         margin: "0 0 8px", color: "var(--text-primary)",
       }}>
         {allowClose ? "Bulut Senkronizasyonu" : "Haydi Başlayalım!"}
       </h2>
-      <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'Nunito', sans-serif" }}>
+      <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'Comic Neue', cursive" }}>
         {allowClose
           ? "Koleksiyonunuzu cihazlar arasında senkronize etmek için telefon numaranızı girin."
           : "Yeni bir koleksiyon yaratmak veya kayıtlı koleksiyonunuzu yüklemek için telefon numaranızı girin."}
@@ -149,7 +149,7 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
         autoFocus
       />
       {error && (
-        <p style={{ color: "#f72585", fontSize: 12, margin: "0 0 12px", fontFamily: "'Nunito', sans-serif" }}>
+        <p style={{ color: "#f72585", fontSize: 12, margin: "0 0 12px", fontFamily: "'Comic Neue', cursive" }}>
           {error}
         </p>
       )}
@@ -266,7 +266,7 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
           {/* Name row */}
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{
-              fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 15,
+              fontFamily: "'Bangers', cursive", fontWeight: 700, fontSize: 15,
               color: "var(--text-primary)",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               flex: 1,
@@ -282,7 +282,7 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
                 to={`/trainer/${card.trainer}`}
                 onClick={(e) => { e.stopPropagation(); if (scrollRef) scrollRef.current = window.scrollY; }}
                 style={{
-                  fontFamily: "'Nunito', sans-serif", fontWeight: 400,
+                  fontFamily: "'Comic Neue', cursive", fontWeight: 400,
                   color: "var(--accent)", textDecoration: "none",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   display: "block",
@@ -321,8 +321,8 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
               border: "1px solid rgba(255,203,5,0.15)",
               borderRadius: 8, padding: "6px 10px",
             }}>
-              <span style={{ fontSize: 11, fontFamily: "'Nunito', sans-serif", color: "var(--text-muted)" }}>HP</span>
-              <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 13, fontWeight: 700, color: "var(--holo-1)" }}>
+              <span style={{ fontSize: 11, fontFamily: "'Comic Neue', cursive", color: "var(--text-muted)" }}>HP</span>
+              <span style={{ fontFamily: "'Bangers', cursive", fontSize: 13, fontWeight: 700, color: "var(--holo-1)" }}>
                 {card.hp}
               </span>
             </div>
@@ -336,8 +336,8 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
               border: "1px solid rgba(255,203,5,0.15)",
               borderRadius: 8, padding: "6px 10px",
             }}>
-              <span style={{ fontSize: 11, fontFamily: "'Nunito', sans-serif", color: "var(--text-muted)" }}>Piyasa Değeri</span>
-              <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 13, fontWeight: 700, color: "var(--holo-1)" }}>
+              <span style={{ fontSize: 11, fontFamily: "'Comic Neue', cursive", color: "var(--text-muted)" }}>Piyasa Değeri</span>
+              <span style={{ fontFamily: "'Bangers', cursive", fontSize: 13, fontWeight: 700, color: "var(--holo-1)" }}>
                 ${card.marketValue.toFixed(2)}
               </span>
             </div>
@@ -398,7 +398,7 @@ function CompareView({ cards, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" style={{ maxWidth: 1000, width: "100%" }} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, fontFamily: "'Fredoka', sans-serif", color: "var(--text-primary)" }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, fontFamily: "'Bangers', cursive", color: "var(--text-primary)" }}>
             &#x2694; Kart Karşılaştırma
           </h2>
           <button className="btn-danger" onClick={onClose}>&#x2715; Kapat</button>
@@ -425,7 +425,7 @@ function CompareView({ cards, onClose }) {
                 <div style={{ padding: "0 14px 14px" }}>
                   <div style={{ textAlign: "center", marginBottom: 10 }}>
                     <TypeBadge type={tCard(card, "type")} size="lg" />
-                    <h3 style={{ fontSize: 16, fontWeight: 700, margin: "8px 0 2px", fontFamily: "'Fredoka', sans-serif", color: "var(--text-primary)" }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, margin: "8px 0 2px", fontFamily: "'Bangers', cursive", color: "var(--text-primary)" }}>
                       {tCard(card, "name")}
                     </h3>
                     <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{cardNum(card)}</div>
@@ -594,7 +594,7 @@ function PhotoUploadModal({ onClose, onAdd }) {
               filter: "drop-shadow(0 0 6px rgba(255,203,5,0.4))",
             }}
           />
-          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, fontFamily: "'Fredoka', sans-serif", color: "var(--text-primary)" }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, fontFamily: "'Bangers', cursive", color: "var(--text-primary)" }}>
             Fotoğraftan Kart Ekle
           </h2>
         </div>
@@ -696,7 +696,7 @@ function PhotoUploadModal({ onClose, onAdd }) {
                       </div>
                       {/* Card info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Fredoka', sans-serif", fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        <div style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Bangers', cursive", fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {tCard(card, "name") || "—"}
                         </div>
                         {card.original?.name && card.original.name !== tCard(card, "name") && (
@@ -836,7 +836,7 @@ function DeleteConfirmModal({ card, onConfirm, onClose }) {
       <div className="modal-content" style={{ maxWidth: 420, width: "100%", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
         <h2 style={{
           fontSize: 22, fontWeight: 700, marginBottom: 16,
-          fontFamily: "'Fredoka', sans-serif", color: "var(--text-primary)",
+          fontFamily: "'Bangers', cursive", color: "var(--text-primary)",
         }}>
           🗑️ Kartı Sil
         </h2>
@@ -857,7 +857,7 @@ function DeleteConfirmModal({ card, onConfirm, onClose }) {
           )}
           <div style={{
             fontWeight: 700, fontSize: 18, color: "var(--text-primary)",
-            fontFamily: "'Fredoka', sans-serif",
+            fontFamily: "'Bangers', cursive",
           }}>
             {tCard(card, "name")}
           </div>
@@ -954,11 +954,11 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
   };
   const headerIcon = (color) => ({ fontSize: 16, color, flexShrink: 0 });
   const headerTitle = {
-    fontFamily: "'Fredoka', sans-serif", fontSize: 12, fontWeight: 700,
+    fontFamily: "'Bangers', cursive", fontSize: 12, fontWeight: 700,
     color: "var(--text-primary)",
   };
   const bigNum = (color) => ({
-    fontFamily: "'Fredoka', sans-serif", fontSize: 22, fontWeight: 800, color,
+    fontFamily: "'Bangers', cursive", fontSize: 22, fontWeight: 800, color,
   });
   const subText = { fontSize: 11, color: "var(--text-muted)" };
   const chipBase = {
@@ -973,7 +973,7 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
         <img src={TCG_LOGO} alt="" style={{ height: 28, width: "auto" }} />
-        <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Özet</h2>
+        <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Özet</h2>
       </div>
 
       {/* Portrait Widget */}
@@ -997,7 +997,7 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
         {portraitLoading ? (
           <div style={{ textAlign: "center", padding: 20 }}>
             <div style={{ fontSize: 48, marginBottom: 12, animation: "pulse 1.5s ease-in-out infinite" }}>🎨</div>
-            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+            <div style={{ fontFamily: "'Bangers', cursive", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
               Anime portreniz oluşturuluyor...
             </div>
             <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>Bu işlem 30 saniye kadar sürebilir</div>
@@ -1024,7 +1024,7 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
         ) : (
           <div style={{ textAlign: "center", padding: 20 }}>
             <div style={{ fontSize: 48, marginBottom: 12, color: "var(--text-muted)" }}>📷</div>
-            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+            <div style={{ fontFamily: "'Bangers', cursive", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
               Koleksiyoncu Portresi
             </div>
             <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
@@ -1087,13 +1087,13 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
                   crossOrigin="anonymous" />
               )}
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, fontSize: 13, fontFamily: "'Fredoka', sans-serif", color: "var(--text-primary)", lineHeight: 1.2 }}>
+                <div style={{ fontWeight: 700, fontSize: 13, fontFamily: "'Bangers', cursive", color: "var(--text-primary)", lineHeight: 1.2 }}>
                   {tCard(stats.topCard, "name")}
                 </div>
                 <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
                   {stats.topCard.rarity} · {tCard(stats.topCard, "type")}
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 13, fontFamily: "'Fredoka', sans-serif", color: "#2A75BB" }}>
+                <div style={{ fontWeight: 700, fontSize: 13, fontFamily: "'Bangers', cursive", color: "#2A75BB" }}>
                   ${(stats.topCard.marketValue || 0).toFixed(2)}
                 </div>
               </div>
@@ -1137,7 +1137,7 @@ function BottomTabBar({ onAddClick }) {
     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
     gap: 3, flex: 1, cursor: "pointer", background: "transparent",
     border: "none", textDecoration: "none", position: "relative",
-    transition: "color 0.2s ease", fontFamily: "'Nunito', sans-serif",
+    transition: "color 0.2s ease", fontFamily: "'Comic Neue', cursive",
     fontSize: 10, fontWeight: 600,
     color: active ? "var(--text-primary)" : "var(--text-secondary)",
     height: "100%",
@@ -1153,7 +1153,7 @@ function BottomTabBar({ onAddClick }) {
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
       height: 60, display: "flex", alignItems: "center",
       justifyContent: "space-around",
-      background: "rgba(26, 63, 111, 0.85)",
+      background: "rgba(255, 255, 255, 0.12)",
       backdropFilter: "blur(20px)",
       borderTop: "1px solid rgba(255,255,255,0.08)",
     }}>
@@ -1438,14 +1438,14 @@ export default function App() {
             />
             <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 1 : 2 }}>
               <span style={{
-                fontFamily: "'Fredoka', sans-serif", fontSize: isMobile ? 20 : 26, fontWeight: 700,
+                fontFamily: "'Bangers', cursive", fontSize: isMobile ? 20 : 26, fontWeight: 700,
                 color: "var(--text-primary)", lineHeight: 1.1,
               }}>
                 Pokemon Kart Kataloğu
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <span style={{
-                  fontSize: isMobile ? 10 : 12, fontFamily: "'Nunito', sans-serif", fontWeight: 400,
+                  fontSize: isMobile ? 10 : 12, fontFamily: "'Comic Neue', cursive", fontWeight: 400,
                   color: "var(--text-muted)",
                 }}>
                   {isMobile
@@ -1482,7 +1482,7 @@ export default function App() {
             placeholder="Ara..."
             style={{
               background: "transparent", border: "none", outline: "none",
-              color: "var(--text-primary)", fontSize: isMobile ? 12 : 13, fontFamily: "'Nunito', sans-serif",
+              color: "var(--text-primary)", fontSize: isMobile ? 12 : 13, fontFamily: "'Comic Neue', cursive",
               width: "100%",
             }}
           />
@@ -1510,7 +1510,7 @@ export default function App() {
             <circle cx="14" cy="20" r="2"/>
           </svg>
           {!isMobile && (
-            <span style={{ fontSize: 13, fontFamily: "'Nunito', sans-serif", fontWeight: 600, color: showFilters ? "#FFCB05" : "var(--text-primary)" }}>
+            <span style={{ fontSize: 13, fontFamily: "'Comic Neue', cursive", fontWeight: 600, color: showFilters ? "#FFCB05" : "var(--text-primary)" }}>
               Filtrele
             </span>
           )}
@@ -1538,7 +1538,7 @@ export default function App() {
                 <path d="M21 16L17 20L13 16"/><line x1="17" y1="20" x2="17" y2="4"/>
               </svg>
               {!isMobile && (
-                <span style={{ fontSize: 13, fontFamily: "'Nunito', sans-serif", fontWeight: 600, color: sortActive ? "#FFCB05" : "var(--text-primary)" }}>
+                <span style={{ fontSize: 13, fontFamily: "'Comic Neue', cursive", fontWeight: 600, color: sortActive ? "#FFCB05" : "var(--text-primary)" }}>
                   Sırala
                 </span>
               )}
@@ -1588,7 +1588,7 @@ export default function App() {
               <path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="m16 16 3.5 3.5"/><path d="M9.5 6.5 21 18v3h-3L6.5 9.5"/>
               <path d="M11 5l-6 6"/><path d="m8 8-3.5-3.5"/>
             </svg>
-            <span style={{ fontSize: 13, fontFamily: "'Nunito', sans-serif", fontWeight: 600, color: compareMode ? "#FFCB05" : "var(--text-primary)" }}>
+            <span style={{ fontSize: 13, fontFamily: "'Comic Neue', cursive", fontWeight: 600, color: compareMode ? "#FFCB05" : "var(--text-primary)" }}>
               Karşılaştır
             </span>
           </button>
@@ -1606,7 +1606,7 @@ export default function App() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A3F6F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>
             </svg>
-            <span style={{ fontSize: 13, fontFamily: "'Nunito', sans-serif", fontWeight: 700, color: "#1A3F6F" }}>
+            <span style={{ fontSize: 13, fontFamily: "'Comic Neue', cursive", fontWeight: 700, color: "#1A3F6F" }}>
               Fotoğraf ile Ekle
             </span>
           </button>
@@ -1623,12 +1623,12 @@ export default function App() {
         }}>
           {/* Rarity dropdown */}
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif", flexShrink: 0 }}>Nadirlik</span>
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive", flexShrink: 0 }}>Nadirlik</span>
             <select
               value={rarityFilter}
               onChange={e => setRarityFilter(e.target.value)}
               className="holo-select"
-              style={{ height: 34, fontSize: 13, fontFamily: "'Nunito', sans-serif", borderRadius: 8, padding: "0 10px" }}
+              style={{ height: 34, fontSize: 13, fontFamily: "'Comic Neue', cursive", borderRadius: 8, padding: "0 10px" }}
             >
               <option value="Tümü">Tümü</option>
               {Object.keys(rarityLabels).map(r => (
@@ -1638,12 +1638,12 @@ export default function App() {
           </div>
           {/* Type dropdown */}
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif", flexShrink: 0 }}>Tip</span>
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive", flexShrink: 0 }}>Tip</span>
             <select
               value={typeFilter}
               onChange={e => setTypeFilter(e.target.value)}
               className="holo-select"
-              style={{ height: 34, fontSize: 13, fontFamily: "'Nunito', sans-serif", borderRadius: 8, padding: "0 10px" }}
+              style={{ height: 34, fontSize: 13, fontFamily: "'Comic Neue', cursive", borderRadius: 8, padding: "0 10px" }}
             >
               <option value="Tümü">Tümü</option>
               {Object.entries(stats.types).sort((a, b) => b[1] - a[1]).map(([type, count]) => (
@@ -1662,12 +1662,12 @@ export default function App() {
           borderBottom: "1px solid rgba(255,255,255,0.06)",
           display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap",
         }}>
-          <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>Sırala:</span>
+          <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive" }}>Sırala:</span>
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
             className="holo-select"
-            style={{ height: 34, fontSize: 13, fontFamily: "'Nunito', sans-serif", borderRadius: 8, padding: "0 10px" }}
+            style={{ height: 34, fontSize: 13, fontFamily: "'Comic Neue', cursive", borderRadius: 8, padding: "0 10px" }}
           >
             <option value="rarity">Nadirlik</option>
             <option value="hp">HP</option>
@@ -1691,7 +1691,7 @@ export default function App() {
               <path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>
             </svg>
           </button>
-          <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>
+          <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive" }}>
             {sortDir === "asc" ? "Artan" : "Azalan"}
           </span>
         </div>
@@ -1702,28 +1702,28 @@ export default function App() {
         {syncStatus === "loading" ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", gap: 16 }}>
             <div className="spinner" />
-            <p style={{ color: "var(--text-muted)", fontSize: 13, fontFamily: "'Nunito', sans-serif", margin: 0 }}>
+            <p style={{ color: "var(--text-muted)", fontSize: 13, fontFamily: "'Comic Neue', cursive", margin: 0 }}>
               Koleksiyon yükleniyor...
             </p>
           </div>
         ) : cards.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", textAlign: "center", gap: 16 }}>
             <img src={TCG_LOGO} alt="" style={{ width: 120, height: "auto", opacity: 0.12, filter: "grayscale(0.5)", userSelect: "none", pointerEvents: "none" }} />
-            <p style={{ color: "var(--text-primary)", fontSize: 15, fontFamily: "'Fredoka', sans-serif", fontWeight: 700, margin: 0 }}>
+            <p style={{ color: "var(--text-primary)", fontSize: 15, fontFamily: "'Bangers', cursive", fontWeight: 700, margin: 0 }}>
               Henüz kart yok
             </p>
-            <p style={{ color: "var(--text-muted)", fontSize: 13, fontFamily: "'Nunito', sans-serif", margin: 0, maxWidth: 260 }}>
+            <p style={{ color: "var(--text-muted)", fontSize: 13, fontFamily: "'Comic Neue', cursive", margin: 0, maxWidth: 260 }}>
               İlk kartınızı eklemek için kamera butonuna dokunun.
             </p>
           </div>
         ) : (
           <>
-            <div style={{ fontSize: isMobile ? 11 : 12, fontFamily: "'Nunito', sans-serif", color: "var(--text-muted)", marginBottom: isMobile ? 14 : 16 }}>
+            <div style={{ fontSize: isMobile ? 11 : 12, fontFamily: "'Comic Neue', cursive", color: "var(--text-muted)", marginBottom: isMobile ? 14 : 16 }}>
               {filtered.length} kart gösteriliyor
             </div>
             {filtered.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px 20px", textAlign: "center", gap: 12 }}>
-                <p style={{ color: "var(--text-muted)", fontSize: 14, fontFamily: "'Nunito', sans-serif", margin: 0 }}>
+                <p style={{ color: "var(--text-muted)", fontSize: 14, fontFamily: "'Comic Neue', cursive", margin: 0 }}>
                   {showFavoritesOnly ? "Henüz favori kart yok." : "Aramanızla eşleşen kart bulunamadı."}
                 </p>
               </div>
@@ -1754,14 +1754,14 @@ export default function App() {
       }}>
         <img src={TCG_LOGO} alt="Pokémon TCG" style={{ width: 160, height: "auto", marginBottom: 12 }} />
         <h1 style={{
-          fontFamily: "'Fredoka', sans-serif", fontSize: 20, fontWeight: 700,
+          fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
           color: "#ffffff", margin: "0 0 32px", textShadow: "0 2px 8px rgba(0,0,0,0.3)",
         }}>
           Pokémon Kart Kataloğu
         </h1>
         {deviceError && (
           <p style={{
-            color: "#f72585", fontSize: 13, fontFamily: "'Nunito', sans-serif",
+            color: "#f72585", fontSize: 13, fontFamily: "'Comic Neue', cursive",
             margin: "0 0 16px", maxWidth: 360, textAlign: "center",
           }}>
             {deviceError}

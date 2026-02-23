@@ -15,7 +15,7 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
         background: "var(--bg-card)",
       }}>
         <img src={TCG_LOGO} alt="" style={{ height: 28, width: "auto" }} />
-        <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+        <span style={{ fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
           Ayarlar
         </span>
       </div>
@@ -24,7 +24,7 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
         {/* Theme Section */}
         <div style={sectionStyle}>
           <h2 style={{
-            fontFamily: "'Fredoka', sans-serif", fontSize: 20, fontWeight: 700,
+            fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
             margin: "0 0 4px", color: "var(--text-primary)",
           }}>Tema Seçimi</h2>
           <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "0 0 16px" }}>
@@ -94,7 +94,7 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
         {/* Owner Section */}
         <div style={sectionStyle}>
           <h2 style={{
-            fontFamily: "'Fredoka', sans-serif", fontSize: 20, fontWeight: 700,
+            fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
             margin: "0 0 4px", color: "var(--text-primary)",
           }}>Koleksiyon Sahibi</h2>
           <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "0 0 12px" }}>
@@ -126,7 +126,7 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
         {/* Cloud Sync Section */}
         <div style={sectionStyle}>
           <h2 style={{
-            fontFamily: "'Fredoka', sans-serif", fontSize: 20, fontWeight: 700,
+            fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
             margin: "0 0 4px", color: "var(--text-primary)",
           }}>Bulut Senkronizasyonu</h2>
           <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "0 0 16px" }}>
@@ -134,7 +134,7 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
           </p>
           {deviceId && (
             <div style={{ marginBottom: 12 }}>
-              <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive" }}>
                 Cihaz ID
               </span>
               <div style={{
@@ -149,7 +149,7 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
           {phone ? (
             <div>
               <div style={{ marginBottom: 12 }}>
-                <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>
+                <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Comic Neue', cursive" }}>
                   Telefon Numarası
                 </span>
                 <div style={{

@@ -44,7 +44,7 @@
 * { box-sizing: border-box; }
 
 body {
-  font-family: 'Nunito', -apple-system, sans-serif;
+  font-family: 'Comic Neue', cursive, -apple-system, sans-serif;
   background: url('/app-images/pokemon-tcg-gradient-blue-bg1.png') center center / cover no-repeat fixed;
   background-color: #1A3F6F;
   color: var(--text-primary);
@@ -53,8 +53,10 @@ body {
 }
 
 /* Font migration shim — override old inline font-family references */
-[style*="DM Sans"] { font-family: 'Nunito', -apple-system, sans-serif !important; }
-[style*="Rajdhani"] { font-family: 'Fredoka', -apple-system, sans-serif !important; }
+[style*="DM Sans"] { font-family: 'Comic Neue', cursive !important; }
+[style*="Rajdhani"] { font-family: 'Bangers', cursive !important; }
+[style*="Fredoka"] { font-family: 'Bangers', cursive !important; }
+[style*="Nunito"] { font-family: 'Comic Neue', cursive !important; }
 
 /* ── Grain texture overlay ── */
 .grain-overlay {
@@ -281,7 +283,7 @@ body {
   padding: 9px 14px;
   border-radius: 10px;
   font-size: 13px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Comic Neue', cursive;
   outline: none;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
@@ -302,7 +304,7 @@ body {
   padding: 9px 14px;
   border-radius: 10px;
   font-size: 13px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Comic Neue', cursive;
   outline: none;
   cursor: pointer;
   transition: border-color 0.25s ease;
@@ -333,7 +335,7 @@ body {
   color: #FFFFFF;
   font-weight: 600;
   font-size: 13px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Comic Neue', cursive;
   cursor: pointer;
   transition: all 0.25s ease;
   overflow: hidden;
@@ -359,7 +361,7 @@ body {
   color: #1A3F6F;
   font-weight: 700;
   font-size: 13px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Comic Neue', cursive;
   cursor: pointer;
   transition: all 0.25s ease;
   box-shadow: 0 2px 12px rgba(255, 203, 5, 0.40);
@@ -378,7 +380,7 @@ body {
   color: #1A3F6F;
   font-weight: 700;
   font-size: 13px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Comic Neue', cursive;
   cursor: pointer;
   transition: all 0.25s ease;
   box-shadow: 0 2px 12px rgba(0, 245, 212, 0.25);
@@ -397,7 +399,7 @@ body {
   color: #fff;
   font-weight: 700;
   font-size: 13px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Comic Neue', cursive;
   cursor: pointer;
   transition: all 0.25s ease;
 }
@@ -451,7 +453,7 @@ body {
   cursor: pointer;
   transition: all 0.25s ease;
   border: 1px solid transparent;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Comic Neue', cursive;
   font-weight: 500;
 }
 
@@ -578,13 +580,13 @@ body {
 
 /* ── Catalogue Header & Control Bar ── */
 .catalogue-header {
-  background: rgba(26, 63, 111, 0.80);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
 .catalogue-control-bar {
-  background: rgba(26, 63, 111, 0.65);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);

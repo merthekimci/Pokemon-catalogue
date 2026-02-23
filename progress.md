@@ -12,6 +12,12 @@
 - **[2026-02-24]** Added CSS font migration shim to catch any remaining inline font-family references
 - **[2026-02-24]** Build verified: `npm run build` passes cleanly
 
+### Fix: Background Visibility + Font Change (Task #39)
+- **[2026-02-24]** Header/control bar/tab bar backgrounds changed from opaque navy `rgba(26,63,111,...)` to light frosted glass `rgba(255,255,255,0.12)` so blue gradient shows through
+- **[2026-02-24]** Fonts changed from Fredoka + Nunito to **Bangers** (headings) + **Comic Neue** (body) per user preference
+- **[2026-02-24]** Updated font migration CSS shim to cover all 4 old font names (DM Sans, Rajdhani, Fredoka, Nunito)
+- **[2026-02-24]** Build verified
+
 ### Feature: Collector's Portrait Widget (Task #37)
 - **[2026-02-24]** Created `api/portrait.js` — Vercel serverless function calling OpenAI `gpt-image-1` Images API for anime-style portrait conversion (60s maxDuration)
 - **[2026-02-24]** Updated `api/collection.js` — added `portrait TEXT` column migration, included in GET SELECT and POST UPSERT (conditional update to avoid overwriting on non-portrait syncs)

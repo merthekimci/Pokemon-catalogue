@@ -43,7 +43,7 @@ export default function TrainerDetail({ cards, typeColors }) {
           background: "none", border: "none", cursor: "pointer",
           fontSize: 20, color: "var(--text-primary)", padding: 0,
         }}>←</button>
-        <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+        <span style={{ fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
           {trainer.name}
         </span>
       </div>
@@ -67,7 +67,7 @@ export default function TrainerDetail({ cards, typeColors }) {
             />
           )}
           <div style={{ padding: "14px 16px 0" }}>
-            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 28, fontWeight: 700, color: "var(--text-primary)" }}>
+            <div style={{ fontFamily: "'Bangers', cursive", fontSize: 28, fontWeight: 700, color: "var(--text-primary)" }}>
               {trainer.name}
             </div>
             {trainer.japaneseName && (
@@ -103,7 +103,7 @@ export default function TrainerDetail({ cards, typeColors }) {
             border: "1px solid var(--border-dim)", padding: 16, marginBottom: 20,
           }}>
             <h2 style={{
-              fontFamily: "'Fredoka', sans-serif", fontSize: 20, fontWeight: 700,
+              fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
               color: "var(--text-primary)", margin: "0 0 10px",
             }}>Biyografi</h2>
             <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
@@ -119,7 +119,7 @@ export default function TrainerDetail({ cards, typeColors }) {
             border: "1px solid var(--border-dim)", padding: 16, marginBottom: 20,
           }}>
             <h2 style={{
-              fontFamily: "'Fredoka', sans-serif", fontSize: 20, fontWeight: 700,
+              fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
               color: "var(--text-primary)", margin: "0 0 10px",
             }}>Hikaye</h2>
             <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
@@ -134,7 +134,7 @@ export default function TrainerDetail({ cards, typeColors }) {
           border: "1px solid var(--border-dim)", padding: 16,
         }}>
           <h2 style={{
-            fontFamily: "'Fredoka', sans-serif", fontSize: 20, fontWeight: 700,
+            fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700,
             color: "var(--text-primary)", margin: "0 0 12px",
           }}>{trainer.name} Kartları ({associatedCards.length})</h2>
 
