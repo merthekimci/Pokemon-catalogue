@@ -154,7 +154,7 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
         </p>
       )}
       <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-        <button className={allowClose ? "btn-glow" : "btn-accent"} style={{ flex: 1 }} onClick={handleSubmit}>
+        <button className={allowClose ? "btn-glow" : "btn-accent"} style={{ flex: 1, ...(!allowClose && { fontFamily: "'Bangers', cursive", fontSize: 30 }) }} onClick={handleSubmit}>
           {allowClose ? "Kaydet" : "Başla"}
         </button>
         {allowClose && <button className="btn-accent" onClick={onClose}>İptal</button>}
