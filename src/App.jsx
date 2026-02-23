@@ -1154,7 +1154,6 @@ function BottomTabBar({ onAddClick }) {
       height: 60, display: "flex", alignItems: "center",
       justifyContent: "space-around",
       background: "rgba(255, 255, 255, 0.12)",
-      backdropFilter: "blur(20px)",
       borderTop: "1px solid rgba(255,255,255,0.08)",
     }}>
       <Link to="/ozet" style={tabStyle(isOzet)}>
@@ -1778,11 +1777,6 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", position: "relative" }}>
-      <div className="grain-overlay" />
-      <div style={{
-        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
-        background: "radial-gradient(ellipse at 20% 0%, rgba(255,203,5,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(42,117,187,0.04) 0%, transparent 50%)",
-      }} />
       <Routes>
         <Route path="/" element={<CatalogueView scrollRef={scrollRef}>{catalogueContent}</CatalogueView>} />
         <Route path="/trainer/:trainerSlug" element={<TrainerDetail cards={cards} typeColors={typeColors} />} />

@@ -12,6 +12,13 @@
 - **[2026-02-24]** Added CSS font migration shim to catch any remaining inline font-family references
 - **[2026-02-24]** Build verified: `npm run build` passes cleanly
 
+### Fix: Remove all background filters/overlays (Task #40)
+- **[2026-02-24]** Removed grain texture overlay div and CSS rule entirely
+- **[2026-02-24]** Removed radial-gradient color overlay div from App root
+- **[2026-02-24]** Removed all `backdrop-filter: blur()` from glass, poke-card, header, control bar, modal-content, tab bar
+- **[2026-02-24]** Kept modal-overlay blur (intentional dimming for focus)
+- **[2026-02-24]** Build verified
+
 ### Fix: Background Visibility + Font Change (Task #39)
 - **[2026-02-24]** Header/control bar/tab bar backgrounds changed from opaque navy `rgba(26,63,111,...)` to light frosted glass `rgba(255,255,255,0.12)` so blue gradient shows through
 - **[2026-02-24]** Fonts changed from Fredoka + Nunito to **Bangers** (headings) + **Comic Neue** (body) per user preference

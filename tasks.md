@@ -41,3 +41,4 @@
 | 37 | Collector's portrait widget: upload photo, OpenAI anime conversion, persist in DB | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 38 | Theme redesign: Replace dark holo theme with Pokemon TCG blue gradient, comic fonts, brand colors | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 39 | Fix background visibility + switch fonts to Bangers + Comic Neue | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 40 | Remove all background filters/overlays — show gradient clearly | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |

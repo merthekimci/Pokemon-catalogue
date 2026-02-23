@@ -58,18 +58,6 @@ body {
 [style*="Fredoka"] { font-family: 'Bangers', cursive !important; }
 [style*="Nunito"] { font-family: 'Comic Neue', cursive !important; }
 
-/* ── Grain texture overlay ── */
-.grain-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.015;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 256px 256px;
-}
-
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: rgba(26, 63, 111, 0.3); }
@@ -79,8 +67,6 @@ body {
 /* ── Glass panels ── */
 .glass {
   background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(20px) saturate(1.6) brightness(1.05);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6) brightness(1.05);
   border: 1px solid rgba(255, 255, 255, 0.30);
   box-shadow: 0 4px 24px rgba(26, 63, 111, 0.20);
 }
@@ -131,8 +117,6 @@ body {
   overflow: hidden;
   background: rgba(255, 255, 255, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 4px 16px rgba(26, 63, 111, 0.15);
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
               border-color 0.3s ease,
@@ -435,8 +419,6 @@ body {
   max-height: 92vh;
   overflow: auto;
   padding: 28px;
-  backdrop-filter: blur(24px) saturate(1.8);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
   animation: floatIn 0.35s ease;
 }
 
@@ -581,14 +563,10 @@ body {
 /* ── Catalogue Header & Control Bar ── */
 .catalogue-header {
   background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 
 .catalogue-control-bar {
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);
 }
 
