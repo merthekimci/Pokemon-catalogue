@@ -1,3 +1,41 @@
+// Fetch TCGplayer market price from pokemontcg.io API.
+// Returns a USD price number, or 0 if unavailable.
+async function fetchMarketPrice(englishName, cardNumber) {
+  if (!englishName) return 0;
+  try {
+    const num = cardNumber?.split("/")?.[0]?.trim();
+    const query = `name:"${englishName}"`;
+    const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(query)}&pageSize=20&select=number,tcgplayer`;
+
+    const res = await fetch(url);
+    if (!res.ok) return 0;
+
+    const data = await res.json();
+    const results = data.data;
+    if (!Array.isArray(results) || results.length === 0) return 0;
+
+    // Prefer exact card number match
+    let target = num ? results.find((r) => r.number === num) : null;
+    // Fall back to first result with pricing
+    if (!target || !target.tcgplayer?.prices) {
+      target = results.find((r) => r.tcgplayer?.prices);
+    }
+    if (!target?.tcgplayer?.prices) return 0;
+
+    const prices = target.tcgplayer.prices;
+    const variants = ["holofoil", "reverseHolofoil", "normal", "1stEditionHolofoil", "1stEditionNormal"];
+    for (const variant of variants) {
+      if (prices[variant]) {
+        const p = prices[variant].market ?? prices[variant].mid ?? 0;
+        if (p > 0) return p;
+      }
+    }
+    return 0;
+  } catch (_) {
+    return 0;
+  }
+}
+
 // Score TCGdex candidates by attribute similarity.
 // localId match is the strongest signal (same card number = very likely same variant).
 function scoreCandidates(candidates, extractedCardNum) {
@@ -174,59 +212,67 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
     // We never fall back to card-number + ME02 URL because the card may be from a
     // different set (e.g. 073/182 ≠ ME02's 80-card set), and position N in ME02
     // would be a completely different Pokémon.
-    const cardsWithImages = await Promise.all(
-      cards.map(async (card) => {
-        if (card.img) return card;
+    async function resolveImage(card, enName) {
+      if (card.img) return { img: card.img };
+      if (!enName) return {};
 
-        const enName = card.translations?.en?.name || card.original?.name;
-        if (!enName) return card;
+      const extractedNum = card.cardNumber?.split("/")?.[0]?.trim();
+      let allCandidates = [];
 
-        const extractedNum = card.cardNumber?.split("/")?.[0]?.trim();
-        let allCandidates = [];
-
-        // 1. ME02 set — primary collection set
-        try {
-          const me02Res = await fetch(
-            `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}&set.id=me02`
-          );
-          if (me02Res.ok) {
-            const me02Results = await me02Res.json();
-            if (Array.isArray(me02Results)) allCandidates.push(...me02Results);
-          }
-        } catch (_) {}
-
-        // 2. All sets — broaden the candidate pool
-        try {
-          const tcgRes = await fetch(
-            `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}`
-          );
-          if (tcgRes.ok) {
-            const allResults = await tcgRes.json();
-            if (Array.isArray(allResults)) {
-              // Merge, deduplicate by id
-              const seen = new Set(allCandidates.map((r) => r.id));
-              allResults.forEach((r) => { if (!seen.has(r.id)) allCandidates.push(r); });
-            }
-          }
-        } catch (_) {}
-
-        const scored = scoreCandidates(allCandidates, extractedNum);
-        if (scored.length === 0) return card;
-
-        // Unique best by attributes — no vision call needed
-        const isUnique = scored.length === 1 || scored[0].score > scored[1].score;
-        if (isUnique) {
-          return { ...card, img: scored[0].r.image + "/high.png" };
+      // 1. ME02 set — primary collection set
+      try {
+        const me02Res = await fetch(
+          `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}&set.id=me02`
+        );
+        if (me02Res.ok) {
+          const me02Results = await me02Res.json();
+          if (Array.isArray(me02Results)) allCandidates.push(...me02Results);
         }
+      } catch (_) {}
 
-        // Ambiguous — use GPT-4o vision to pick the correct variant
-        const topCandidates = scored.slice(0, 4).map((s) => s.r);
-        const best = await pickBestByVision(imageBase64, mimeType, topCandidates, apiKey);
-        return { ...card, img: (best ?? scored[0].r).image + "/high.png" };
+      // 2. All sets — broaden the candidate pool
+      try {
+        const tcgRes = await fetch(
+          `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}`
+        );
+        if (tcgRes.ok) {
+          const allResults = await tcgRes.json();
+          if (Array.isArray(allResults)) {
+            // Merge, deduplicate by id
+            const seen = new Set(allCandidates.map((r) => r.id));
+            allResults.forEach((r) => { if (!seen.has(r.id)) allCandidates.push(r); });
+          }
+        }
+      } catch (_) {}
+
+      const scored = scoreCandidates(allCandidates, extractedNum);
+      if (scored.length === 0) return {};
+
+      // Unique best by attributes — no vision call needed
+      const isUnique = scored.length === 1 || scored[0].score > scored[1].score;
+      if (isUnique) {
+        return { img: scored[0].r.image + "/high.png" };
+      }
+
+      // Ambiguous — use GPT-4o vision to pick the correct variant
+      const topCandidates = scored.slice(0, 4).map((s) => s.r);
+      const best = await pickBestByVision(imageBase64, mimeType, topCandidates, apiKey);
+      return { img: (best ?? scored[0].r).image + "/high.png" };
+    }
+
+    // Resolve image and fetch market price in parallel for each card.
+    const cardsWithData = await Promise.all(
+      cards.map(async (card) => {
+        const enName = card.translations?.en?.name || card.original?.name;
+        const [imgResult, price] = await Promise.all([
+          resolveImage(card, enName),
+          fetchMarketPrice(enName, card.cardNumber),
+        ]);
+        return { ...card, ...imgResult, marketValue: price };
       })
     );
 
-    return res.status(200).json({ cards: cardsWithImages });
+    return res.status(200).json({ cards: cardsWithData });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

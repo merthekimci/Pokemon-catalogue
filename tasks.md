@@ -36,4 +36,5 @@
 | 32 | Light theme onboarding screen with logo, app name, updated copy | Completed | Claude | 2026-02-23 | 2026-02-23 |
 | 33 | Bind phone numbers to device ID to prevent collection hijacking | Completed | Claude | 2026-02-23 | 2026-02-23 |
 | 34 | Display device ID on settings page (read-only) | Completed | Claude | 2026-02-23 | 2026-02-23 |
-| 35 | Settings UI polish: Pokeball icon, phone number label + textbox styling | In Progress | Claude | 2026-02-23 | - |
+| 35 | Settings UI polish: Pokeball icon, phone number label + textbox styling | Completed | Claude | 2026-02-23 | 2026-02-23 |
+| 36 | Auto-fetch market value on card import via pokemontcg.io API | Completed | Claude | 2026-02-23 | 2026-02-23 |

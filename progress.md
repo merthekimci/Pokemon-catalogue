@@ -286,6 +286,17 @@
 - When importing a card that already exists, the existing card's `copies` count is incremented instead of creating a duplicate record
 - Handles intra-batch duplicates and cards with missing card numbers
 
+### 2026-02-23 — Auto-Fetch Market Value on Card Import (Task #36)
+- Added `fetchMarketPrice()` helper to `api/analyze.js` — queries pokemontcg.io API by English card name, matches by card number, extracts TCGplayer `market` price (USD)
+- Extracted inline image resolution logic into `resolveImage()` helper function (refactor, no logic change)
+- Integrated parallel execution: `resolveImage()` and `fetchMarketPrice()` now run concurrently via `Promise.all` — no added latency
+- Price lookup checks variants in priority order: holofoil > reverseHolofoil > normal > 1stEditionHolofoil > 1stEditionNormal
+- Falls back to `mid` price if `market` is null; returns 0 on any failure (network error, no match, rate limit)
+- Frontend unchanged — `marketValue` was already supported in review form, card tiles, collection stats, and sorting
+- No new dependencies — uses native `fetch` to call `https://api.pokemontcg.io/v2/cards`
+- Free tier: 100 requests/day without API key (sufficient for personal collection use)
+- Build verified: `npm run build` passes cleanly
+
 ### 2026-02-23 — Fix Wrong Image on Photo-Imported Cards (Bug #6)
 - Fixed bug where photo-imported cards displayed wrong image in confirmation dialog and card detail page
 - Root cause: `analyze.js` TCGdex name lookup priority overrode reliable card-number-based URL — `results[0]` from a name search is non-deterministic and often returned a different set variant
