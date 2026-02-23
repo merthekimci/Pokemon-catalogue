@@ -33,3 +33,4 @@
 | 29 | Fix wrong image assigned on photo-imported cards | Completed | Claude | 2026-02-23 | 2026-02-23 |
 | 30 | Add Pokeball favicon + OG social sharing meta tags | Completed | Claude | 2026-02-23 | 2026-02-23 |
 | 31 | Mandatory phone number onboarding for first-time users | Completed | Claude | 2026-02-23 | 2026-02-23 |
+| 32 | Light theme onboarding screen with logo, app name, updated copy | Completed | Claude | 2026-02-23 | 2026-02-23 |

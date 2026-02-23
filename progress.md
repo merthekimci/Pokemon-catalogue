@@ -2,6 +2,12 @@
 
 ## Session 4 — 2026-02-23
 
+### UI: Light Theme Onboarding Screen (Task #32)
+- **[2026-02-23]** Redesigned onboarding screen: light background (`#f0f0f5`), `data-theme="light"` on wrapper
+- **[2026-02-23]** Added Pokemon TCG logo (160px) and app name "Pokemon Kart Katalogu" above the modal
+- **[2026-02-23]** Updated PhoneModal to skip `modal-overlay` wrapper when `allowClose={false}` (renders card directly on light bg)
+- **[2026-02-23]** Updated copy: title "Haydi Baslayalim!", description about creating/loading collections, CTA "Basla"
+
 ### Feature: Mandatory Phone Number Onboarding (Task #31)
 - **[2026-02-23]** Added `allowClose` prop to `PhoneModal` component (default `true`). When `false`: hides Cancel button, changes title to "Hoş Geldiniz!", changes subtitle to onboarding-friendly text, changes button label to "Giriş Yap"
 - **[2026-02-23]** Added early return gate in `App()` — if `phone` is empty, renders full-screen onboarding view with `PhoneModal allowClose={false}` instead of app routes. No navigation, no content visible until phone is entered

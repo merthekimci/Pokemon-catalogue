@@ -116,43 +116,44 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
     onSave("+90" + digits);
   };
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: 400, width: "100%" }}>
-        <h2 style={{
-          fontFamily: "'Rajdhani', sans-serif", fontSize: 22, fontWeight: 700,
-          margin: "0 0 8px", color: "var(--text-primary)",
-        }}>
-          {allowClose ? "Bulut Senkronizasyonu" : "Hoş Geldiniz!"}
-        </h2>
-        <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'DM Sans', sans-serif" }}>
-          {allowClose
-            ? "Koleksiyonunuzu cihazlar arasında senkronize etmek için telefon numaranızı girin."
-            : "Koleksiyonunuza erişmek için telefon numaranızı girin."}
+  const content = (
+    <div className="modal-content" style={{ maxWidth: 400, width: "100%" }}>
+      <h2 style={{
+        fontFamily: "'Rajdhani', sans-serif", fontSize: 22, fontWeight: 700,
+        margin: "0 0 8px", color: "var(--text-primary)",
+      }}>
+        {allowClose ? "Bulut Senkronizasyonu" : "Haydi Başlayalım!"}
+      </h2>
+      <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'DM Sans', sans-serif" }}>
+        {allowClose
+          ? "Koleksiyonunuzu cihazlar arasında senkronize etmek için telefon numaranızı girin."
+          : "Yeni bir koleksiyon yaratmak veya kayıtlı koleksiyonunuzu yüklemek için telefon numaranızı girin."}
+      </p>
+      <input
+        className="holo-input"
+        value={value}
+        onChange={(e) => { setValue(e.target.value); setError(""); }}
+        placeholder="5XX XXX XX XX"
+        type="tel"
+        style={{ width: "100%", marginBottom: 8, boxSizing: "border-box" }}
+        autoFocus
+      />
+      {error && (
+        <p style={{ color: "#f72585", fontSize: 12, margin: "0 0 12px", fontFamily: "'DM Sans', sans-serif" }}>
+          {error}
         </p>
-        <input
-          className="holo-input"
-          value={value}
-          onChange={(e) => { setValue(e.target.value); setError(""); }}
-          placeholder="5XX XXX XX XX"
-          type="tel"
-          style={{ width: "100%", marginBottom: 8, boxSizing: "border-box" }}
-          autoFocus
-        />
-        {error && (
-          <p style={{ color: "#f72585", fontSize: 12, margin: "0 0 12px", fontFamily: "'DM Sans', sans-serif" }}>
-            {error}
-          </p>
-        )}
-        <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-          <button className="btn-glow" style={{ flex: 1 }} onClick={handleSubmit}>
-            {allowClose ? "Kaydet" : "Giriş Yap"}
-          </button>
-          {allowClose && <button className="btn-accent" onClick={onClose}>İptal</button>}
-        </div>
+      )}
+      <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+        <button className="btn-glow" style={{ flex: 1 }} onClick={handleSubmit}>
+          {allowClose ? "Kaydet" : "Başla"}
+        </button>
+        {allowClose && <button className="btn-accent" onClick={onClose}>İptal</button>}
       </div>
     </div>
   );
+
+  if (!allowClose) return content;
+  return <div className="modal-overlay">{content}</div>;
 }
 
 
@@ -1121,7 +1122,7 @@ export default function App() {
   const [showAdd, setShowAdd] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [favorites, setFavorites] = useState([]);
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
   const [ownerName, setOwnerName] = useState("Koleksiyoncu");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -1171,7 +1172,7 @@ export default function App() {
           );
           setCards(migratedCards);
           setFavorites(json.data.favorites ?? []);
-          setTheme(json.data.theme ?? "dark");
+          setTheme(json.data.theme ?? "light");
           setOwnerName(json.data.owner_name ?? "Koleksiyoncu");
         }
         setSyncStatus("idle");
@@ -1605,7 +1606,18 @@ export default function App() {
 
   if (!phone) {
     return (
-      <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
+      <div data-theme="light" style={{
+        minHeight: "100vh", background: "#f0f0f5",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", padding: 20,
+      }}>
+        <img src={TCG_LOGO} alt="Pokémon TCG" style={{ width: 160, height: "auto", marginBottom: 12 }} />
+        <h1 style={{
+          fontFamily: "'Rajdhani', sans-serif", fontSize: 20, fontWeight: 700,
+          color: "#1a1825", margin: "0 0 32px",
+        }}>
+          Pokémon Kart Kataloğu
+        </h1>
         <PhoneModal
           allowClose={false}
           onSave={(p) => { setPhone(p); setShowPhoneModal(false); }}
