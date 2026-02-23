@@ -73,9 +73,18 @@ const rarityColors = { C: "#5a566e", U: "#00c896", M: "#7b61ff", RR: "#ffd166", 
 const rarityGlow = { C: "none", U: "0 0 8px rgba(0,200,150,0.3)", M: "0 0 12px rgba(123,97,255,0.4)", RR: "0 0 16px rgba(255,209,102,0.5)", R: "0 0 10px rgba(139,92,246,0.4)", SR: "0 0 16px rgba(236,72,153,0.5)" };
 
 const PHONE_KEY = "pokemon_katalog_phone";
+const DEVICE_KEY = "pokemon_katalog_device_id";
 
 function loadPhone() {
   try { return localStorage.getItem(PHONE_KEY) || ""; } catch (_) { return ""; }
+}
+
+function getDeviceId() {
+  try {
+    let id = localStorage.getItem(DEVICE_KEY);
+    if (!id) { id = crypto.randomUUID(); localStorage.setItem(DEVICE_KEY, id); }
+    return id;
+  } catch (_) { return ""; }
 }
 
 function SyncIndicator({ status }) {
@@ -83,7 +92,8 @@ function SyncIndicator({ status }) {
     loading: { color: "var(--holo-4)", dot: "#ffd166", label: "Yükleniyor..." },
     syncing: { color: "var(--holo-4)", dot: "#ffd166", label: "Senkronize ediliyor..." },
     synced:  { color: "var(--holo-1)", dot: "#00f5d4", label: "Senkronize edildi" },
-    error:   { color: "#f72585",       dot: "#f72585", label: "Senkronizasyon hatası" },
+    error:        { color: "#f72585", dot: "#f72585", label: "Senkronizasyon hatası" },
+    device_error: { color: "#f72585", dot: "#f72585", label: "Cihaz uyuşmazlığı" },
   };
   const cfg = configs[status];
   if (!cfg) return null;
@@ -1129,6 +1139,7 @@ export default function App() {
   const [showSort, setShowSort] = useState(false);
   const [phone, setPhone] = useState(loadPhone);
   const [syncStatus, setSyncStatus] = useState("idle");
+  const [deviceError, setDeviceError] = useState("");
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const scrollRef = useRef(0);
   const phoneRef = useRef(phone);
@@ -1159,9 +1170,20 @@ export default function App() {
     }
     skipSaveRef.current = true;
     setSyncStatus("loading");
-    fetch(`/api/collection?phone=${encodeURIComponent(phone)}`)
-      .then((r) => r.json())
+    setDeviceError("");
+    const deviceId = getDeviceId();
+    fetch(`/api/collection?phone=${encodeURIComponent(phone)}&device_id=${encodeURIComponent(deviceId)}`)
+      .then((r) => {
+        if (r.status === 403) {
+          setPhone("");
+          setDeviceError("Bu numara başka bir cihaza bağlı. Lütfen kendi numaranızı girin.");
+          setSyncStatus("idle");
+          return null;
+        }
+        return r.json();
+      })
       .then((json) => {
+        if (!json) return;
         if (json.exists && json.data) {
           // Auto-migrate: strip PokeAPI sprite URLs so tcgdexImageMap takes over
           const rawCards = json.data.cards ?? [];
@@ -1195,9 +1217,14 @@ export default function App() {
           theme,
           cards,
           favorites,
+          device_id: getDeviceId(),
         }),
       })
-        .then((r) => { if (!r.ok) throw new Error(); setSyncStatus("synced"); })
+        .then((r) => {
+          if (r.status === 403) { setSyncStatus("device_error"); return; }
+          if (!r.ok) throw new Error();
+          setSyncStatus("synced");
+        })
         .catch(() => setSyncStatus("error"));
     }, 3000);
     return () => clearTimeout(t);
@@ -1618,9 +1645,17 @@ export default function App() {
         }}>
           Pokémon Kart Kataloğu
         </h1>
+        {deviceError && (
+          <p style={{
+            color: "#f72585", fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+            margin: "0 0 16px", maxWidth: 360, textAlign: "center",
+          }}>
+            {deviceError}
+          </p>
+        )}
         <PhoneModal
           allowClose={false}
-          onSave={(p) => { setPhone(p); setShowPhoneModal(false); }}
+          onSave={(p) => { setDeviceError(""); setPhone(p); setShowPhoneModal(false); }}
           onClose={() => {}}
         />
       </div>

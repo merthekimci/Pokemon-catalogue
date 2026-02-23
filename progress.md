@@ -2,6 +2,17 @@
 
 ## Session 4 — 2026-02-23
 
+### Security: Device ID Binding for Phone Numbers (Task #33)
+- **[2026-02-23]** Added `getDeviceId()` helper in `App.jsx` — generates a UUID via `crypto.randomUUID()` on first visit, persists in localStorage key `pokemon_katalog_device_id`
+- **[2026-02-23]** Client sends `device_id` with both GET (`?device_id=...` query param) and POST (JSON body field) collection API calls
+- **[2026-02-23]** Server (`api/collection.js`): idempotent schema migration adds `device_id TEXT` column to `collections` table
+- **[2026-02-23]** GET endpoint: after fetching row, if `row.device_id` exists and differs from request's `device_id`, returns `403 { error: "device_mismatch" }`
+- **[2026-02-23]** POST endpoint: pre-check SELECT before upsert, returns `403` on device mismatch; uses `COALESCE(collections.device_id, EXCLUDED.device_id)` to never overwrite an existing binding
+- **[2026-02-23]** Client handles 403: clears phone, shows Turkish error "Bu numara başka bir cihaza bağlı" on onboarding screen
+- **[2026-02-23]** `SyncIndicator` extended with `device_error` status for POST mismatch feedback
+- **[2026-02-23]** Legacy rows without `device_id` get backfilled on their next POST save
+- **[2026-02-23]** Build verified: `npm run build` passes cleanly
+
 ### UI: Light Theme Onboarding Screen (Task #32)
 - **[2026-02-23]** Redesigned onboarding screen: light background (`#f0f0f5`), `data-theme="light"` on wrapper
 - **[2026-02-23]** Added Pokemon TCG logo (160px) and app name "Pokemon Kart Katalogu" above the modal
