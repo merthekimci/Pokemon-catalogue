@@ -1,6 +1,6 @@
 const TCG_LOGO = `${import.meta.env.BASE_URL}app-images/pokemon-trading-card-game-seeklogo.png`;
 
-export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerNameChange, phone, onShowPhoneModal, onPhoneChange }) {
+export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerNameChange, phone, deviceId, onShowPhoneModal, onPhoneChange }) {
   const sectionStyle = {
     background: "var(--bg-card)", border: "1px solid var(--border-dim)",
     borderRadius: 16, padding: 20, marginBottom: 16,
@@ -103,8 +103,16 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
           <div style={{ position: "relative" }}>
             <span style={{
               position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
-              fontSize: 16, color: "var(--text-muted)", pointerEvents: "none",
-            }}>👤</span>
+              pointerEvents: "none", display: "inline-flex",
+            }}>
+              <svg width="16" height="16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="46" stroke="var(--text-muted)" strokeWidth="8" fill="none"/>
+                <path d="M4 50 H40" stroke="var(--text-muted)" strokeWidth="8"/>
+                <path d="M60 50 H96" stroke="var(--text-muted)" strokeWidth="8"/>
+                <circle cx="50" cy="50" r="12" stroke="var(--text-muted)" strokeWidth="8" fill="var(--bg-card)"/>
+                <path d="M4 50 A46 46 0 0 0 96 50" fill="var(--text-muted)" opacity="0.15"/>
+              </svg>
+            </span>
             <input
               className="holo-input"
               style={{ width: "100%", paddingLeft: 38 }}
@@ -124,16 +132,36 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
           <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "0 0 16px" }}>
             Koleksiyonunuzu birden fazla cihazda senkronize edin
           </p>
-          {phone ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-              <span style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                fontSize: 13, fontFamily: "'DM Sans', sans-serif",
-                color: "var(--holo-1)",
-              }}>
-                <span style={{ fontSize: 14 }}>&#x2714;</span>
-                {phone}
+          {deviceId && (
+            <div style={{ marginBottom: 12 }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>
+                Cihaz ID
               </span>
+              <div style={{
+                fontSize: 12, fontFamily: "monospace", color: "var(--text-secondary)",
+                background: "var(--bg-elevated)", borderRadius: 8, padding: "8px 12px",
+                marginTop: 4, wordBreak: "break-all", userSelect: "all",
+              }}>
+                {deviceId}
+              </div>
+            </div>
+          )}
+          {phone ? (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>
+                  Telefon Numarası
+                </span>
+                <div style={{
+                  fontSize: 12, fontFamily: "monospace", color: "var(--text-secondary)",
+                  background: "var(--bg-elevated)", borderRadius: 8, padding: "8px 12px",
+                  marginTop: 4, wordBreak: "break-all", userSelect: "all",
+                  display: "flex", alignItems: "center", gap: 6,
+                }}>
+                  <span style={{ color: "var(--holo-1)", fontSize: 14 }}>&#x2714;</span>
+                  {phone}
+                </div>
+              </div>
               <button
                 className="btn-accent"
                 style={{ fontSize: 12, padding: "6px 14px" }}

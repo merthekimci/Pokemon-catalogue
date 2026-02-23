@@ -2,6 +2,15 @@
 
 ## Session 4 — 2026-02-23
 
+### UI: Settings Page Polish — Pokeball Icon + Phone Number Styling (Task #35)
+- **[2026-02-23]** Replaced 👤 emoji with inline SVG Pokeball icon in the owner name input, uses theme CSS vars
+- **[2026-02-23]** Added "Telefon Numarası" label above phone number display, matching "Cihaz ID" label style
+- **[2026-02-23]** Restyled phone number to match Device ID textbox (monospace, elevated bg, rounded, selectable), with green checkmark inline
+
+### UI: Display Device ID on Settings Page (Task #34)
+- **[2026-02-23]** Passed `deviceId={getDeviceId()}` prop from `App.jsx` to `SettingsPage`
+- **[2026-02-23]** Added read-only device ID display in Cloud Sync section, above phone number — monospace font, selectable text, "Cihaz ID" label
+
 ### Security: Device ID Binding for Phone Numbers (Task #33)
 - **[2026-02-23]** Added `getDeviceId()` helper in `App.jsx` — generates a UUID via `crypto.randomUUID()` on first visit, persists in localStorage key `pokemon_katalog_device_id`
 - **[2026-02-23]** Client sends `device_id` with both GET (`?device_id=...` query param) and POST (JSON body field) collection API calls
