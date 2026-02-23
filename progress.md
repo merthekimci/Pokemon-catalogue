@@ -1,5 +1,12 @@
 # Progress Log
 
+## Session 3 — 2026-02-23
+
+### Feature: Card Add Date Tracking + Sort by Date Added (Task #27)
+- **[2026-02-23]** Added `addedAt` ISO timestamp field to all 90 cards in `cards.prod.js` and 8 cards in `cards.dev.js` (backfilled with `"2025-01-01T00:00:00.000Z"`)
+- **[2026-02-23]** `confirmAdd()` in PhotoUploadModal now stamps each new card with `addedAt: new Date().toISOString()` at confirmation time
+- **[2026-02-23]** Added "Eklenme Tarihi" option to sort dropdown; sort logic handles missing `addedAt` gracefully (epoch 0 fallback)
+
 ## Session 2 — 2026-02-22
 
 ### Feature: Bilingual Card Schema + TCGdex Name-Based Image Lookup (Task #24)
@@ -217,3 +224,14 @@
 - **[2026-02-22]** All views (Kartlarım, Özet, Egitmenler, Kart Detay) updated to gracefully handle empty/loading/no-phone states with appropriate placeholder UI
 - **[2026-02-22]** Disconnect phone option added — clears phone number and all in-memory collection state immediately, returning app to blank/unauthenticated state
 - **[2026-02-22]** Updated `src/components/SettingsPage.jsx` with a cloud sync section: displays connected phone number, sync status badge, manual sync button, and disconnect option
+
+## 2026-02-23
+
+### Fix photo upload save bug
+- Diagnosed 3 root causes for why photo-uploaded cards showed correct data in review but wrong image/data after saving
+- Fixed `resolveCardImage` priority (`card.img` now wins over static map)
+- Replaced `nextId`-based ID assignment with `Date.now()+i` to prevent ID collisions when cards haven't loaded from server
+- Removed `&set.id=me02` restriction from TCGdex API lookup — now searches all sets
+- Moved card-number fallback from inside `catch` to normal flow (now triggers on empty results too)
+- Added EN→TR type normalization safety net in `analyze.js`
+- Build: ✅ clean | Committed & pushed

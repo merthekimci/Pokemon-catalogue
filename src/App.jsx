@@ -528,8 +528,10 @@ function PhotoUploadModal({ onClose, onAdd }) {
     setExtractedCards((prev) => prev.filter((_, i) => i !== idx));
 
   const confirmAdd = () => {
+    const now = new Date().toISOString();
     const cleaned = extractedCards.map((c) => ({
       ...c,
+      addedAt: c.addedAt || now,
       hp: +c.hp || 0,
       copies: +c.copies || 1,
       marketValue: +c.marketValue || 0,
@@ -1198,6 +1200,8 @@ export default function App() {
         cmp = (rarityOrder[a.rarity] || 0) - (rarityOrder[b.rarity] || 0);
       } else if (sortBy === "name") {
         cmp = tCard(a, "name").localeCompare(tCard(b, "name"));
+      } else if (sortBy === "addedAt") {
+        cmp = new Date(a.addedAt || 0).getTime() - new Date(b.addedAt || 0).getTime();
       } else if (sortBy === "damage1" || sortBy === "damage2" || sortBy === "retreat") {
         cmp = (parseFloat(cardDmg(a, sortBy === "damage1" ? 1 : 2) || a[sortBy]) || 0)
             - (parseFloat(cardDmg(b, sortBy === "damage1" ? 1 : 2) || b[sortBy]) || 0);
@@ -1495,6 +1499,7 @@ export default function App() {
             <option value="hp">HP</option>
             <option value="name">İsim</option>
             <option value="marketValue">Değer</option>
+            <option value="addedAt">Eklenme Tarihi</option>
           </select>
           <button
             onClick={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
