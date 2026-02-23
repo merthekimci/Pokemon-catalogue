@@ -1,3 +1,5 @@
+import { sql } from "@vercel/postgres";
+
 // Fetch TCGplayer market price from pokemontcg.io API.
 // Returns a USD price number, or 0 if unavailable.
 async function fetchMarketPrice(englishName, cardNumber) {
@@ -113,6 +115,7 @@ Each card object must have these exact fields (use empty string "" for unknown t
   "damage2": "second attack damage as string or empty string",
   "copies": 1,
   "marketValue": 0,
+  "trainer": "pick the trainer most associated with this Pokémon in anime/game lore. Use one of these exact slugs: ash-ketchum, misty, brock, dawn, blaine, professor-oak, cynthia, red, blue, lance, n, steven-stone, team-rocket. Default to ash-ketchum if uncertain. For Trainer/Item/Tool/Stadium cards use professor-oak.",
   "original": {
     "name": "the exact name text as printed on the card — keep original language (Korean/Japanese/English)",
     "type": "energy type in English exactly as used in TCG: one of [Grass, Fire, Water, Lightning, Fighting, Metal, Colorless, Darkness, Psychic, Supporter, Item, Tool, Stadium]",
@@ -129,7 +132,9 @@ Each card object must have these exact fields (use empty string "" for unknown t
       "stage": "English stage: one of [Basic, Stage 1, Stage 2, Mega ex, Basic ex, Supporter, Item, Tool, Stadium]",
       "attack1": "English attack name",
       "attack2": "English second attack name or empty string",
-      "ability": "English ability name or empty string"
+      "ability": "English ability name or empty string",
+      "bio": "2-3 sentence English biography of this Pokémon — its nature, notable traits, and abilities. For Trainer/Item/Tool/Stadium cards, describe the card's role and effect.",
+      "lore": "2-3 sentence English story about this Pokémon — its origin, legends, or role in the Pokémon world. For Trainer/Item/Tool/Stadium cards, give historical or strategic context."
     },
     "tr": {
       "name": "Turkish or romanized name (Pokémon names usually unchanged)",
@@ -137,7 +142,9 @@ Each card object must have these exact fields (use empty string "" for unknown t
       "stage": "Turkish stage: one of [Temel, 1. Aşama, 2. Aşama, Mega ex, Temel ex, Destekçi, Eşya, Araç, Stadyum]",
       "attack1": "Turkish attack name (translate if known, else use English)",
       "attack2": "Turkish second attack name or empty string",
-      "ability": "Turkish ability name or empty string"
+      "ability": "Turkish ability name or empty string",
+      "bio": "Turkish translation of the English biography above",
+      "lore": "Turkish translation of the English story above"
     }
   }
 }
@@ -261,14 +268,75 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
     }
 
     // Resolve image and fetch market price in parallel for each card.
+    // Check global card_metadata cache first — skip expensive lookups for known cards.
     const cardsWithData = await Promise.all(
       cards.map(async (card) => {
+        const cardNumber = card.cardNumber;
+
+        // 1. Check metadata cache for known cards
+        if (cardNumber && cardNumber !== "-") {
+          try {
+            const { rows } = await sql`
+              SELECT * FROM card_metadata WHERE card_number = ${cardNumber}
+            `;
+            if (rows.length > 0) {
+              const meta = rows[0];
+              return {
+                cardNumber: meta.card_number,
+                hp: meta.hp,
+                rarity: meta.rarity || card.rarity,
+                retreat: meta.retreat,
+                damage1: meta.damage1,
+                damage2: meta.damage2,
+                img: meta.img,
+                marketValue: parseFloat(meta.market_value) || 0,
+                original: meta.original,
+                translations: meta.translations,
+                copies: card.copies || 1,
+                trainer: card.trainer || "ash-ketchum",
+                addedAt: new Date().toISOString(),
+              };
+            }
+          } catch (_) {
+            // Cache lookup failed — fall through to full pipeline
+          }
+        }
+
+        // 2. Cache miss — full pipeline
         const enName = card.translations?.en?.name || card.original?.name;
         const [imgResult, price] = await Promise.all([
           resolveImage(card, enName),
           fetchMarketPrice(enName, card.cardNumber),
         ]);
-        return { ...card, ...imgResult, marketValue: price };
+        const fullCard = { ...card, ...imgResult, marketValue: price };
+
+        // 3. Store in card_metadata for future lookups (non-blocking)
+        if (cardNumber && cardNumber !== "-") {
+          sql`
+            INSERT INTO card_metadata
+              (card_number, hp, rarity, retreat, damage1, damage2, img, market_value, original, translations, market_updated_at)
+            VALUES (
+              ${cardNumber},
+              ${fullCard.hp || 0},
+              ${fullCard.rarity || ''},
+              ${fullCard.retreat || ''},
+              ${fullCard.damage1 || ''},
+              ${fullCard.damage2 || ''},
+              ${fullCard.img || ''},
+              ${fullCard.marketValue || 0},
+              ${JSON.stringify(fullCard.original || {})},
+              ${JSON.stringify(fullCard.translations || {})},
+              NOW()
+            )
+            ON CONFLICT (card_number) DO UPDATE SET
+              img = COALESCE(NULLIF(EXCLUDED.img, ''), card_metadata.img),
+              market_value = CASE WHEN EXCLUDED.market_value > 0 THEN EXCLUDED.market_value ELSE card_metadata.market_value END,
+              market_updated_at = NOW(),
+              updated_at = NOW()
+          `.catch(() => {});
+        }
+
+        return fullCard;
       })
     );
 
