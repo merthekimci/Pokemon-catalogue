@@ -466,8 +466,13 @@ function PhotoUploadModal({ onClose, onAdd }) {
     if (card.img) return card.img;
     const fromMap = resolveCardImage(card);
     if (fromMap) return fromMap;
-    const num = cardNum(card)?.split("/")?.[0]?.trim();
-    if (!num || isNaN(+num)) return "";
+    // Only construct ME02 URL when the card is confirmed to be from ME02 (set total = 080).
+    // Cards from other sets (e.g. 073/182) must not use ME02 position URLs — they map
+    // to completely different Pokémon in that set.
+    const parts = cardNum(card)?.split("/");
+    const num = parts?.[0]?.trim();
+    const setTotal = parts?.[1]?.trim();
+    if (!num || isNaN(+num) || setTotal !== "080") return "";
     return `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png`;
   };
 

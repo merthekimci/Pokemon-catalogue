@@ -113,48 +113,44 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
       }
     });
 
-    // For each card, resolve the correct ME02 card image.
-    // Strategy: use card number first (most reliable since GPT-4o detects it accurately),
-    // then fall back to TCGdex name lookup if card number is unavailable.
+    // For each card, resolve the TCGdex image by English name.
+    // Priority: ME02 set first (primary collection set), then any set.
+    // We use results.find(r => r.image) instead of results[0] to skip entries
+    // that lack images. We do NOT fall back to card-number ME02 URL because
+    // imported cards may be from other sets (e.g. a 182-card set), and card
+    // position N in ME02 is a completely different Pokémon.
     const cardsWithImages = await Promise.all(
       cards.map(async (card) => {
         if (card.img) return card; // already has an image
 
-        // 1. Best: build ME02 URL directly from card number — always points to the correct card
-        const num = card.cardNumber?.split("/")?.[0]?.trim();
-        if (num && !isNaN(+num)) {
-          return { ...card, img: `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png` };
-        }
-
         const enName = card.translations?.en?.name || card.original?.name;
         if (!enName) return card;
 
-        // 2. Fallback: TCGdex ME02 name lookup (when card number not detected)
+        // 1. Try ME02 set first — the primary set for this collection
         try {
           const me02Res = await fetch(
             `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}&set.id=me02`
           );
           if (me02Res.ok) {
             const me02Results = await me02Res.json();
-            if (Array.isArray(me02Results) && me02Results.length > 0 && me02Results[0].image) {
-              return { ...card, img: me02Results[0].image + "/high.png" };
-            }
+            const me02Match = Array.isArray(me02Results) && me02Results.find((r) => r.image);
+            if (me02Match) return { ...card, img: me02Match.image + "/high.png" };
           }
         } catch (_) {}
 
-        // 3. Last resort: search all sets by name
+        // 2. Search all sets — use the first result that actually has an image
         try {
           const tcgRes = await fetch(
             `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}`
           );
           if (tcgRes.ok) {
             const results = await tcgRes.json();
-            if (Array.isArray(results) && results.length > 0 && results[0].image) {
-              return { ...card, img: results[0].image + "/high.png" };
-            }
+            const anyMatch = Array.isArray(results) && results.find((r) => r.image);
+            if (anyMatch) return { ...card, img: anyMatch.image + "/high.png" };
           }
         } catch (_) {}
 
+        // No image found — return card without img rather than guessing a wrong set URL
         return card;
       })
     );
