@@ -1777,6 +1777,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", position: "relative" }}>
+      <div className="bg-image" />
       <Routes>
         <Route path="/" element={<CatalogueView scrollRef={scrollRef}>{catalogueContent}</CatalogueView>} />
         <Route path="/trainer/:trainerSlug" element={<TrainerDetail cards={cards} typeColors={typeColors} />} />

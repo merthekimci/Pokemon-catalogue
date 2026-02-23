@@ -12,6 +12,12 @@
 - **[2026-02-24]** Added CSS font migration shim to catch any remaining inline font-family references
 - **[2026-02-24]** Build verified: `npm run build` passes cleanly
 
+### Fix: Background image not rendering — use fixed div instead of body bg (Task #41)
+- **[2026-02-24]** Root cause: `background-attachment: fixed` on `body` is broken on mobile Safari/iOS WebKit
+- **[2026-02-24]** Moved background image from `body` CSS to a `<div className="bg-image" />` with `position: fixed; inset: 0; z-index: -1`
+- **[2026-02-24]** Added div as first child in App root, works on all browsers
+- **[2026-02-24]** Build verified
+
 ### Fix: Remove all background filters/overlays (Task #40)
 - **[2026-02-24]** Removed grain texture overlay div and CSS rule entirely
 - **[2026-02-24]** Removed radial-gradient color overlay div from App root

@@ -45,11 +45,18 @@
 
 body {
   font-family: 'Comic Neue', cursive, -apple-system, sans-serif;
-  background: url('/app-images/pokemon-tcg-gradient-blue-bg1.png') center center / cover no-repeat fixed;
   background-color: #1A3F6F;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Fixed background image — works on all browsers including mobile Safari */
+.bg-image {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url('/app-images/pokemon-tcg-gradient-blue-bg1.png') center center / cover no-repeat;
 }
 
 /* Font migration shim — override old inline font-family references */
