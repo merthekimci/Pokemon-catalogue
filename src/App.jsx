@@ -30,6 +30,29 @@ function cardDmg(card, n) {
     : (card?.damage2 ?? card?.dmg2 ?? "");
 }
 
+// Merge incoming cards with existing collection — increment copies for duplicates
+function mergeNewCards(existingCards, newCards) {
+  const incoming = Array.isArray(newCards) ? newCards : [newCards];
+  const updated = existingCards.map((c) => ({ ...c }));
+  const toAppend = [];
+
+  for (const nc of incoming) {
+    const ncNum = cardNum(nc);
+    const idx = ncNum ? updated.findIndex((c) => cardNum(c) === ncNum) : -1;
+    if (idx !== -1) {
+      updated[idx] = { ...updated[idx], copies: updated[idx].copies + (nc.copies || 1) };
+    } else {
+      const pendingIdx = toAppend.findIndex((c) => ncNum && cardNum(c) === ncNum);
+      if (pendingIdx !== -1) {
+        toAppend[pendingIdx] = { ...toAppend[pendingIdx], copies: toAppend[pendingIdx].copies + (nc.copies || 1) };
+      } else {
+        toAppend.push(nc);
+      }
+    }
+  }
+  return [...updated, ...toAppend];
+}
+
 /* ── Type colors with neon glow variants ── */
 const typeColors = {
   "Ot":       { bg: "#00c853", glow: "rgba(0,200,83,0.35)", dark: "#0a2e16", emoji: "🌿" },
@@ -1600,7 +1623,7 @@ export default function App() {
         <Route path="/ayarlar" element={<SettingsPage theme={theme} onThemeChange={setTheme} ownerName={ownerName} onOwnerNameChange={setOwnerName} phone={phone} onShowPhoneModal={() => setShowPhoneModal(true)} onPhoneChange={(p) => { setPhone(p); if (!p) { setCards([]); setFavorites([]); setTheme("dark"); setOwnerName("Koleksiyoncu"); } }} />} />
       </Routes>
       <BottomTabBar onAddClick={() => setShowAdd(true)} />
-      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((p) => [...p, ...(Array.isArray(newCards) ? newCards : [newCards])])} />}
+      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((prev) => mergeNewCards(prev, newCards))} />}
       {deleteTarget && <DeleteConfirmModal card={deleteTarget} onConfirm={handleDeleteCard} onClose={() => setDeleteTarget(null)} />}
       {showPhoneModal && <PhoneModal onSave={(p) => { setPhone(p); setShowPhoneModal(false); }} onClose={() => setShowPhoneModal(false)} />}
     </div>

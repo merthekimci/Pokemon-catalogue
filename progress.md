@@ -235,3 +235,9 @@
 - Moved card-number fallback from inside `catch` to normal flow (now triggers on empty results too)
 - Added EN→TR type normalization safety net in `analyze.js`
 - Build: ✅ clean | Committed & pushed
+
+### 2026-02-23 — Deduplicate Cards on Import
+- Added `mergeNewCards()` helper function to `src/App.jsx`
+- Modified `onAdd` callback in PhotoUploadModal to detect existing cards by card number
+- When importing a card that already exists, the existing card's `copies` count is incremented instead of creating a duplicate record
+- Handles intra-batch duplicates and cards with missing card numbers

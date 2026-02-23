@@ -29,3 +29,4 @@
 | 25 | Fix photo upload save bug: wrong image + card data after add | Completed | Claude | 2026-02-23 | 2026-02-23 |
 | 26 | Fix wrong images: PokeAPI override on Kartlarım + wrong-set card scan on confirmation dialogue | Completed | Claude | 2026-02-23 | 2026-02-23 |
 | 27 | Track card add date (addedAt field) + sort by Eklenme Tarihi | Completed | Claude | 2026-02-23 | 2026-02-23 |
+| 28 | Deduplicate cards on import — increment existing card's copies instead of creating duplicate records | Done | Claude (Opus) | 2026-02-23 | 2026-02-23 |
