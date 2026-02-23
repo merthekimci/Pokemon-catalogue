@@ -1,5 +1,26 @@
 # Progress Log
 
+## Session 5 — 2026-02-24
+
+### Theme Redesign: Dark Holo → Pokemon TCG Blue Gradient (Task #38)
+- **[2026-02-24]** Replaced Google Fonts: Rajdhani + DM Sans → Fredoka (headings) + Nunito (body) for a fun, comic-style Pokemon TCG feel
+- **[2026-02-24]** New color palette: Pokemon Yellow (#FFCB05) as primary CTA/accent, Pokemon Blue (#2A75BB) for links, Pokemon Red (#CC0000) for danger, Navy (#1A3F6F) for deep backgrounds
+- **[2026-02-24]** Background: full-page `pokemon-tcg-gradient-blue-bg1.png` with `background-attachment: fixed` and #1A3F6F fallback
+- **[2026-02-24]** All surface colors converted to semi-transparent white (frosted glass) for cards, modals, inputs, buttons
+- **[2026-02-24]** Updated `:root` CSS custom properties, removed `[data-theme="light"]` override block (single theme now)
+- **[2026-02-24]** Updated all inline styles across App.jsx, CardDetail.jsx, TrainerDetail.jsx, TrainersList.jsx, SettingsPage.jsx — fonts, accent colors, hardcoded backgrounds
+- **[2026-02-24]** Added CSS font migration shim to catch any remaining inline font-family references
+- **[2026-02-24]** Build verified: `npm run build` passes cleanly
+
+### Feature: Collector's Portrait Widget (Task #37)
+- **[2026-02-24]** Created `api/portrait.js` — Vercel serverless function calling OpenAI `gpt-image-1` Images API for anime-style portrait conversion (60s maxDuration)
+- **[2026-02-24]** Updated `api/collection.js` — added `portrait TEXT` column migration, included in GET SELECT and POST UPSERT (conditional update to avoid overwriting on non-portrait syncs)
+- **[2026-02-24]** Added portrait state to `App.jsx` with `portraitDirtyRef` optimization to avoid sending large base64 on every card sync
+- **[2026-02-24]** Built portrait widget in `SummaryView` with 3 states: empty (tap to upload), loading (anime conversion in progress), portrait (full-width square image with remove button)
+- **[2026-02-24]** Client-side image resize to 512x512 JPEG before upload to control payload size
+- **[2026-02-24]** Added `@keyframes pulse` animation to `styles.css` for loading state
+- **[2026-02-24]** Build verified: `npm run build` passes cleanly
+
 ## Session 4 — 2026-02-23
 
 ### UI: Settings Page Polish — Pokeball Icon + Phone Number Styling (Task #35)

@@ -18,7 +18,7 @@ const typeColors = {
 };
 
 const rarityLabels = { C: "Common", U: "Uncommon", M: "Holo Rare", RR: "Double Rare", R: "Rare", SR: "Secret Rare" };
-const rarityColors = { C: "#5a566e", U: "#00c896", M: "#7b61ff", RR: "#ffd166", R: "#8b5cf6", SR: "#ec4899" };
+const rarityColors = { C: "var(--text-muted)", U: "#00c896", M: "#FFCB05", RR: "#ffd166", R: "#8b5cf6", SR: "#ec4899" };
 
 // Translation-aware card field accessors (mirrors App.jsx helpers)
 function tCard(card, field, lang = "tr") {
@@ -38,19 +38,20 @@ const affiliationIcons = {
 };
 
 // ─── 3D Card Tilt Hook ───
-function useCardTilt({ sensitivity = 0.4 } = {}) {
+function useCardTilt({ sensitivity = 0.4, initialRotY = 0 } = {}) {
   const cardRef = useRef(null);
   const isActive = useRef(false);
   const rafId = useRef(null);
   const startPointer = useRef({ x: 0, y: 0 });
   const startRotation = useRef({ x: 0, y: 0 });
   const targetRotX = useRef(0);
-  const targetRotY = useRef(0);
+  const targetRotY = useRef(initialRotY);
   const currentRotX = useRef(0);
-  const currentRotY = useRef(0);
+  const currentRotY = useRef(initialRotY);
 
-  const [tilt, setTilt] = useState({ rotX: 0, rotY: 0 });
+  const [tilt, setTilt] = useState({ rotX: 0, rotY: initialRotY });
   const [isInteracting, setIsInteracting] = useState(false);
+  const [introPhase, setIntroPhase] = useState(initialRotY !== 0);
 
   const snapAngle = useCallback((angle) => {
     const normalized = ((angle % 360) + 360) % 360;
@@ -126,6 +127,19 @@ function useCardTilt({ sensitivity = 0.4 } = {}) {
     };
   }, [handleMove]);
 
+  // Intro flip: animate from initialRotY to 0 on mount
+  useEffect(() => {
+    if (initialRotY === 0) return;
+    // Wait one frame so the initial rotY=180 renders, then trigger CSS transition to 0
+    const frameId = requestAnimationFrame(() => {
+      targetRotY.current = 0;
+      currentRotY.current = initialRotY;
+      setTilt({ rotX: 0, rotY: 0 });
+    });
+    const timer = setTimeout(() => setIntroPhase(false), 1050);
+    return () => { cancelAnimationFrame(frameId); clearTimeout(timer); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handlers = {
     onMouseDown: (e) => { e.preventDefault(); handleStart(e.clientX, e.clientY); },
     onMouseMove: (e) => handleMove(e.clientX, e.clientY),
@@ -135,7 +149,7 @@ function useCardTilt({ sensitivity = 0.4 } = {}) {
     onTouchEnd: () => handleEnd(),
   };
 
-  return { cardRef, tilt, isInteracting, handlers };
+  return { cardRef, tilt, isInteracting, introPhase, handlers };
 }
 
 // ─── Sub-components ───
@@ -147,10 +161,10 @@ function StatCard({ label, value, orbColor }) {
       border: "1px solid var(--border-dim)", display: "flex",
       flexDirection: "column", gap: 4,
     }}>
-      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>{label}</span>
+      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>{label}</span>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         {orbColor && <span style={{ width: 12, height: 12, borderRadius: "50%", background: orbColor, flexShrink: 0 }} />}
-        <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'DM Sans', sans-serif" }}>{value}</span>
+        <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Nunito', sans-serif" }}>{value}</span>
       </div>
     </div>
   );
@@ -159,7 +173,7 @@ function StatCard({ label, value, orbColor }) {
 function SectionTitle({ children, isDesktop }) {
   return (
     <h3 style={{
-      fontFamily: "'Rajdhani', sans-serif", fontSize: isDesktop ? 22 : 20,
+      fontFamily: "'Fredoka', sans-serif", fontSize: isDesktop ? 22 : 20,
       fontWeight: 700, color: "var(--text-primary)", margin: 0,
     }}>{children}</h3>
   );
@@ -195,18 +209,18 @@ function RelationCard({ card, reason, isFoe, resolveImg }) {
         )}
       </div>
       <div style={{ padding: "8px 10px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'DM Sans', sans-serif" }}>{tCard(card, "name")}</div>
-        <div style={{ fontSize: 10, color: isFoe ? "#ff4444" : tc.bg, fontFamily: "'DM Sans', sans-serif" }}>{reason}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Nunito', sans-serif" }}>{tCard(card, "name")}</div>
+        <div style={{ fontSize: 10, color: isFoe ? "#ff4444" : tc.bg, fontFamily: "'Nunito', sans-serif" }}>{reason}</div>
       </div>
     </Link>
   );
 }
 
 // ─── Physical Card (Desktop left column) ───
-function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensity, tiltMagnitude, cardRef, handlers }) {
+function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, holoIntensity, tiltMagnitude, cardRef, handlers }) {
   const weaknessStr = card.original?.weakness ?? card.weakness ?? "";
   const weaknessType = weaknessStr?.match(/^(\S+)/)?.[1];
-  const weaknessColor = Object.entries(typeColors).find(([k]) => k === weaknessType)?.[1]?.bg || "#8b87a0";
+  const weaknessColor = Object.entries(typeColors).find(([k]) => k === weaknessType)?.[1]?.bg || "var(--text-secondary)";
 
   return (
     <div style={{ perspective: 900, perspectiveOrigin: "50% 50%" }}>
@@ -217,9 +231,9 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
           width: 320,
           transformStyle: "preserve-3d",
           transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg)`,
-          transition: isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          transition: introPhase ? "transform 1s cubic-bezier(0.34, 1.56, 0.64, 1)" : isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
           willChange: "transform",
-          cursor: isInteracting ? "grabbing" : "grab",
+          cursor: introPhase ? "default" : isInteracting ? "grabbing" : "grab",
           userSelect: "none", WebkitUserSelect: "none",
           position: "relative",
           borderRadius: 16,
@@ -241,11 +255,11 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
           }}>
             {/* Name Bar */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px" }}>
-              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 22, color: "#2a2838" }}>
+              <span style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 22, color: "#2a2838" }}>
                 {tCard(card, "name")}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 20, color: t.bg }}>
+                <span style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 20, color: t.bg }}>
                   HP {card.hp}
                 </span>
                 <span style={{ width: 16, height: 16, borderRadius: "50%", background: t.bg, display: "inline-block" }} />
@@ -271,7 +285,7 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
                   position: "absolute", top: 8, left: 8,
                   background: "rgba(0,0,0,0.8)", borderRadius: 10, padding: "2px 8px",
                 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "'DM Sans', sans-serif" }}>x{card.copies}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "'Nunito', sans-serif" }}>x{card.copies}</span>
                 </div>
               )}
               {/* Heart badge */}
@@ -286,23 +300,23 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
 
             {/* Trainer Row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#0d9488", fontFamily: "'DM Sans', sans-serif" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#2A75BB", fontFamily: "'Nunito', sans-serif" }}>
                 {card.trainer ? (trainers[card.trainer]?.name || card.trainer) : "—"}
               </span>
-              <span style={{ fontSize: 12, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>{cardNum(card)}</span>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>{cardNum(card)}</span>
             </div>
 
             {/* Attack Section */}
             {tCard(card, "attack1") && (
               <div style={{ padding: "6px 10px", borderTop: `1px solid ${t.bg}40`, display: "flex", flexDirection: "column", gap: 4 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>⚔ {tCard(card, "attack1")}</span>
-                  <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 1) || "—"}</span>
+                  <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'Nunito', sans-serif" }}>⚔ {tCard(card, "attack1")}</span>
+                  <span style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 1) || "—"}</span>
                 </div>
                 {tCard(card, "attack2") && (
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>⚔ {tCard(card, "attack2")}</span>
-                    <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 2) || "—"}</span>
+                    <span style={{ fontSize: 13, color: "#2a2838", fontFamily: "'Nunito', sans-serif" }}>⚔ {tCard(card, "attack2")}</span>
+                    <span style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 18, color: "#2a2838" }}>{cardDmg(card, 2) || "—"}</span>
                   </div>
                 )}
               </div>
@@ -314,32 +328,32 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
               padding: "4px 10px", borderTop: `1px solid ${t.bg}40`,
             }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <span style={{ fontSize: 9, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>zayiflik</span>
+                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>zayiflik</span>
                 {card.weakness && card.weakness !== "-" ? (
                   <>
                     <span style={{ width: 14, height: 14, borderRadius: "50%", background: weaknessColor, display: "inline-block" }} />
-                    <span style={{ fontSize: 10, fontWeight: 600, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>x2</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: "#2a2838", fontFamily: "'Nunito', sans-serif" }}>x2</span>
                   </>
-                ) : <span style={{ fontSize: 12, color: "#8b87a0" }}>—</span>}
+                ) : <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>—</span>}
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <span style={{ fontSize: 9, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>dayaniklilik</span>
-                <span style={{ fontSize: 12, color: "#8b87a0" }}>—</span>
+                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>dayaniklilik</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>—</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <span style={{ fontSize: 9, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>cekilme</span>
+                <span style={{ fontSize: 9, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>cekilme</span>
                 {card.retreat && card.retreat !== "-" ? (
-                  <span style={{ width: 14, height: 14, borderRadius: "50%", background: "#8b87a0", display: "inline-block" }} />
-                ) : <span style={{ fontSize: 12, color: "#8b87a0" }}>—</span>}
+                  <span style={{ width: 14, height: 14, borderRadius: "50%", background: "var(--text-secondary)", display: "inline-block" }} />
+                ) : <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>—</span>}
               </div>
             </div>
 
             {/* Badges */}
             <div style={{ display: "flex", gap: 8, padding: "4px 10px", alignItems: "center" }}>
-              <span style={{ background: t.bg, color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
+              <span style={{ background: t.bg, color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Nunito', sans-serif" }}>
                 {tCard(card, "type")}
               </span>
-              <span style={{ background: rarityColors[card.rarity] || "#5a566e", color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
+              <span style={{ background: rarityColors[card.rarity] || "var(--text-muted)", color: "#fff", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Nunito', sans-serif" }}>
                 {card.rarity}
               </span>
             </div>
@@ -350,8 +364,8 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "6px 10px", borderRadius: 8, background: `${t.bg}0D`,
               }}>
-                <span style={{ fontSize: 12, color: "#8b87a0", fontFamily: "'DM Sans', sans-serif" }}>Piyasa Degeri</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "#2a2838", fontFamily: "'DM Sans', sans-serif" }}>${card.marketValue.toFixed(2)}</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif" }}>Piyasa Degeri</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#2a2838", fontFamily: "'Nunito', sans-serif" }}>${card.marketValue.toFixed(2)}</span>
               </div>
             )}
           </div>
@@ -362,7 +376,7 @@ function PhysicalCard({ card, t, tilt, isInteracting, holoX, holoY, holoIntensit
             opacity: holoIntensity * 0.85,
             background: `
               radial-gradient(ellipse 80% 60% at ${holoX}% ${holoY}%, rgba(255,255,255,0.25), transparent 60%),
-              linear-gradient(${105 + (tilt.rotY % 360) * 0.5}deg, rgba(0,245,212,0.15) 0%, rgba(123,97,255,0.15) 25%, rgba(247,37,133,0.15) 50%, rgba(255,209,102,0.15) 75%, rgba(0,245,212,0.15) 100%)
+              linear-gradient(${105 + (tilt.rotY % 360) * 0.5}deg, rgba(42,117,187,0.15) 0%, rgba(255,203,5,0.15) 33%, rgba(204,0,0,0.15) 66%, rgba(42,117,187,0.15) 100%)
             `,
             mixBlendMode: "screen",
             transition: isInteracting ? "none" : "opacity 0.4s ease",
@@ -397,7 +411,10 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
     return () => window.removeEventListener("resize", handler);
   }, []);
 
-  const { cardRef, tilt, isInteracting, handlers } = useCardTilt({ sensitivity: 0.4 });
+  const { cardRef, tilt, isInteracting, introPhase, handlers } = useCardTilt({ sensitivity: 0.4, initialRotY: 180 });
+
+  // Scroll to top on page load / card change
+  useEffect(() => { window.scrollTo(0, 0); }, [cardId]);
 
   if (!card) {
     return (
@@ -443,23 +460,23 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
       {/* Name Section */}
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h1 style={{
-          fontFamily: "'Rajdhani', sans-serif", fontSize: isDesktop ? 36 : 28,
+          fontFamily: "'Fredoka', sans-serif", fontSize: isDesktop ? 36 : 28,
           fontWeight: 700, margin: 0, color: "var(--text-primary)",
         }}>{tCard(card, "name")}</h1>
-        <div style={{ fontSize: isDesktop ? 14 : 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>
+        <div style={{ fontSize: isDesktop ? 14 : 13, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>
           {meta?.japaneseName || `${cardNum(card)} · ${tCard(card, "stage")}`}
         </div>
         <div style={{ display: "flex", gap: 10, marginTop: 4, alignItems: "center" }}>
           <span style={{
             background: `${t.bg}1A`, color: t.bg, borderRadius: 6,
-            padding: "4px 12px", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+            padding: "4px 12px", fontSize: 12, fontWeight: 600, fontFamily: "'Nunito', sans-serif",
           }}>
             {tCard(card, "stage") || "Temel Pokemon"}
           </span>
           {card.hp > 0 && (
             <span style={{
               background: `${t.bg}1A`, color: t.bg, borderRadius: 6,
-              padding: "4px 12px", fontSize: 14, fontWeight: 700, fontFamily: "'Rajdhani', sans-serif",
+              padding: "4px 12px", fontSize: 14, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
               display: "inline-flex", alignItems: "center", gap: 6,
             }}>
               HP {card.hp}
@@ -477,7 +494,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
           background: isFavorite ? "rgba(247,37,133,0.1)" : "var(--bg-elevated)",
           border: `1px solid ${isFavorite ? "rgba(247,37,133,0.3)" : "var(--border-dim)"}`,
           color: isFavorite ? "#f72585" : "var(--text-primary)",
-          fontWeight: 600, fontSize: isDesktop ? 14 : 13, fontFamily: "'DM Sans', sans-serif",
+          fontWeight: 600, fontSize: isDesktop ? 14 : 13, fontFamily: "'Nunito', sans-serif",
           transition: "all 0.2s ease",
         }}>
           <span style={{ fontSize: 18, color: "#f72585" }}>{isFavorite ? "♥" : "♡"}</span>
@@ -503,7 +520,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
           <StatCard
             label="Cekilme"
             value={card.retreat && card.retreat !== "-" ? `${card.retreat} Enerji` : "—"}
-            orbColor={card.retreat && card.retreat !== "-" ? "#8b87a0" : undefined}
+            orbColor={card.retreat && card.retreat !== "-" ? "var(--text-secondary)" : undefined}
           />
           <StatCard label="Kart Numarasi" value={cardNum(card)} />
         </div>
@@ -526,8 +543,8 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             style={{ height: 48, width: "auto", objectFit: "contain" }}
             onError={(e) => { e.target.style.display = "none"; }}
           />
-          <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'DM Sans', sans-serif" }}>
-            <Link to="/" style={{ color: "#0d9488", fontSize: 13, fontWeight: 500, textDecoration: "none" }}>Kartlarim</Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'Nunito', sans-serif" }}>
+            <Link to="/" style={{ color: "#2A75BB", fontSize: 13, fontWeight: 500, textDecoration: "none" }}>Kartlarim</Link>
             <span style={{ color: "var(--text-muted)", fontSize: 13 }}>/</span>
             <span style={{ color: "var(--text-primary)", fontSize: 13, fontWeight: 600 }}>Kart Detayi</span>
           </div>
@@ -537,7 +554,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             padding: "8px 16px", borderRadius: 10, cursor: "pointer",
             background: "var(--bg-elevated)", border: "1px solid var(--border-dim)",
             color: "var(--text-primary)", fontSize: 13, fontWeight: 600,
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'Nunito', sans-serif",
           }}>
             ← Kartlarima Don
           </button>
@@ -553,7 +570,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             background: "none", border: "none", cursor: "pointer",
             fontSize: 20, color: "var(--text-primary)", padding: 0,
           }}>←</button>
-          <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+          <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
             Kart Detayi
           </span>
         </div>
@@ -574,7 +591,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             {/* LEFT: Physical Card */}
             <div style={{ width: 340, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
               <PhysicalCard
-                card={card} t={t} tilt={tilt} isInteracting={isInteracting}
+                card={card} t={t} tilt={tilt} isInteracting={isInteracting} introPhase={introPhase}
                 holoX={holoX} holoY={holoY} holoIntensity={holoIntensity}
                 tiltMagnitude={tiltMagnitude} cardRef={cardRef} handlers={handlers}
               />
@@ -594,9 +611,9 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                     width: 260, height: 364,
                     transformStyle: "preserve-3d",
                     transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg)`,
-                    transition: isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    transition: introPhase ? "transform 1s cubic-bezier(0.34, 1.56, 0.64, 1)" : isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
                     willChange: "transform",
-                    cursor: isInteracting ? "grabbing" : "grab",
+                    cursor: introPhase ? "default" : isInteracting ? "grabbing" : "grab",
                     userSelect: "none", WebkitUserSelect: "none",
                     position: "relative", borderRadius: 12,
                     boxShadow: isInteracting
@@ -627,7 +644,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                       opacity: holoIntensity * 0.85,
                       background: `
                         radial-gradient(ellipse 80% 60% at ${holoX}% ${holoY}%, rgba(255,255,255,0.25), transparent 60%),
-                        linear-gradient(${105 + (tilt.rotY % 360) * 0.5}deg, rgba(0,245,212,0.15) 0%, rgba(123,97,255,0.15) 25%, rgba(247,37,133,0.15) 50%, rgba(255,209,102,0.15) 75%, rgba(0,245,212,0.15) 100%)
+                        linear-gradient(${105 + (tilt.rotY % 360) * 0.5}deg, rgba(42,117,187,0.15) 0%, rgba(255,203,5,0.15) 33%, rgba(204,0,0,0.15) 66%, rgba(42,117,187,0.15) 100%)
                       `,
                       mixBlendMode: "screen",
                       transition: isInteracting ? "none" : "opacity 0.4s ease",
@@ -655,7 +672,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
         {/* ═══ ABILITY ═══ */}
         {tCard(card, "ability") && (
           <div style={{
-            background: "rgba(123,97,255,0.08)", border: "1px solid rgba(123,97,255,0.2)",
+            background: "rgba(255,203,5,0.08)", border: "1px solid rgba(255,203,5,0.2)",
             padding: "12px 14px", borderRadius: 12,
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>✨ Yetenek</div>
@@ -669,7 +686,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             <SectionTitle isDesktop={isDesktop}>Biyografi</SectionTitle>
             <p style={{
               fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
-              color: "var(--text-secondary)", fontFamily: "'DM Sans', sans-serif",
+              color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif",
             }}>{meta.bio}</p>
           </SectionWrapper>
         )}
@@ -680,7 +697,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             <SectionTitle isDesktop={isDesktop}>Hikaye</SectionTitle>
             <p style={{
               fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
-              color: "var(--text-secondary)", fontFamily: "'DM Sans', sans-serif",
+              color: "var(--text-secondary)", fontFamily: "'Nunito', sans-serif",
             }}>{meta.lore}</p>
           </SectionWrapper>
         )}
@@ -703,15 +720,15 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                   }} />
               )}
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: isDesktop ? 16 : 14, color: "var(--text-primary)", fontFamily: "'DM Sans', sans-serif" }}>{trainer.name}</div>
-                <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>{trainer.region} Bolgesi · {trainer.specialty}</div>
+                <div style={{ fontWeight: 700, fontSize: isDesktop ? 16 : 14, color: "var(--text-primary)", fontFamily: "'Nunito', sans-serif" }}>{trainer.name}</div>
+                <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'Nunito', sans-serif" }}>{trainer.region} Bolgesi · {trainer.specialty}</div>
               </div>
               {isDesktop && (
                 <div style={{
                   display: "flex", alignItems: "center", gap: 4,
                   padding: "8px 14px", borderRadius: 8,
-                  background: "rgba(13,148,136,0.1)",
-                  color: "#0d9488", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                  background: "rgba(42,117,187,0.1)",
+                  color: "#2A75BB", fontSize: 12, fontWeight: 600, fontFamily: "'Nunito', sans-serif",
                 }}>
                   ↗ Profil
                 </div>
@@ -731,7 +748,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                   padding: isDesktop ? "6px 16px" : "5px 12px",
                   borderRadius: isDesktop ? 20 : 16,
                   background: `${aff.color}1A`,
-                  color: aff.color, fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                  color: aff.color, fontSize: 13, fontWeight: 600, fontFamily: "'Nunito', sans-serif",
                 }}>
                   {affiliationIcons[aff.icon] || "✨"} {aff.label}
                 </span>

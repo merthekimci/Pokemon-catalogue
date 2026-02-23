@@ -38,3 +38,5 @@
 | 34 | Display device ID on settings page (read-only) | Completed | Claude | 2026-02-23 | 2026-02-23 |
 | 35 | Settings UI polish: Pokeball icon, phone number label + textbox styling | Completed | Claude | 2026-02-23 | 2026-02-23 |
 | 36 | Auto-fetch market value on card import via pokemontcg.io API | Completed | Claude | 2026-02-23 | 2026-02-23 |
+| 37 | Collector's portrait widget: upload photo, OpenAI anime conversion, persist in DB | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 38 | Theme redesign: Replace dark holo theme with Pokemon TCG blue gradient, comic fonts, brand colors | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
