@@ -2,6 +2,14 @@
 
 ## Session 3 — 2026-02-23
 
+### Feature: Pokeball Favicon + OG Social Sharing Tags (Task #30)
+- **[2026-02-23]** Created `public/favicon.svg` — clean Pokeball SVG (red/white halves, black divider, center button) replacing inline emoji favicon
+- **[2026-02-23]** Added `<link rel="apple-touch-icon">` pointing to existing Pokemon TCG logo for iOS home screen
+- **[2026-02-23]** Added `<meta name="description">` and `<meta name="theme-color">` for SEO and mobile browser theming
+- **[2026-02-23]** Added full Open Graph tags (`og:type`, `og:title`, `og:description`, `og:image`) using TCG logo as share thumbnail
+- **[2026-02-23]** Added Twitter Card tags (`twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`) for Twitter/X link previews
+- **[2026-02-23]** All meta tags use Turkish descriptions matching the app's language
+
 ### Feature: Card Add Date Tracking + Sort by Date Added (Task #27)
 - **[2026-02-23]** Added `addedAt` ISO timestamp field to all 90 cards in `cards.prod.js` and 8 cards in `cards.dev.js` (backfilled with `"2025-01-01T00:00:00.000Z"`)
 - **[2026-02-23]** `confirmAdd()` in PhotoUploadModal now stamps each new card with `addedAt: new Date().toISOString()` at confirmation time
