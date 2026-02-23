@@ -2,6 +2,11 @@
 
 ## Session 5 — 2026-02-24
 
+### Redirect to KOLEKSİYONUM after login (Task #47)
+- **[2026-02-24]** Added `useNavigate()` to `App` component and `navigate("/ozet")` in login PhoneModal callback
+- **[2026-02-24]** After entering phone number, users now land on the collection summary page instead of the card catalogue
+- **[2026-02-24]** File: `src/App.jsx` — 2 lines changed
+
 ### Fix: 3D Card Drag Flicker After Intro Animation (Task #46, Bug #7)
 - **[2026-02-24]** Root cause: `currentRotY.current` ref stayed at `180` after CSS transition animated card to `0°`, causing drag to lerp from wrong position
 - **[2026-02-24]** Fix: sync `currentRotY.current = 0` in the post-intro `setTimeout` callback (1050ms) in `useCardTilt` hook

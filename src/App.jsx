@@ -1242,6 +1242,7 @@ export default function App() {
   const skipSaveRef = useRef(false);
   const portraitDirtyRef = useRef(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   // Keep phone in localStorage so it survives page refresh
   useEffect(() => {
@@ -1737,7 +1738,7 @@ export default function App() {
         )}
         <PhoneModal
           allowClose={false}
-          onSave={(p) => { setDeviceError(""); setPhone(p); setShowPhoneModal(false); }}
+          onSave={(p) => { setDeviceError(""); setPhone(p); setShowPhoneModal(false); navigate("/ozet"); }}
           onClose={() => {}}
         />
       </div>

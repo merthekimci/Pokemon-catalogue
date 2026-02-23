@@ -48,3 +48,4 @@
 | 44 | Use bg2 image as login page background | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 45 | Apply dark navy modal style to all widgets across all pages | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 46 | Fix 3D card drag flicker after intro spin animation | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 47 | Redirect to KOLEKSİYONUM summary page after login/registration | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
