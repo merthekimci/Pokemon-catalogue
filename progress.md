@@ -2,6 +2,11 @@
 
 ## Session 5 — 2026-02-24
 
+### Fix: 3D Card Drag Flicker After Intro Animation (Task #46, Bug #7)
+- **[2026-02-24]** Root cause: `currentRotY.current` ref stayed at `180` after CSS transition animated card to `0°`, causing drag to lerp from wrong position
+- **[2026-02-24]** Fix: sync `currentRotY.current = 0` in the post-intro `setTimeout` callback (1050ms) in `useCardTilt` hook
+- **[2026-02-24]** File: `src/components/CardDetail.jsx` line 140
+
 ### Apply dark navy style to all widgets app-wide (Task #45)
 - **[2026-02-24]** Updated CSS custom properties: `--bg-card`, `--bg-surface`, `--bg-elevated`, `--bg-glass` from transparent white to dark navy (`rgba(20,30,60,0.88-0.94)`)
 - **[2026-02-24]** Bumped `--border-dim` and `--border-subtle` for better contrast on dark panels

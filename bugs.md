@@ -46,3 +46,16 @@
 **Fix:** Reordered priority in `api/analyze.js` so card-number-based ME02 URL is attempted first whenever a card number is detected from the photo. TCGdex name lookups (ME02-scoped, then global) are now fallbacks only for cases where GPT-4o fails to extract a card number.
 
 **Related Bugs:** Bug #4 (photo upload save), Bug #5 (wrong-set card scan in confirmation)
+
+---
+
+## Bug #7 — 3D Card Flickers/Hesitates on First Drag After Intro Animation
+**Status:** Fixed | **Date:** 2026-02-24 | **File:** src/components/CardDetail.jsx
+
+**Symptom:** After the card detail view's intro spin animation (back → front over 1s), dragging the card causes it to flicker/jump backward before responding smoothly.
+
+**Root Cause:** The intro animation uses a CSS transition to visually rotate from `rotY: 180` → `rotY: 0`, but the internal ref `currentRotY.current` was set to `180` during setup and never synced to `0` after the transition completed. The rAF interpolation loop doesn't run during the CSS-driven intro, so the ref stayed stale. When `handleStart` fires on first drag, it captures `startRotation.y = currentRotY.current = 180`, causing the rAF loop to lerp from 180 back toward 0 — producing a visible snap/flicker.
+
+**Fix:** Added `currentRotY.current = 0` and `targetRotY.current = 0` in the existing `setTimeout` callback (1050ms) that fires after the CSS transition ends, syncing the refs to match the visual state before user interaction begins.
+
+**Related Bugs:** —

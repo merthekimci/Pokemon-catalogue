@@ -137,7 +137,11 @@ function useCardTilt({ sensitivity = 0.4, initialRotY = 0 } = {}) {
       currentRotY.current = initialRotY;
       setTilt({ rotX: 0, rotY: 0 });
     });
-    const timer = setTimeout(() => setIntroPhase(false), 1050);
+    const timer = setTimeout(() => {
+      currentRotY.current = 0;
+      targetRotY.current = 0;
+      setIntroPhase(false);
+    }, 1050);
     return () => { cancelAnimationFrame(frameId); clearTimeout(timer); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
