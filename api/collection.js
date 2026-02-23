@@ -9,6 +9,7 @@ function validatePhone(phone) {
 // Idempotent migration — adds device_id column if it doesn't exist
 async function ensureSchema() {
   await sql`ALTER TABLE collections ADD COLUMN IF NOT EXISTS device_id TEXT`;
+  await sql`ALTER TABLE collections ADD COLUMN IF NOT EXISTS portrait TEXT`;
 }
 
 export default async function handler(req, res) {
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
 
     try {
       const { rows } = await sql`
-        SELECT owner_name, theme, cards, favorites, device_id, updated_at
+        SELECT owner_name, theme, cards, favorites, device_id, portrait, updated_at
         FROM collections
         WHERE phone = ${phone}
       `;
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { phone, owner_name, theme, cards, favorites, device_id } = req.body;
+    const { phone, owner_name, theme, cards, favorites, device_id, portrait } = req.body;
 
     if (!validatePhone(phone)) {
       return res.status(400).json({ error: "Geçersiz telefon numarası" });
@@ -67,7 +68,7 @@ export default async function handler(req, res) {
       }
 
       await sql`
-        INSERT INTO collections (phone, owner_name, theme, cards, favorites, device_id, updated_at)
+        INSERT INTO collections (phone, owner_name, theme, cards, favorites, device_id, portrait, updated_at)
         VALUES (
           ${phone},
           ${owner_name ?? ""},
@@ -75,6 +76,7 @@ export default async function handler(req, res) {
           ${JSON.stringify(cards)},
           ${JSON.stringify(favorites)},
           ${device_id ?? null},
+          ${portrait !== undefined ? portrait : null},
           NOW()
         )
         ON CONFLICT (phone) DO UPDATE SET
@@ -83,6 +85,7 @@ export default async function handler(req, res) {
           cards      = EXCLUDED.cards,
           favorites  = EXCLUDED.favorites,
           device_id  = COALESCE(collections.device_id, EXCLUDED.device_id),
+          portrait   = CASE WHEN ${portrait !== undefined} THEN ${portrait ?? null} ELSE collections.portrait END,
           updated_at = NOW()
       `;
 

@@ -945,18 +945,18 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
   const headerRow = {
     display: "flex", alignItems: "center", gap: 6, marginBottom: 6, width: "100%",
   };
-  const headerIcon = (color) => ({ fontSize: 16, color, flexShrink: 0 });
+  const headerIcon = (color) => ({ fontSize: 20, color, flexShrink: 0 });
   const headerTitle = {
-    fontFamily: "'Bangers', cursive", fontSize: 14, fontWeight: 700,
+    fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700,
     color: "var(--text-primary)",
   };
   const bigNum = (color) => ({
-    fontFamily: "'Bangers', cursive", fontSize: 26, fontWeight: 800, color,
+    fontFamily: "'Bangers', cursive", fontSize: 32, fontWeight: 800, color,
   });
-  const subText = { fontSize: 13, fontWeight: 600, color: "var(--text-muted)" };
+  const subText = { fontSize: 15, fontWeight: 600, color: "var(--text-muted)" };
   const chipBase = {
-    display: "inline-flex", alignItems: "center", gap: 3,
-    padding: "2px 6px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+    display: "inline-flex", alignItems: "center", gap: 4,
+    padding: "3px 8px", borderRadius: 8, fontSize: 14, fontWeight: 700,
   };
 
   return (
@@ -966,7 +966,7 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
         <PokeballIcon size={28} />
-        <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Özet</h2>
+        <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: 24, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>KOLEKSİYONUM</h2>
       </div>
 
       {/* Portrait Widget */}
@@ -990,10 +990,10 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
         {portraitLoading ? (
           <div style={{ textAlign: "center", padding: 20 }}>
             <div style={{ fontSize: 48, marginBottom: 12, animation: "pulse 1.5s ease-in-out infinite" }}>🎨</div>
-            <div style={{ fontFamily: "'Bangers', cursive", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+            <div style={{ fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700, color: "var(--text-primary)" }}>
               Anime portreniz oluşturuluyor...
             </div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginTop: 4 }}>Bu işlem 30 saniye kadar sürebilir</div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-muted)", marginTop: 4 }}>Bu işlem 30 saniye kadar sürebilir</div>
           </div>
         ) : portrait ? (
           <>
@@ -1017,14 +1017,14 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
         ) : (
           <div style={{ textAlign: "center", padding: 20 }}>
             <div style={{ fontSize: 48, marginBottom: 12, color: "var(--text-muted)" }}>📷</div>
-            <div style={{ fontFamily: "'Bangers', cursive", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+            <div style={{ fontFamily: "'Bangers', cursive", fontSize: 20, fontWeight: 700, color: "var(--text-primary)" }}>
               Koleksiyoncu Portresi
             </div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginTop: 4 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-muted)", marginTop: 4 }}>
               Fotoğraf yüklemek için dokunun
             </div>
             {portraitError && (
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#f44336", marginTop: 8 }}>{portraitError}</div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: "#f44336", marginTop: 8 }}>{portraitError}</div>
             )}
           </div>
         )}
@@ -1053,7 +1053,7 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
             <span style={bigNum("var(--text-primary)")}>{stats.total}</span>
-            <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-muted)" }}>kart</span>
+            <span style={{ fontSize: 18, fontWeight: 500, color: "var(--text-muted)" }}>kart</span>
           </div>
           <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
             {Object.entries(stats.rarityCounts || {}).sort((a, b) => (rarityOrder[a[0]] || 0) - (rarityOrder[b[0]] || 0)).map(([r, count]) => (
@@ -1080,13 +1080,13 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
                   crossOrigin="anonymous" />
               )}
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, fontSize: 15, fontFamily: "'Bangers', cursive", color: "var(--text-primary)", lineHeight: 1.2 }}>
+                <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Bangers', cursive", color: "var(--text-primary)", lineHeight: 1.2 }}>
                   {tCard(stats.topCard, "name")}
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)" }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)" }}>
                   {stats.topCard.rarity} · {tCard(stats.topCard, "type")}
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 15, fontFamily: "'Bangers', cursive", color: "#2A75BB" }}>
+                <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Bangers', cursive", color: "#2A75BB" }}>
                   ${(stats.topCard.marketValue || 0).toFixed(2)}
                 </div>
               </div>
@@ -1163,12 +1163,9 @@ function BottomTabBar({ onAddClick }) {
 
       <button className="tab-add-btn" onClick={onAddClick} style={{
         ...tabStyle(false),
-        color: "var(--text-primary)",
+        fontSize: 18,
       }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        <span>Ekle</span>
+        <span>Kart Ekle</span>
       </button>
 
       <Link to="/egitmenler" style={tabStyle(isTrainers)}>
@@ -1424,26 +1421,7 @@ export default function App() {
         <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: isMobile ? "14px 16px 10px" : "16px 28px 12px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 10 : 14 }}>
             <PokeballIcon size={isMobile ? 28 : 36} style={{ flexShrink: 0 }} />
-            <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 1 : 2 }}>
-              <span style={{
-                fontFamily: "'Bangers', cursive", fontSize: isMobile ? 20 : 26, fontWeight: 700,
-                color: "var(--text-primary)", lineHeight: 1.1,
-              }}>
-                Kartlarım
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <span style={{
-                  fontSize: isMobile ? 10 : 12, fontFamily: "'Comic Neue', cursive", fontWeight: 400,
-                  color: "var(--text-muted)",
-                }}>
-                  {isMobile
-                    ? `${stats.total} tekil  ·  ${stats.copies} kopya  ·  $${stats.totalValue.toFixed(2)}`
-                    : `${stats.total} tekil kart  ·  ${stats.copies} toplam kopya  ·  Max HP: ${stats.maxHP}  ·  Koleksiyon Değeri: $${stats.totalValue.toFixed(2)}`
-                  }
-                </span>
-                <SyncIndicator status={syncStatus} />
-              </div>
-            </div>
+            <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: 24, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Kartlarım</h2>
           </div>
         </div>
       </div>
