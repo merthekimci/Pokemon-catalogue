@@ -113,16 +113,23 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
       }
     });
 
-    // For each card, attempt a TCGdex image lookup by English name.
-    // Strategy: prefer ME02 set (this collection's source set), fall back to all sets
-    // for cards not in ME02, then fall back to card-number ME02 URL as last resort.
+    // For each card, resolve the correct ME02 card image.
+    // Strategy: use card number first (most reliable since GPT-4o detects it accurately),
+    // then fall back to TCGdex name lookup if card number is unavailable.
     const cardsWithImages = await Promise.all(
       cards.map(async (card) => {
         if (card.img) return card; // already has an image
+
+        // 1. Best: build ME02 URL directly from card number — always points to the correct card
+        const num = card.cardNumber?.split("/")?.[0]?.trim();
+        if (num && !isNaN(+num)) {
+          return { ...card, img: `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png` };
+        }
+
         const enName = card.translations?.en?.name || card.original?.name;
         if (!enName) return card;
 
-        // 1. Try ME02 set first — this is the primary source set for this collection
+        // 2. Fallback: TCGdex ME02 name lookup (when card number not detected)
         try {
           const me02Res = await fetch(
             `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}&set.id=me02`
@@ -135,7 +142,7 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
           }
         } catch (_) {}
 
-        // 2. Card not in ME02 — search all sets
+        // 3. Last resort: search all sets by name
         try {
           const tcgRes = await fetch(
             `https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(enName)}`
@@ -148,11 +155,6 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
           }
         } catch (_) {}
 
-        // 3. Last resort: build ME02 URL from card number
-        const num = card.cardNumber?.split("/")?.[0]?.trim();
-        if (num && !isNaN(+num)) {
-          return { ...card, img: `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png` };
-        }
         return card;
       })
     );

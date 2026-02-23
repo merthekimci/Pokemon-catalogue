@@ -33,3 +33,16 @@
 - `src/data/tcgdex-map.js`: Swapped to `card.img || tcgdexImageMap[card.id]`
 - `src/App.jsx`: Changed `id: nextId + i` → `id: Date.now() + i`; removed `nextId` prop
 - `api/analyze.js`: Removed `&set.id=me02`; moved card-number fallback outside `catch`; added EN→TR type normalization for GPT-4o safety
+
+---
+
+## Bug #6 — Wrong Image Assigned to Photo-Imported Cards
+**Status:** Fixed | **Date:** 2026-02-23 | **File:** api/analyze.js
+
+**Symptom:** After photo upload, confirmation dialog and card detail page show the wrong Pokemon artwork — either a different variant of the same Pokemon or a card from a completely different set.
+
+**Root Cause:** TCGdex name-based image lookup (steps 1 and 2 in analyze.js) was `results[0]` from a name search, which is unreliable — it returns whichever card TCGdex ranks first, not necessarily the ME02 card the user is holding. The card-number-based URL construction (`https://assets.tcgdex.net/en/me/me02/{cardNumber}/high.png`) was only used as a last resort despite being the most deterministic and reliable method.
+
+**Fix:** Reordered priority in `api/analyze.js` so card-number-based ME02 URL is attempted first whenever a card number is detected from the photo. TCGdex name lookups (ME02-scoped, then global) are now fallbacks only for cases where GPT-4o fails to extract a card number.
+
+**Related Bugs:** Bug #4 (photo upload save), Bug #5 (wrong-set card scan in confirmation)

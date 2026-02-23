@@ -241,3 +241,9 @@
 - Modified `onAdd` callback in PhotoUploadModal to detect existing cards by card number
 - When importing a card that already exists, the existing card's `copies` count is incremented instead of creating a duplicate record
 - Handles intra-batch duplicates and cards with missing card numbers
+
+### 2026-02-23 — Fix Wrong Image on Photo-Imported Cards (Bug #6)
+- Fixed bug where photo-imported cards displayed wrong image in confirmation dialog and card detail page
+- Root cause: `analyze.js` TCGdex name lookup priority overrode reliable card-number-based URL — `results[0]` from a name search is non-deterministic and often returned a different set variant
+- Fix: card-number-based ME02 URL (`https://assets.tcgdex.net/en/me/me02/{cardNumber}/high.png`) now tried first; TCGdex name lookups are now fallbacks only for when GPT-4o does not detect a card number
+- Committed and pushed to main
