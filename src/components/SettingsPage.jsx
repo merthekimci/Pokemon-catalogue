@@ -15,9 +15,9 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
         background: "var(--bg-card)",
       }}>
         <PokeballIcon size={28} />
-        <span style={{ fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+        <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: 24, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
           Ayarlar
-        </span>
+        </h2>
       </div>
 
       <div style={{ padding: "20px 16px" }}>

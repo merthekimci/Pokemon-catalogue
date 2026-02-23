@@ -681,24 +681,24 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
         )}
 
         {/* ═══ BIO ═══ */}
-        {meta?.bio && (
+        {(tCard(card, "bio") || meta?.bio) && (
           <SectionWrapper isDesktop={isDesktop}>
             <SectionTitle isDesktop={isDesktop}>Biyografi</SectionTitle>
             <p style={{
               fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
               color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive",
-            }}>{meta.bio}</p>
+            }}>{tCard(card, "bio") || meta.bio}</p>
           </SectionWrapper>
         )}
 
         {/* ═══ LORE ═══ */}
-        {meta?.lore && (
+        {(tCard(card, "lore") || meta?.lore) && (
           <SectionWrapper isDesktop={isDesktop}>
             <SectionTitle isDesktop={isDesktop}>Hikaye</SectionTitle>
             <p style={{
               fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
               color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive",
-            }}>{meta.lore}</p>
+            }}>{tCard(card, "lore") || meta.lore}</p>
           </SectionWrapper>
         )}
 

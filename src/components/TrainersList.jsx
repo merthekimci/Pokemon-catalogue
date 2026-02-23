@@ -13,10 +13,10 @@ export default function TrainersList({ cards, typeColors }) {
         background: "var(--bg-card)",
       }}>
         <PokeballIcon size={28} />
-        <h1 style={{
-          fontFamily: "'Bangers', cursive", fontSize: 18, fontWeight: 700,
+        <h2 style={{
+          fontFamily: "'Bangers', cursive", fontSize: 24, fontWeight: 700,
           margin: 0, color: "var(--text-primary)",
-        }}>Eğitmenler</h1>
+        }}>Eğitmenler</h2>
       </div>
 
       {/* Trainer Grid */}
