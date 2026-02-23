@@ -127,7 +127,7 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
   };
 
   const content = (
-    <div className="modal-content" style={{ maxWidth: 400, width: "100%" }}>
+    <div className="modal-content" style={{ maxWidth: 400, width: "100%", border: "2px solid rgba(255, 255, 255, 0.35)", opacity: 0.8 }}>
       <h2 style={{
         fontFamily: "'Bangers', cursive", fontSize: 22, fontWeight: 700,
         margin: "0 0 8px", color: "var(--text-primary)",
