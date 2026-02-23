@@ -45,3 +45,4 @@
 | 41 | Fix background image not rendering — use fixed div instead of body bg | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 42 | Replace TCG logo with inline Pokeball SVG + rename catalogue title to "Kartlarım" | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 43 | Restore TCG logo on login/onboarding page | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 44 | Use bg2 image as login page background | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |

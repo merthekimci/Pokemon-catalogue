@@ -962,13 +962,18 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
   return (
     <div style={{
       position: "relative", zIndex: 1, background: "var(--bg-deep)", minHeight: "100vh",
-      padding: "20px 16px 100px", maxWidth: 600, margin: "0 auto",
+      padding: "0 0 100px", maxWidth: 600, margin: "0 auto",
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        padding: "14px 16px 10px",
+        background: "var(--bg-card)",
+      }}>
         <PokeballIcon size={28} />
         <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: 24, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>KOLEKSİYONUM</h2>
       </div>
 
+      <div style={{ padding: "20px 16px" }}>
       {/* Portrait Widget */}
       <div
         style={{
@@ -1114,6 +1119,7 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -1136,10 +1142,10 @@ function BottomTabBar({ onAddClick }) {
     height: "100%",
   });
 
-  const iconLayers = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
-  const iconChart = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>;
-  const iconUsers = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 1-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
-  const iconSettings = (c) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
+  const iconLayers = (c) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+  const iconChart = (c) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>;
+  const iconUsers = (c) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 1-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+  const iconSettings = (c) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
 
   return (
     <nav className="bottom-tab-bar" style={{
@@ -1149,16 +1155,14 @@ function BottomTabBar({ onAddClick }) {
       background: "rgba(255, 255, 255, 0.12)",
       borderTop: "1px solid rgba(255,255,255,0.08)",
     }}>
-      <Link to="/ozet" style={tabStyle(isOzet)}>
-        {iconChart(isOzet ? "var(--text-primary)" : "var(--text-secondary)")}
+      <Link to="/ozet" className={`tab-nav-btn${isOzet ? " active" : ""}`} style={tabStyle(isOzet)}>
+        {iconChart("#fff")}
         <span>Özet</span>
-        {isOzet && <span style={{ width: 28, height: 2, background: "var(--text-primary)", borderRadius: 2 }} />}
       </Link>
 
-      <Link to="/" style={tabStyle(isHome)}>
-        {iconLayers(isHome ? "var(--text-primary)" : "var(--text-secondary)")}
+      <Link to="/" className={`tab-nav-btn${isHome ? " active" : ""}`} style={tabStyle(isHome)}>
+        {iconLayers("#fff")}
         <span>Kartlarım</span>
-        {isHome && <span style={{ width: 28, height: 2, background: "var(--text-primary)", borderRadius: 2 }} />}
       </Link>
 
       <button className="tab-add-btn" onClick={onAddClick} style={{
@@ -1168,16 +1172,14 @@ function BottomTabBar({ onAddClick }) {
         <span>Kart Ekle</span>
       </button>
 
-      <Link to="/egitmenler" style={tabStyle(isTrainers)}>
-        {iconUsers(isTrainers ? "var(--text-primary)" : "var(--text-secondary)")}
+      <Link to="/egitmenler" className={`tab-nav-btn${isTrainers ? " active" : ""}`} style={tabStyle(isTrainers)}>
+        {iconUsers("#fff")}
         <span>Eğitmenler</span>
-        {isTrainers && <span style={{ width: 28, height: 2, background: "var(--text-primary)", borderRadius: 2 }} />}
       </Link>
 
-      <Link to="/ayarlar" style={tabStyle(isSettings)}>
-        {iconSettings(isSettings ? "var(--text-primary)" : "var(--text-secondary)")}
+      <Link to="/ayarlar" className={`tab-nav-btn${isSettings ? " active" : ""}`} style={tabStyle(isSettings)}>
+        {iconSettings("#fff")}
         <span>Ayarlar</span>
-        {isSettings && <span style={{ width: 28, height: 2, background: "var(--text-primary)", borderRadius: 2 }} />}
       </Link>
     </nav>
   );
@@ -1419,8 +1421,8 @@ export default function App() {
         position: "sticky", top: 0, zIndex: 10,
       }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: isMobile ? "14px 16px 10px" : "16px 28px 12px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 10 : 14 }}>
-            <PokeballIcon size={isMobile ? 28 : 36} style={{ flexShrink: 0 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <PokeballIcon size={28} />
             <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: 24, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Kartlarım</h2>
           </div>
         </div>
@@ -1714,7 +1716,7 @@ export default function App() {
   if (!phone) {
     return (
       <div data-theme="dark" style={{
-        minHeight: "100vh", background: "url('/app-images/pokemon-tcg-gradient-blue-bg1.png') center/cover no-repeat #1A3F6F",
+        minHeight: "100vh", background: "url('/app-images/pokemon-tcg-gradient-blue-bg2.png') center/cover no-repeat #1A3F6F",
         display: "flex", flexDirection: "column", alignItems: "center",
         justifyContent: "center", padding: 20,
       }}>

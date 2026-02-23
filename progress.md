@@ -12,6 +12,9 @@
 - **[2026-02-24]** Added CSS font migration shim to catch any remaining inline font-family references
 - **[2026-02-24]** Build verified: `npm run build` passes cleanly
 
+### Login page background: Switch to bg2 image (Task #44)
+- **[2026-02-24]** Changed login/phone entry screen background from `pokemon-tcg-gradient-blue-bg1.png` to `pokemon-tcg-gradient-blue-bg2.png`
+
 ### Fix: Background image not rendering — use fixed div instead of body bg (Task #41)
 - **[2026-02-24]** Root cause: `background-attachment: fixed` on `body` is broken on mobile Safari/iOS WebKit
 - **[2026-02-24]** Moved background image from `body` CSS to a `<div className="bg-image" />` with `position: fixed; inset: 0; z-index: -1`
