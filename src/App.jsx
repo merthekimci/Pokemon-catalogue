@@ -127,14 +127,14 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
   };
 
   const content = (
-    <div className="modal-content" style={{ maxWidth: 400, width: "100%", border: "2px solid rgba(255, 255, 255, 0.35)", opacity: 0.8 }}>
+    <div className="modal-content" style={{ maxWidth: 400, width: "100%", border: "2px solid rgba(255, 255, 255, 0.35)", background: "rgba(20, 30, 60, 0.92)" }}>
       <h2 style={{
         fontFamily: "'Bangers', cursive", fontSize: 22, fontWeight: 700,
-        margin: "0 0 8px", color: "var(--text-primary)",
+        margin: "0 0 8px", color: "#fff",
       }}>
         {allowClose ? "Bulut Senkronizasyonu" : "Haydi Başlayalım!"}
       </h2>
-      <p style={{ fontSize: 15, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'Comic Neue', cursive", fontWeight: 600 }}>
+      <p style={{ fontSize: 15, color: "rgba(255, 255, 255, 0.9)", margin: "0 0 20px", fontFamily: "'Comic Neue', cursive", fontWeight: 600 }}>
         {allowClose
           ? "Koleksiyonunuzu cihazlar arasında senkronize etmek için telefon numaranızı girin."
           : "Yeni bir koleksiyon yaratmak veya kayıtlı koleksiyonunuzu yüklemek için telefon numaranızı girin."}
