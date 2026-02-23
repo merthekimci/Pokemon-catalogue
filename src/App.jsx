@@ -134,7 +134,7 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
       }}>
         {allowClose ? "Bulut Senkronizasyonu" : "Haydi Başlayalım!"}
       </h2>
-      <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'Comic Neue', cursive" }}>
+      <p style={{ fontSize: 15, color: "var(--text-muted)", margin: "0 0 20px", fontFamily: "'Comic Neue', cursive", fontWeight: 600 }}>
         {allowClose
           ? "Koleksiyonunuzu cihazlar arasında senkronize etmek için telefon numaranızı girin."
           : "Yeni bir koleksiyon yaratmak veya kayıtlı koleksiyonunuzu yüklemek için telefon numaranızı girin."}
@@ -149,7 +149,7 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
         autoFocus
       />
       {error && (
-        <p style={{ color: "#f72585", fontSize: 12, margin: "0 0 12px", fontFamily: "'Comic Neue', cursive" }}>
+        <p style={{ color: "#f72585", fontSize: 14, margin: "0 0 12px", fontFamily: "'Comic Neue', cursive", fontWeight: 600 }}>
           {error}
         </p>
       )}
@@ -428,7 +428,7 @@ function CompareView({ cards, onClose }) {
                     <h3 style={{ fontSize: 16, fontWeight: 700, margin: "8px 0 2px", fontFamily: "'Bangers', cursive", color: "var(--text-primary)" }}>
                       {tCard(card, "name")}
                     </h3>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{cardNum(card)}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)" }}>{cardNum(card)}</div>
                   </div>
                   {[["HP", card.hp > 0 ? card.hp : "-"], ["Aşama", tCard(card, "stage")],
                     ["Nadirlik", `${card.rarity} (${rarityLabels[card.rarity] || ""})`],
@@ -436,19 +436,19 @@ function CompareView({ cards, onClose }) {
                     ["Piyasa Değeri", `$${(card.marketValue || 0).toFixed(2)}`],
                   ].map(([l, v]) => (
                     <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0",
-                      borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 12 }}>
+                      borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 14, fontWeight: 600 }}>
                       <span style={{ color: "var(--text-muted)" }}>{l}</span>
                       <span style={{ fontWeight: 700, color: l === "HP" && v >= 150 ? "#ff4d6d" : l === "Piyasa Değeri" ? "#FFCB05" : "var(--text-primary)" }}>{v}</span>
                     </div>
                   ))}
                   <div style={{ marginTop: 8 }}>
-                    <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 4, color: "var(--text-secondary)" }}>Saldırılar</div>
-                    {tCard(card, "attack1") && <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{tCard(card, "attack1")}: <b style={{ color: "#ff4d6d" }}>{cardDmg(card, 1) || "—"}</b></div>}
-                    {tCard(card, "attack2") && <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{tCard(card, "attack2")}: <b style={{ color: "#ff4d6d" }}>{cardDmg(card, 2) || "—"}</b></div>}
+                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4, color: "var(--text-secondary)" }}>Saldırılar</div>
+                    {tCard(card, "attack1") && <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>{tCard(card, "attack1")}: <b style={{ color: "#ff4d6d" }}>{cardDmg(card, 1) || "—"}</b></div>}
+                    {tCard(card, "attack2") && <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>{tCard(card, "attack2")}: <b style={{ color: "#ff4d6d" }}>{cardDmg(card, 2) || "—"}</b></div>}
                   </div>
                   {tCard(card, "ability") && (
                     <div style={{ marginTop: 6, background: "rgba(255,203,5,0.1)", border: "1px solid rgba(255,203,5,0.2)",
-                      padding: "4px 8px", borderRadius: 8, fontSize: 11, color: "#FFCB05" }}>
+                      padding: "4px 8px", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#FFCB05" }}>
                       &#x2728; {tCard(card, "ability")}
                     </div>
                   )}
@@ -580,7 +580,7 @@ function PhotoUploadModal({ onClose, onAdd }) {
     onClose();
   };
 
-  const lbl = { fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4, display: "block" };
+  const lbl = { fontSize: 14, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 4, display: "block" };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -615,10 +615,10 @@ function PhotoUploadModal({ onClose, onAdd }) {
               ) : (
                 <div>
                   <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.4 }}>&#x1F4F7;</div>
-                  <div style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 600 }}>
+                  <div style={{ color: "var(--text-secondary)", fontSize: 16, fontWeight: 700 }}>
                     Kart fotografini surukleyin veya tiklayin
                   </div>
-                  <div style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 6 }}>
+                  <div style={{ color: "var(--text-muted)", fontSize: 14, fontWeight: 600, marginTop: 6 }}>
                     Tek kart veya kart sayfasi fotografi yukleyebilirsiniz
                   </div>
                 </div>
@@ -642,10 +642,10 @@ function PhotoUploadModal({ onClose, onAdd }) {
         {phase === "analyzing" && (
           <div style={{ textAlign: "center", padding: "40px 0" }}>
             <div className="spinner" />
-            <div style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 600 }}>
+            <div style={{ color: "var(--text-secondary)", fontSize: 16, fontWeight: 700 }}>
               Kartlar analiz ediliyor...
             </div>
-            <div style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 6 }}>
+            <div style={{ color: "var(--text-muted)", fontSize: 14, fontWeight: 600, marginTop: 6 }}>
               Bu islem birkaç saniye surebilir
             </div>
           </div>
@@ -654,7 +654,7 @@ function PhotoUploadModal({ onClose, onAdd }) {
         {/* ── Review Phase ── */}
         {phase === "review" && (
           <>
-            <div style={{ color: "var(--text-secondary)", fontSize: 13, marginBottom: 14 }}>
+            <div style={{ color: "var(--text-secondary)", fontSize: 15, fontWeight: 600, marginBottom: 14 }}>
               {extractedCards.length} kart bulundu. Eklemek istediklerinizi onaylayın, istemeyenleri reddedin.
             </div>
             <div style={{ maxHeight: "55vh", overflowY: "auto", paddingRight: 4 }}>
@@ -689,15 +689,15 @@ function PhotoUploadModal({ onClose, onAdd }) {
                       </div>
                       {/* Card info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Bangers', cursive", fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        <div style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Bangers', cursive", fontSize: 17, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {tCard(card, "name") || "—"}
                         </div>
                         {card.original?.name && card.original.name !== tCard(card, "name") && (
-                          <div style={{ color: "var(--text-muted)", fontSize: 11, marginTop: 1, fontStyle: "italic" }}>
+                          <div style={{ color: "var(--text-muted)", fontSize: 13, fontWeight: 600, marginTop: 1, fontStyle: "italic" }}>
                             {card.original.name}
                           </div>
                         )}
-                        <div style={{ color: "var(--text-secondary)", fontSize: 12, marginTop: 2 }}>{cardNum(card) || "—"}</div>
+                        <div style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 600, marginTop: 2 }}>{cardNum(card) || "—"}</div>
                         <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
                           <span style={{ background: t.bg, color: t.text, fontSize: 10, fontWeight: 700, borderRadius: 6, padding: "2px 7px" }}>{tCard(card, "type")}</span>
                           {card.rarity && <span style={{ background: "rgba(255,255,255,0.08)", color: "#c4bfda", fontSize: 10, fontWeight: 700, borderRadius: 6, padding: "2px 7px" }}>{card.rarity}</span>}
@@ -947,16 +947,16 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
   };
   const headerIcon = (color) => ({ fontSize: 16, color, flexShrink: 0 });
   const headerTitle = {
-    fontFamily: "'Bangers', cursive", fontSize: 12, fontWeight: 700,
+    fontFamily: "'Bangers', cursive", fontSize: 14, fontWeight: 700,
     color: "var(--text-primary)",
   };
   const bigNum = (color) => ({
-    fontFamily: "'Bangers', cursive", fontSize: 22, fontWeight: 800, color,
+    fontFamily: "'Bangers', cursive", fontSize: 26, fontWeight: 800, color,
   });
-  const subText = { fontSize: 11, color: "var(--text-muted)" };
+  const subText = { fontSize: 13, fontWeight: 600, color: "var(--text-muted)" };
   const chipBase = {
     display: "inline-flex", alignItems: "center", gap: 3,
-    padding: "2px 6px", borderRadius: 8, fontSize: 10, fontWeight: 600,
+    padding: "2px 6px", borderRadius: 8, fontSize: 12, fontWeight: 700,
   };
 
   return (
@@ -993,7 +993,7 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
             <div style={{ fontFamily: "'Bangers', cursive", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
               Anime portreniz oluşturuluyor...
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>Bu işlem 30 saniye kadar sürebilir</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginTop: 4 }}>Bu işlem 30 saniye kadar sürebilir</div>
           </div>
         ) : portrait ? (
           <>
@@ -1020,11 +1020,11 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
             <div style={{ fontFamily: "'Bangers', cursive", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
               Koleksiyoncu Portresi
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginTop: 4 }}>
               Fotoğraf yüklemek için dokunun
             </div>
             {portraitError && (
-              <div style={{ fontSize: 12, color: "#f44336", marginTop: 8 }}>{portraitError}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#f44336", marginTop: 8 }}>{portraitError}</div>
             )}
           </div>
         )}
@@ -1080,13 +1080,13 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
                   crossOrigin="anonymous" />
               )}
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, fontSize: 13, fontFamily: "'Bangers', cursive", color: "var(--text-primary)", lineHeight: 1.2 }}>
+                <div style={{ fontWeight: 700, fontSize: 15, fontFamily: "'Bangers', cursive", color: "var(--text-primary)", lineHeight: 1.2 }}>
                   {tCard(stats.topCard, "name")}
                 </div>
-                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)" }}>
                   {stats.topCard.rarity} · {tCard(stats.topCard, "type")}
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 13, fontFamily: "'Bangers', cursive", color: "#2A75BB" }}>
+                <div style={{ fontWeight: 700, fontSize: 15, fontFamily: "'Bangers', cursive", color: "#2A75BB" }}>
                   ${(stats.topCard.marketValue || 0).toFixed(2)}
                 </div>
               </div>
