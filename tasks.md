@@ -46,3 +46,4 @@
 | 42 | Replace TCG logo with inline Pokeball SVG + rename catalogue title to "Kartlarım" | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 43 | Restore TCG logo on login/onboarding page | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 44 | Use bg2 image as login page background | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 45 | Apply dark navy modal style to all widgets across all pages | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |

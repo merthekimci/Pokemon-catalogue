@@ -3,22 +3,22 @@
    ═══════════════════════════════════════════════════ */
 
 :root {
-  /* Backgrounds: transparent/glass over blue gradient */
+  /* Backgrounds: dark navy panels over blue gradient */
   --bg-deep: transparent;
-  --bg-surface: rgba(255, 255, 255, 0.12);
-  --bg-card: rgba(255, 255, 255, 0.15);
-  --bg-elevated: rgba(255, 255, 255, 0.20);
-  --bg-glass: rgba(255, 255, 255, 0.18);
+  --bg-surface: rgba(20, 30, 60, 0.88);
+  --bg-card: rgba(20, 30, 60, 0.90);
+  --bg-elevated: rgba(20, 30, 60, 0.94);
+  --bg-glass: rgba(20, 30, 60, 0.90);
 
-  /* Borders: light white for glass on blue */
-  --border-dim: rgba(255, 255, 255, 0.15);
-  --border-subtle: rgba(255, 255, 255, 0.25);
+  /* Borders: light white for contrast on dark panels */
+  --border-dim: rgba(255, 255, 255, 0.25);
+  --border-subtle: rgba(255, 255, 255, 0.35);
   --border-glow: rgba(255, 203, 5, 0.50);
 
   /* Text: white on blue */
   --text-primary: #FFFFFF;
   --text-secondary: #D0E8FF;
-  --text-muted: rgba(255, 255, 255, 0.55);
+  --text-muted: rgba(255, 255, 255, 0.75);
 
   /* Pokemon TCG brand palette */
   --brand-blue: #2A75BB;
@@ -79,8 +79,8 @@ body {
 
 /* ── Glass panels ── */
 .glass {
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.30);
+  background: var(--bg-glass);
+  border: 2px solid var(--border-dim);
   box-shadow: 0 4px 24px rgba(26, 63, 111, 0.20);
 }
 
@@ -128,8 +128,8 @@ body {
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: var(--bg-card);
+  border: 2px solid var(--border-dim);
   box-shadow: 0 4px 16px rgba(26, 63, 111, 0.15);
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
               border-color 0.3s ease,
@@ -401,8 +401,8 @@ body {
 }
 
 .modal-content {
-  background: rgba(255, 255, 255, 0.20);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(20, 30, 60, 0.92);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   border-radius: 20px;
   max-height: 92vh;
   overflow: auto;
@@ -484,8 +484,8 @@ body {
 
 /* ── Review Card Row ── */
 .review-card-row {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.20);
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 10px;
@@ -562,6 +562,35 @@ body {
 .tab-add-btn:active {
   transform: translateY(6px);
   box-shadow: 0 0 0 #000, inset 3px 3px 0px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ── Nav Tab Buttons (small gray CTA style) ── */
+.tab-nav-btn {
+  border-radius: 4px !important;
+  border: 2px solid #000 !important;
+  background: linear-gradient(to bottom, #8A8A8A, #5C5C5C) !important;
+  color: #fff !important;
+  font-family: 'Lilita One', 'Impact', sans-serif !important;
+  font-size: 9px !important;
+  text-transform: uppercase;
+  -webkit-text-stroke: 0.5px #000;
+  text-shadow: 1px 1px 0 #000;
+  box-shadow: 2px 3px 0 #000, inset 2px 2px 0px rgba(255, 255, 255, 0.4) !important;
+  padding: 4px 6px !important;
+  transition: all 0.15s ease;
+}
+
+.tab-nav-btn:hover {
+  filter: brightness(1.12);
+}
+
+.tab-nav-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 #000, inset 2px 2px 0px rgba(255, 255, 255, 0.4) !important;
+}
+
+.tab-nav-btn.active {
+  background: linear-gradient(to bottom, #A0A0A0, #787878) !important;
 }
 
 /* ── Catalogue Header & Control Bar ── */
