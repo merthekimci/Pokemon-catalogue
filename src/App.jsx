@@ -1726,7 +1726,7 @@ export default function App() {
     </>
   );
 
-  if (!phone) {
+  if (!phone || verifying) {
     return (
       <div data-theme={theme} style={{
         minHeight: "100vh", background: theme === "red"
@@ -1752,11 +1752,18 @@ export default function App() {
             {deviceError}
           </div>
         )}
-        <PhoneModal
-          allowClose={false}
-          onSave={(p) => { setDeviceError(""); setPhone(p); setShowPhoneModal(false); navigate("/ozet"); }}
-          onClose={() => {}}
-        />
+        {verifying ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            <div className="spinner" style={{ width: 32, height: 32, border: "3px solid rgba(255,255,255,0.2)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+            <span style={{ color: "#fff", fontSize: 14, opacity: 0.8 }}>Doğrulanıyor...</span>
+          </div>
+        ) : (
+          <PhoneModal
+            allowClose={false}
+            onSave={(p) => { setDeviceError(""); setVerifying(true); setPhone(p); setShowPhoneModal(false); navigate("/ozet"); }}
+            onClose={() => {}}
+          />
+        )}
       </div>
     );
   }
