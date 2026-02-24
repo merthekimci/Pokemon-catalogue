@@ -2,6 +2,13 @@
 
 ## Session 5 — 2026-02-24
 
+### Fix login flash on failed phone verification (Task #53)
+- **Time:** 2026-02-24
+- Added `verifying` gate state to prevent app screen from rendering during phone+device verification
+- Login screen now shows spinner with "Doğrulanıyor..." while API call is in flight
+- On 403 (device mismatch): user stays on login screen, sees error — never sees the app
+- On success: verifying clears and app renders normally
+
 ### Blue & Red theme selector (Task #52)
 - **Time:** 2026-02-24
 - Replaced dark/light theme options with Blue (Mavi) and Red (Kırmızı) in settings

@@ -54,3 +54,4 @@
 | 50 | Enable photo gallery selection on mobile card import | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 51 | Fix login screen error message styling inconsistency | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 52 | Update theme selector: Blue & Red themes with background image switching | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 53 | Fix login screen flash on failed phone verification | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
