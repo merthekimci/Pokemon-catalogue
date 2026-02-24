@@ -2,6 +2,11 @@
 
 ## Session 5 — 2026-02-24
 
+### Fix login screen error message styling (Task #51)
+- **[2026-02-24]** Login device error and PhoneModal validation error were displayed as plain colored text (`#f72585`) with no background or border
+- **[2026-02-24]** Matched both to the existing PhotoUploadModal error pattern: semi-transparent pink background (`rgba(247,37,133,0.1)`), pink border, rounded corners
+- **[2026-02-24]** File: `src/App.jsx` — two inline style changes (device error ~line 1737, PhoneModal error ~line 151)
+
 ### Enable photo gallery selection on mobile (Task #50)
 - **[2026-02-24]** Root cause: `capture="environment"` on the file input forced mobile browsers (especially iOS Safari) to open the camera directly, bypassing the native picker
 - **[2026-02-24]** Fix: removed `capture="environment"` attribute from `<input>` in PhotoUploadModal. `accept="image/*"` alone shows the native picker with both Camera and Photo Library options

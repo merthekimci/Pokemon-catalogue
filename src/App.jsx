@@ -149,9 +149,13 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
         autoFocus
       />
       {error && (
-        <p style={{ color: "#f72585", fontSize: 14, margin: "0 0 12px", fontFamily: "'Comic Neue', cursive", fontWeight: 600 }}>
+        <div style={{
+          padding: "10px 14px", background: "rgba(247,37,133,0.1)",
+          border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10,
+          color: "#ff4d6d", fontSize: 13, margin: "0 0 12px",
+        }}>
           {error}
-        </p>
+        </div>
       )}
       <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
         <button className={allowClose ? "btn-glow" : "btn-accent"} style={{ flex: 1, ...(!allowClose && { fontFamily: "'Bangers', cursive", fontSize: 30 }) }} onClick={handleSubmit}>
@@ -1735,12 +1739,14 @@ export default function App() {
           Pokémon Kart Kataloğu
         </h1>
         {deviceError && (
-          <p style={{
-            color: "#f72585", fontSize: 13, fontFamily: "'Comic Neue', cursive",
-            margin: "0 0 16px", maxWidth: 360, textAlign: "center",
+          <div style={{
+            padding: "10px 14px", background: "rgba(247,37,133,0.1)",
+            border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10,
+            color: "#ff4d6d", fontSize: 13, margin: "0 0 16px",
+            maxWidth: 360, textAlign: "center",
           }}>
             {deviceError}
-          </p>
+          </div>
         )}
         <PhoneModal
           allowClose={false}
