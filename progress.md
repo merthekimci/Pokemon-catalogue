@@ -2,6 +2,15 @@
 
 ## Session 5 — 2026-02-24
 
+### Blue & Red theme selector (Task #52)
+- **Time:** 2026-02-24
+- Replaced dark/light theme options with Blue (Mavi) and Red (Kırmızı) in settings
+- Blue theme: uses existing blue gradient backgrounds (bg1 for app, bg2 for login)
+- Red theme: uses `pokemon-tcg-gradient-red-bg1.png` for both app and login backgrounds
+- Added CSS `[data-theme="red"]` overrides for `.bg-image` and `body` background-color
+- Default theme changed to "blue" across all fallback locations
+- Files modified: `SettingsPage.jsx`, `styles.css`, `App.jsx`
+
 ### Fix login screen error message styling (Task #51)
 - **[2026-02-24]** Login device error and PhoneModal validation error were displayed as plain colored text (`#f72585`) with no background or border
 - **[2026-02-24]** Matched both to the existing PhotoUploadModal error pattern: semi-transparent pink background (`rgba(247,37,133,0.1)`), pink border, rounded corners

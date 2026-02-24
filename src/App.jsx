@@ -1231,7 +1231,7 @@ export default function App() {
   const [showAdd, setShowAdd] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [favorites, setFavorites] = useState([]);
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("blue");
   const [ownerName, setOwnerName] = useState("Koleksiyoncu");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -1264,7 +1264,7 @@ export default function App() {
     if (!phone) {
       setCards([]);
       setFavorites([]);
-      setTheme("dark");
+      setTheme("blue");
       setOwnerName("Koleksiyoncu");
       setSyncStatus("idle");
       skipSaveRef.current = false;
@@ -1296,7 +1296,7 @@ export default function App() {
           );
           setCards(migratedCards);
           setFavorites(json.data.favorites ?? []);
-          setTheme(json.data.theme ?? "light");
+          setTheme(json.data.theme ?? "blue");
           setOwnerName(json.data.owner_name ?? "Koleksiyoncu");
           setPortrait(json.data.portrait ?? null);
         }
@@ -1726,8 +1726,10 @@ export default function App() {
 
   if (!phone) {
     return (
-      <div data-theme="dark" style={{
-        minHeight: "100vh", background: "url('/app-images/pokemon-tcg-gradient-blue-bg2.png') center/cover no-repeat #1A3F6F",
+      <div data-theme={theme} style={{
+        minHeight: "100vh", background: theme === "red"
+          ? "url('/app-images/pokemon-tcg-gradient-red-bg1.png') center/cover no-repeat #6F1A1A"
+          : "url('/app-images/pokemon-tcg-gradient-blue-bg2.png') center/cover no-repeat #1A3F6F",
         display: "flex", flexDirection: "column", alignItems: "center",
         justifyContent: "center", padding: 20,
       }}>
@@ -1766,7 +1768,7 @@ export default function App() {
         <Route path="/ozet" element={<SummaryView stats={stats} cards={cards} favorites={favorites} portrait={portrait} setPortrait={updatePortrait} />} />
         <Route path="/card/:cardId" element={<CardDetailWrapper cards={cards} favorites={favorites} onToggleFavorite={toggleFavorite} typeColors={typeColors} />} />
         <Route path="/egitmenler" element={<TrainersList cards={cards} typeColors={typeColors} />} />
-        <Route path="/ayarlar" element={<SettingsPage theme={theme} onThemeChange={setTheme} ownerName={ownerName} onOwnerNameChange={setOwnerName} phone={phone} deviceId={getDeviceId()} onShowPhoneModal={() => setShowPhoneModal(true)} onPhoneChange={(p) => { setPhone(p); if (!p) { setCards([]); setFavorites([]); setTheme("dark"); setOwnerName("Koleksiyoncu"); } }} />} />
+        <Route path="/ayarlar" element={<SettingsPage theme={theme} onThemeChange={setTheme} ownerName={ownerName} onOwnerNameChange={setOwnerName} phone={phone} deviceId={getDeviceId()} onShowPhoneModal={() => setShowPhoneModal(true)} onPhoneChange={(p) => { setPhone(p); if (!p) { setCards([]); setFavorites([]); setTheme("blue"); setOwnerName("Koleksiyoncu"); } }} />} />
       </Routes>
       <BottomTabBar onAddClick={() => setShowAdd(true)} />
       {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((prev) => mergeNewCards(prev, newCards))} />}

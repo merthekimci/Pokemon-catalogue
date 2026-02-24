@@ -59,6 +59,14 @@ body {
   background: url('/app-images/pokemon-tcg-gradient-blue-bg1.png') center center / cover no-repeat;
 }
 
+/* Red theme overrides */
+body[data-theme="red"] {
+  background-color: #6F1A1A;
+}
+[data-theme="red"] .bg-image {
+  background: url('/app-images/pokemon-tcg-gradient-red-bg1.png') center center / cover no-repeat;
+}
+
 /* Font migration shim — override old inline font-family references */
 [style*="DM Sans"] { font-family: 'Comic Neue', cursive !important; }
 [style*="Rajdhani"] { font-family: 'Bangers', cursive !important; }

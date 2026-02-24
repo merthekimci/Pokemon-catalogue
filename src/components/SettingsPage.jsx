@@ -31,15 +31,15 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
             Uygulamanın görünümünü özelleştirin
           </p>
           <div style={{ display: "flex", gap: 12 }}>
-            {/* Dark Theme Card */}
-            <button onClick={() => onThemeChange("dark")} style={{
+            {/* Blue Theme Card */}
+            <button onClick={() => onThemeChange("blue")} style={{
               flex: 1, borderRadius: 14, padding: 0, cursor: "pointer",
               background: "var(--bg-elevated)",
-              border: theme === "dark" ? "2px solid #FFCB05" : "1px solid var(--border-dim)",
+              border: theme === "blue" ? "2px solid #FFCB05" : "1px solid var(--border-dim)",
               overflow: "hidden", textAlign: "left",
             }}>
               <div style={{
-                height: 90, background: "#1A3F6F", display: "flex", flexDirection: "column",
+                height: 90, background: "linear-gradient(135deg, #1A3F6F, #2A75BB)", display: "flex", flexDirection: "column",
                 justifyContent: "center", padding: 12, gap: 4,
               }}>
                 <div style={{ width: "70%", height: 6, background: "rgba(255,255,255,0.2)", borderRadius: 3 }} />
@@ -52,40 +52,40 @@ export default function SettingsPage({ theme, onThemeChange, ownerName, onOwnerN
               <div style={{ padding: "10px 12px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{
                   width: 16, height: 16, borderRadius: "50%",
-                  border: theme === "dark" ? "5px solid #FFCB05" : "2px solid var(--text-muted)",
-                  background: theme === "dark" ? "#FFCB05" : "transparent",
+                  border: theme === "blue" ? "5px solid #FFCB05" : "2px solid var(--text-muted)",
+                  background: theme === "blue" ? "#FFCB05" : "transparent",
                   display: "inline-block", flexShrink: 0,
                 }} />
-                <span style={{ fontWeight: 600, fontSize: 13, color: "var(--text-primary)" }}>Karanlık</span>
+                <span style={{ fontWeight: 600, fontSize: 13, color: "var(--text-primary)" }}>Mavi</span>
               </div>
             </button>
 
-            {/* Light Theme Card */}
-            <button onClick={() => onThemeChange("light")} style={{
+            {/* Red Theme Card */}
+            <button onClick={() => onThemeChange("red")} style={{
               flex: 1, borderRadius: 14, padding: 0, cursor: "pointer",
               background: "var(--bg-elevated)",
-              border: theme === "light" ? "2px solid #FFCB05" : "1px solid var(--border-dim)",
+              border: theme === "red" ? "2px solid #FFCB05" : "1px solid var(--border-dim)",
               overflow: "hidden", textAlign: "left",
             }}>
               <div style={{
-                height: 90, background: "#f5f5f7", display: "flex", flexDirection: "column",
+                height: 90, background: "linear-gradient(135deg, #6F1A1A, #CC0000)", display: "flex", flexDirection: "column",
                 justifyContent: "center", padding: 12, gap: 4,
               }}>
-                <div style={{ width: "70%", height: 6, background: "#e0dfe8", borderRadius: 3 }} />
-                <div style={{ width: "50%", height: 6, background: "#e0dfe8", borderRadius: 3 }} />
+                <div style={{ width: "70%", height: 6, background: "rgba(255,255,255,0.2)", borderRadius: 3 }} />
+                <div style={{ width: "50%", height: 6, background: "rgba(255,255,255,0.2)", borderRadius: 3 }} />
                 <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
-                  <div style={{ width: 20, height: 20, background: "#ffffff", borderRadius: 4, border: "1px solid #e0dfe8" }} />
-                  <div style={{ width: 20, height: 20, background: "#ffffff", borderRadius: 4, border: "1px solid #e0dfe8" }} />
+                  <div style={{ width: 20, height: 20, background: "rgba(255,255,255,0.15)", borderRadius: 4 }} />
+                  <div style={{ width: 20, height: 20, background: "rgba(255,255,255,0.15)", borderRadius: 4 }} />
                 </div>
               </div>
               <div style={{ padding: "10px 12px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{
                   width: 16, height: 16, borderRadius: "50%",
-                  border: theme === "light" ? "5px solid #FFCB05" : "2px solid var(--text-muted)",
-                  background: theme === "light" ? "#FFCB05" : "transparent",
+                  border: theme === "red" ? "5px solid #FFCB05" : "2px solid var(--text-muted)",
+                  background: theme === "red" ? "#FFCB05" : "transparent",
                   display: "inline-block", flexShrink: 0,
                 }} />
-                <span style={{ fontWeight: 600, fontSize: 13, color: "var(--text-primary)" }}>Aydınlık</span>
+                <span style={{ fontWeight: 600, fontSize: 13, color: "var(--text-primary)" }}>Kırmızı</span>
               </div>
             </button>
           </div>

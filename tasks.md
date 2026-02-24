@@ -53,3 +53,4 @@
 | 49 | Make KART EKLE button 1.2x larger | Done | Claude | 2026-02-24 | 2026-02-24 |
 | 50 | Enable photo gallery selection on mobile card import | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 51 | Fix login screen error message styling inconsistency | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 52 | Update theme selector: Blue & Red themes with background image switching | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
