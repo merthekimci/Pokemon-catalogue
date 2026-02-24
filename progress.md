@@ -2,6 +2,12 @@
 
 ## Session 5 — 2026-02-24
 
+### Add widget background panels to Biyografi & Hikaye (Task #54)
+- **Time:** 2026-02-24
+- Wrapped Biyografi and Hikaye text content in panel divs with `background: var(--bg-card)`, `border: 1px solid var(--border-dim)`, responsive borderRadius/padding
+- Section titles remain outside the panels, matching the pattern used by Trainer Info and StatCard widgets
+- File modified: `src/components/CardDetail.jsx`
+
 ### Fix login flash on failed phone verification (Task #53)
 - **Time:** 2026-02-24
 - Added `verifying` gate state to prevent app screen from rendering during phone+device verification

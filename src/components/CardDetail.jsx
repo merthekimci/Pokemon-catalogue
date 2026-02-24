@@ -684,10 +684,15 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
         {(tCard(card, "bio") || meta?.bio) && (
           <SectionWrapper isDesktop={isDesktop}>
             <SectionTitle isDesktop={isDesktop}>Biyografi</SectionTitle>
-            <p style={{
-              fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
-              color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive",
-            }}>{tCard(card, "bio") || meta.bio}</p>
+            <div style={{
+              background: "var(--bg-card)", border: "1px solid var(--border-dim)",
+              borderRadius: isDesktop ? 14 : 12, padding: isDesktop ? 16 : 14,
+            }}>
+              <p style={{
+                fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
+                color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive",
+              }}>{tCard(card, "bio") || meta.bio}</p>
+            </div>
           </SectionWrapper>
         )}
 
@@ -695,10 +700,15 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
         {(tCard(card, "lore") || meta?.lore) && (
           <SectionWrapper isDesktop={isDesktop}>
             <SectionTitle isDesktop={isDesktop}>Hikaye</SectionTitle>
-            <p style={{
-              fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
-              color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive",
-            }}>{tCard(card, "lore") || meta.lore}</p>
+            <div style={{
+              background: "var(--bg-card)", border: "1px solid var(--border-dim)",
+              borderRadius: isDesktop ? 14 : 12, padding: isDesktop ? 16 : 14,
+            }}>
+              <p style={{
+                fontSize: isDesktop ? 14 : 13, lineHeight: 1.6, margin: 0,
+                color: "var(--text-secondary)", fontFamily: "'Comic Neue', cursive",
+              }}>{tCard(card, "lore") || meta.lore}</p>
+            </div>
           </SectionWrapper>
         )}
 
