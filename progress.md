@@ -11,6 +11,10 @@
 - Default theme changed to "blue" across all fallback locations
 - Files modified: `SettingsPage.jsx`, `styles.css`, `App.jsx`
 
+### Adjust login error message styles — bolder background & larger font (Task #51 follow-up)
+- **[2026-02-24]** Increased error box background opacity from 0.1 to 0.85 (almost solid) and font size from 13px to 26px (2x)
+- **[2026-02-24]** Applied to both PhoneModal validation error and device error on login screen
+
 ### Fix login screen error message styling (Task #51)
 - **[2026-02-24]** Login device error and PhoneModal validation error were displayed as plain colored text (`#f72585`) with no background or border
 - **[2026-02-24]** Matched both to the existing PhotoUploadModal error pattern: semi-transparent pink background (`rgba(247,37,133,0.1)`), pink border, rounded corners

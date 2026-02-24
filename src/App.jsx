@@ -150,9 +150,9 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
       />
       {error && (
         <div style={{
-          padding: "10px 14px", background: "rgba(247,37,133,0.1)",
+          padding: "10px 14px", background: "rgba(247,37,133,0.85)",
           border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10,
-          color: "#ff4d6d", fontSize: 13, margin: "0 0 12px",
+          color: "#ff4d6d", fontSize: 26, margin: "0 0 12px",
         }}>
           {error}
         </div>
@@ -1742,9 +1742,9 @@ export default function App() {
         </h1>
         {deviceError && (
           <div style={{
-            padding: "10px 14px", background: "rgba(247,37,133,0.1)",
+            padding: "10px 14px", background: "rgba(247,37,133,0.85)",
             border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10,
-            color: "#ff4d6d", fontSize: 13, margin: "0 0 16px",
+            color: "#ff4d6d", fontSize: 26, margin: "0 0 16px",
             maxWidth: 360, textAlign: "center",
           }}>
             {deviceError}
