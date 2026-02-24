@@ -150,9 +150,9 @@ function PhoneModal({ onSave, onClose, allowClose = true }) {
       />
       {error && (
         <div style={{
-          padding: "10px 14px", background: "rgba(247,37,133,0.85)",
-          border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10,
-          color: "#ff4d6d", fontSize: 26, margin: "0 0 12px",
+          padding: "10px 14px", background: "#CC0000",
+          border: "1px solid rgba(204,0,0,0.5)", borderRadius: 10,
+          color: "#ffffff", fontSize: 13, fontWeight: 700, margin: "0 0 12px",
         }}>
           {error}
         </div>
@@ -1239,6 +1239,7 @@ export default function App() {
   const [phone, setPhone] = useState(loadPhone);
   const [syncStatus, setSyncStatus] = useState("idle");
   const [deviceError, setDeviceError] = useState("");
+  const [verifying, setVerifying] = useState(false);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [portrait, setPortrait] = useState(null);
   const scrollRef = useRef(0);
@@ -1280,6 +1281,7 @@ export default function App() {
           setPhone("");
           setDeviceError("Bu numara başka bir cihaza bağlı. Lütfen kendi numaranızı girin.");
           setSyncStatus("idle");
+          setVerifying(false);
           return null;
         }
         return r.json();
@@ -1303,7 +1305,7 @@ export default function App() {
         setSyncStatus("idle");
       })
       .catch(() => setSyncStatus("error"))
-      .finally(() => { skipSaveRef.current = false; });
+      .finally(() => { skipSaveRef.current = false; setVerifying(false); });
   }, [phone]);
 
   // Debounced save to server on any collection change
@@ -1742,9 +1744,9 @@ export default function App() {
         </h1>
         {deviceError && (
           <div style={{
-            padding: "10px 14px", background: "rgba(247,37,133,0.85)",
-            border: "1px solid rgba(247,37,133,0.3)", borderRadius: 10,
-            color: "#ff4d6d", fontSize: 26, margin: "0 0 16px",
+            padding: "10px 14px", background: "#CC0000",
+            border: "1px solid rgba(204,0,0,0.5)", borderRadius: 10,
+            color: "#ffffff", fontSize: 13, fontWeight: 700, margin: "0 0 16px",
             maxWidth: 360, textAlign: "center",
           }}>
             {deviceError}
