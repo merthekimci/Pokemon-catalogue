@@ -1,3 +1,9 @@
 node_modules
 dist
 .git
+tmp
+images
+design
+.DS_Store
+.claude
+.github

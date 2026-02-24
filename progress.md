@@ -1,5 +1,16 @@
 # Progress Log
 
+## Session 6 — 2026-02-24
+
+### Project file reorganization & housekeeping (Task #55)
+- **Time:** 2026-02-24
+- Removed `images/` directory (30 generated test PNGs, ~47MB) from git — unused by app
+- Deleted `tmp/` directory (2 temp screenshots, untracked)
+- Moved `pokemon-pencil-new.pen` to `design/` folder for cleaner root
+- Updated `.gitignore` — added `tmp/`, `images/`, `.DS_Store`
+- Updated `.dockerignore` — added `tmp`, `images`, `design`, `.DS_Store`, `.claude`, `.github`
+- Verified `npm run build` succeeds with no issues
+
 ## Session 5 — 2026-02-24
 
 ### Add widget background panels to Biyografi & Hikaye (Task #54)

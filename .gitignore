@@ -3,3 +3,10 @@ dist/
 .vercel
 .env.local
 .env*.local
+
+# OS files
+.DS_Store
+
+# Temporary / generated files
+tmp/
+images/
