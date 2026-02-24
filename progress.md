@@ -2,6 +2,11 @@
 
 ## Session 5 — 2026-02-24
 
+### Enable photo gallery selection on mobile (Task #50)
+- **[2026-02-24]** Root cause: `capture="environment"` on the file input forced mobile browsers (especially iOS Safari) to open the camera directly, bypassing the native picker
+- **[2026-02-24]** Fix: removed `capture="environment"` attribute from `<input>` in PhotoUploadModal. `accept="image/*"` alone shows the native picker with both Camera and Photo Library options
+- **[2026-02-24]** File: `src/App.jsx` line 609 — single attribute removal
+
 ### Global Card Metadata Separation (Task #48)
 - **[2026-02-24]** Created `card_metadata` table (card_number PK, hp, rarity, retreat, damage, img, market_value, original JSONB, translations JSONB) — global card data shared across all collectors
 - **[2026-02-24]** Created `collection_cards` table (phone + card_number unique, collector_id, copies, trainer, added_at) — per-collector ownership references

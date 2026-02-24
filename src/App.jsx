@@ -606,7 +606,6 @@ function PhotoUploadModal({ onClose, onAdd }) {
                 id="card-photo-input"
                 type="file"
                 accept="image/*"
-                capture="environment"
                 onChange={(e) => handleFile(e.target.files[0])}
                 style={{ display: "none" }}
               />
