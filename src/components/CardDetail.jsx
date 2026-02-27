@@ -54,15 +54,8 @@ function useCardTilt({ sensitivity = 0.4, initialRotY = 0 } = {}) {
   const [isInteracting, setIsInteracting] = useState(false);
   const [introPhase, setIntroPhase] = useState(initialRotY !== 0);
 
-  const snapAngle = useCallback((angle) => {
-    const normalized = ((angle % 360) + 360) % 360;
-    if (normalized < 90) return 0;
-    if (normalized < 270) return 180;
-    return 360;
-  }, []);
-
   const tick = useCallback(() => {
-    const lerp = isActive.current ? 0.3 : 0.08;
+    const lerp = isActive.current ? 0.3 : 0.12;
     currentRotX.current += (targetRotX.current - currentRotX.current) * lerp;
     currentRotY.current += (targetRotY.current - currentRotY.current) * lerp;
 
@@ -101,17 +94,18 @@ function useCardTilt({ sensitivity = 0.4, initialRotY = 0 } = {}) {
     if (!isActive.current) return;
     const dx = clientX - startPointer.current.x;
     const dy = clientY - startPointer.current.y;
-    targetRotY.current = startRotation.current.y + dx * sensitivity;
-    targetRotX.current = startRotation.current.x - dy * sensitivity;
+    const MAX_TILT = 35;
+    targetRotY.current = Math.max(-MAX_TILT, Math.min(MAX_TILT, startRotation.current.y + dx * sensitivity));
+    targetRotX.current = Math.max(-MAX_TILT, Math.min(MAX_TILT, startRotation.current.x - dy * sensitivity));
   }, [sensitivity]);
 
   const handleEnd = useCallback(() => {
     if (!isActive.current) return;
     isActive.current = false;
-    targetRotX.current = snapAngle(targetRotX.current);
-    targetRotY.current = snapAngle(targetRotY.current);
+    targetRotX.current = 0;
+    targetRotY.current = 0;
     startLoop();
-  }, [snapAngle, startLoop]);
+  }, [startLoop]);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -394,9 +388,8 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
           transform: "rotateY(180deg)", position: "absolute", inset: 0,
           borderRadius: 16, overflow: "hidden", border: `2px solid ${t.bg}40`, background: "#c62828",
         }}>
-          <img src="https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg" alt="Card Back"
-            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 14 }}
-            crossOrigin="anonymous" />
+          <img src={`${import.meta.env.BASE_URL}app-images/cardback.jpg`} alt="Card Back"
+            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 14 }} />
         </div>
       </div>
     </div>
@@ -656,9 +649,8 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                     transform: "rotateY(180deg)", position: "absolute", inset: 0,
                     borderRadius: 12, overflow: "hidden", background: "#c62828",
                   }}>
-                    <img src="https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg" alt="Card Back"
-                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 10 }}
-                      crossOrigin="anonymous" />
+                    <img src={`${import.meta.env.BASE_URL}app-images/cardback.jpg`} alt="Card Back"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 10 }} />
                   </div>
                 </div>
               </div>

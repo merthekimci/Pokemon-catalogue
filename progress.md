@@ -2,6 +2,13 @@
 
 ## Session 10 — 2026-02-27
 
+### Fix card back CORS + wonky drag (Task #60, Bugs #10 & #11)
+- **Problem 1:** Card back image still not loading despite URL fix — `crossOrigin="anonymous"` triggers CORS block on pokemon.com (no ACAO headers)
+- **Fix 1:** Downloaded card back image to `public/app-images/cardback.jpg`, referenced locally, removed `crossOrigin` attribute
+- **Problem 2:** Dragging card from edges causes wild spinning — no rotation clamping, unbounded degree accumulation
+- **Fix 2:** Clamped drag rotation to ±35°, snap to (0,0) on release, removed `snapAngle`, increased release lerp 0.08→0.12
+- **Modified files:** `src/components/CardDetail.jsx`, `public/app-images/cardback.jpg` (new)
+
 ### Fix card back image not loading (Task #59, Bug #9)
 - **Problem:** Card detail page back face shows red background instead of card back artwork during 3D flip animation
 - **Root cause:** External URL `https://images.pokemontcg.io/cardback.png` returns 404 (removed from S3)

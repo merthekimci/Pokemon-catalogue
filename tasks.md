@@ -61,3 +61,4 @@
 | 57 | Async two-phase card import: fast extract + background enrichment | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
 | 58 | Fast per-card processing: detect→split→parallel analyze with progressive UI | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
 | 59 | Fix card back image not loading on card detail page | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
+| 60 | Fix card back image CORS + wonky drag behavior on card detail | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |

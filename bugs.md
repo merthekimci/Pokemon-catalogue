@@ -88,3 +88,29 @@
 **Fix:** Replaced the broken URL with the official Pokemon TCG card back image: `https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg` (verified accessible, 63KB JPEG).
 
 **Related Bugs:** Bug #1 (also an external image URL issue)
+
+---
+
+## Bug #10 — Card Back Image Still Not Loading (CORS Block)
+**Status:** Fixed | **Date:** 2026-02-27 | **File:** src/components/CardDetail.jsx
+
+**Symptom:** After replacing the dead pokemontcg.io URL (Bug #9), the card back image still doesn't render — only the red `#c62828` fallback background shows.
+
+**Root Cause:** The replacement URL `https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg` returns HTTP 200, but `pokemon.com` does NOT serve `Access-Control-Allow-Origin` headers. The `<img crossOrigin="anonymous">` attribute forces the browser to make a CORS request, which gets blocked. Without `crossOrigin`, the image would load fine — but it was present on the original code.
+
+**Fix:** Downloaded the card back image to `public/app-images/cardback.jpg` (63KB) and referenced it as a local asset via `import.meta.env.BASE_URL`. Removed `crossOrigin="anonymous"` since it's same-origin now. Applied to both desktop (line 391) and mobile (line 653) back face `<img>` tags.
+
+**Related Bugs:** Bug #9 (same image, dead URL), Bug #1 (external image dependency)
+
+---
+
+## Bug #11 — Card Drag Wonky: Spins Wildly and Loses Control at Edges
+**Status:** Fixed | **Date:** 2026-02-27 | **File:** src/components/CardDetail.jsx
+
+**Symptom:** Dragging the card on the detail page from edges causes it to spin uncontrollably. On release, the card does multiple full rotations before settling back to its resting position.
+
+**Root Cause:** The `useCardTilt` hook had no rotation clamping in `handleMove`. Sensitivity of 0.4 meant a 900px drag = 360° rotation. On release, `snapAngle` normalized modulo 360 to find the nearest face (0° or 180°), but the lerp interpolation had to traverse from the unnormalized large value (e.g., 350°) back to the snap target (e.g., 0°), causing visible multi-rotation spinning. Additionally, the slow release lerp (0.08) made the spin-back take over a second.
+
+**Fix:** (1) Clamped `targetRotX/Y` to ±35° during drag — enough for a satisfying 3D tilt peek, impossible to flip. (2) On release, snap directly to (0, 0) instead of using `snapAngle`. (3) Removed dead `snapAngle` function. (4) Increased release lerp from 0.08 → 0.12 for snappier return.
+
+**Related Bugs:** Bug #7 (card flicker on first drag after intro)
