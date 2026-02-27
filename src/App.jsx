@@ -110,6 +110,61 @@ function resizeImage(file, maxSize) {
   });
 }
 
+function splitGridImage(imageBase64, mimeType, rows, cols) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const cells = [];
+      const cellW = img.width / cols;
+      const cellH = img.height / rows;
+      const INSET = 0.04;
+      const insetX = cellW * INSET;
+      const insetY = cellH * INSET;
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const canvas = document.createElement("canvas");
+          const srcW = cellW - 2 * insetX;
+          const srcH = cellH - 2 * insetY;
+          const scale = Math.min(600 / srcW, 1);
+          canvas.width = Math.round(srcW * scale);
+          canvas.height = Math.round(srcH * scale);
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(
+            img,
+            col * cellW + insetX, row * cellH + insetY,
+            srcW, srcH,
+            0, 0, canvas.width, canvas.height
+          );
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+          cells.push(dataUrl.split(",")[1]);
+        }
+      }
+      resolve(cells);
+    };
+    img.src = `data:${mimeType};base64,${imageBase64}`;
+  });
+}
+
+async function runWithConcurrency(tasks, limit) {
+  const results = new Array(tasks.length);
+  let nextIdx = 0;
+
+  async function worker() {
+    while (nextIdx < tasks.length) {
+      const idx = nextIdx++;
+      try {
+        results[idx] = await tasks[idx]();
+      } catch (e) {
+        results[idx] = { _failed: true, error: e.message };
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, () => worker()));
+  return results;
+}
+
 function SyncIndicator({ status }) {
   const configs = {
     loading: { color: "var(--brand-yellow)", dot: "#FFCB05", label: "Yükleniyor..." },
@@ -507,6 +562,9 @@ function PhotoUploadModal({ onClose, onAdd, onTriggerEnrichment }) {
   const [isDragging, setIsDragging] = useState(false);
   const [expandedIdx, setExpandedIdx] = useState(null);
   const [imgErrs, setImgErrs] = useState({});
+  const [totalCells, setTotalCells] = useState(0);
+  const [failedCells, setFailedCells] = useState(0);
+  const [statusText, setStatusText] = useState("");
 
   const resolveReviewCardImage = (card) => {
     // Prefer card.img set by TCGdex name lookup in the API
@@ -551,37 +609,82 @@ function PhotoUploadModal({ onClose, onAdd, onTriggerEnrichment }) {
 
   const analyzeImage = async () => {
     if (!imageBase64) return;
-    setPhase("analyzing");
     setError("");
+    setExtractedCards([]);
+    setTotalCells(0);
+    setFailedCells(0);
+    setPhase("analyzing");
+    setStatusText("Kartlar algılaniyor...");
+
     try {
-      const res = await fetch("/api/analyze-fast", {
+      // Phase 1: Detect card count and grid layout
+      const detectRes = await fetch("/api/analyze-detect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64, mimeType }),
       });
-      if (!res.ok) {
-        let msg = "Analiz basarisiz";
-        try { const d = await res.json(); msg = d.error || msg; } catch (_) {}
-        throw new Error(msg);
+
+      let gridInfo = { count: 1, rows: 1, cols: 1 };
+      if (detectRes.ok) {
+        gridInfo = await detectRes.json();
       }
-      const data = await res.json();
-      if (!data.cards || data.cards.length === 0) {
-        setError("Fotograf uzerinde kart bulunamadi. Tekrar deneyin.");
-        setPhase("upload");
-        return;
+
+      const { count, rows, cols } = gridInfo;
+      const total = rows * cols;
+      setTotalCells(total);
+      setStatusText(`${count} kart algılandi, analiz ediliyor...`);
+
+      // Phase 2: Split image (or use directly for single card)
+      let cellImages;
+      if (rows === 1 && cols === 1) {
+        cellImages = [imageBase64];
+      } else {
+        cellImages = await splitGridImage(imageBase64, mimeType, rows, cols);
       }
-      const withIds = data.cards.map((c, i) => ({
-        ...c,
-        id: Date.now() + i,
-        hp: +c.hp || 0,
-        copies: +c.copies || 1,
-        marketValue: +c.marketValue || 0,
-        _enrichmentStatus: c._enrichmentStatus || "pending",
-        original: c.original || {},
-        translations: c.translations || { en: {}, tr: {} },
-      }));
-      setExtractedCards(withIds);
-      setPhase("review");
+
+      // Phase 3: Process each cell in parallel with concurrency limit
+      const baseTime = Date.now();
+      const tasks = cellImages.map((cellBase64, cellIdx) => async () => {
+        const res = await fetch("/api/analyze-single", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: cellBase64, mimeType }),
+        });
+        if (!res.ok) {
+          setFailedCells((n) => n + 1);
+          return null;
+        }
+        const data = await res.json();
+        if (!data.card) {
+          setFailedCells((n) => n + 1);
+          return null;
+        }
+        const card = {
+          ...data.card,
+          id: baseTime + cellIdx,
+          hp: +data.card.hp || 0,
+          copies: +data.card.copies || 1,
+          marketValue: +data.card.marketValue || 0,
+          _enrichmentStatus: data.card._enrichmentStatus || "pending",
+          original: data.card.original || {},
+          translations: data.card.translations || { en: {}, tr: {} },
+        };
+        setExtractedCards((prev) => [...prev, card]);
+        return card;
+      });
+
+      await runWithConcurrency(tasks, 3);
+
+      // Transition based on results
+      setExtractedCards((prev) => {
+        if (prev.length === 0) {
+          setError("Fotoğraf üzerinde kart bulunamadı. Tekrar deneyin.");
+          setPhase("upload");
+        } else {
+          setPhase("review");
+        }
+        return prev;
+      });
     } catch (err) {
       setError(err.message);
       setPhase("upload");
@@ -685,13 +788,67 @@ function PhotoUploadModal({ onClose, onAdd, onTriggerEnrichment }) {
 
         {/* ── Analyzing Phase ── */}
         {phase === "analyzing" && (
-          <div style={{ textAlign: "center", padding: "40px 0" }}>
-            <div className="spinner" />
-            <div style={{ color: "var(--text-secondary)", fontSize: 16, fontWeight: 700 }}>
-              Kartlar analiz ediliyor...
-            </div>
-            <div style={{ color: "var(--text-muted)", fontSize: 14, fontWeight: 600, marginTop: 6 }}>
-              Bu islem birkaç saniye surebilir
+          <div style={{ textAlign: "center", padding: "30px 0" }}>
+            {preview && (
+              <div style={{ position: "relative", display: "inline-block", marginBottom: 20 }}>
+                <img
+                  src={preview}
+                  alt="Kart sayfası"
+                  style={{ maxHeight: 220, maxWidth: "100%", borderRadius: 12, objectFit: "contain", display: "block", opacity: 0.7 }}
+                />
+                {totalCells > 1 && (
+                  <svg
+                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+                    viewBox={`0 0 ${Math.round(Math.sqrt(totalCells) * 100) || 300} ${Math.round(Math.sqrt(totalCells) * 100) || 300}`}
+                    preserveAspectRatio="none"
+                  >
+                    {/* Grid lines based on detected layout */}
+                    {(() => {
+                      const r = Math.ceil(totalCells / Math.ceil(Math.sqrt(totalCells)));
+                      const c = Math.ceil(Math.sqrt(totalCells));
+                      const w = c * 100;
+                      const h = r * 100;
+                      const lines = [];
+                      for (let i = 1; i < c; i++) lines.push(<line key={`v${i}`} x1={i * 100} y1={0} x2={i * 100} y2={h} stroke="rgba(255,203,5,0.5)" strokeWidth="2" />);
+                      for (let i = 1; i < r; i++) lines.push(<line key={`h${i}`} x1={0} y1={i * 100} x2={w} y2={i * 100} stroke="rgba(255,203,5,0.5)" strokeWidth="2" />);
+                      return lines;
+                    })()}
+                  </svg>
+                )}
+              </div>
+            )}
+
+            {totalCells > 0 ? (
+              <>
+                <div style={{ color: "var(--text-secondary)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>
+                  {extractedCards.length} / {totalCells} kart tanımlandi
+                </div>
+                <div style={{
+                  height: 8, borderRadius: 8,
+                  background: "rgba(255,255,255,0.1)",
+                  overflow: "hidden",
+                  margin: "0 auto", width: "70%", maxWidth: 280,
+                }}>
+                  <div style={{
+                    height: "100%",
+                    borderRadius: 8,
+                    background: "linear-gradient(90deg, #FFCB05, #3B4CCA)",
+                    width: `${((extractedCards.length + failedCells) / totalCells) * 100}%`,
+                    transition: "width 0.4s ease",
+                  }} />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="spinner" />
+                <div style={{ color: "var(--text-secondary)", fontSize: 16, fontWeight: 700 }}>
+                  {statusText}
+                </div>
+              </>
+            )}
+
+            <div style={{ color: "var(--text-muted)", fontSize: 13, fontWeight: 600, marginTop: 10 }}>
+              Lütfen bekleyin...
             </div>
           </div>
         )}

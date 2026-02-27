@@ -1,5 +1,19 @@
 # Progress Log
 
+## Session 9 — 2026-02-27
+
+### Fast per-card processing with progressive status updates (Task #58)
+- **Problem:** 3x3 card sheet takes ~30-40s blocking (single GPT-4o `detail:high` call on full image). No progress feedback — just a spinner.
+- **Solution:** Detect→Split→Parallel architecture. Three new endpoints + progressive client UI.
+- **Phase 1 — Detect (`api/analyze-detect.js`):** Quick GPT-4o `detail:low` call (~1-2s) returns card count and grid layout `{count, rows, cols}`. Handles any card arrangement (1, 5, 7, 9 cards).
+- **Phase 2 — Split (client-side):** Canvas-based crop into rows×cols cells with 4% edge inset. 600px max per cell, JPEG 0.88.
+- **Phase 3 — Analyze (`api/analyze-single.js`):** Per-card GPT-4o `detail:low` endpoint (~2-4s each). Same field structure as analyze-fast. Concurrency pool of 3 on client.
+- **Progressive UI:** Real-time counter "X / N kart tanımlandi" + animated progress bar + grid overlay on preview image. Cards appear as they resolve.
+- **New files:** `api/analyze-detect.js`, `api/analyze-single.js`
+- **Modified files:** `src/App.jsx` (added `splitGridImage`, `runWithConcurrency` utilities; rewrote `analyzeImage` and analyzing phase UI in PhotoUploadModal)
+- **Expected timing:** First card at ~3-4s, all 9 done in ~12s (vs ~30-40s before)
+- Build verified clean
+
 ## Session 8 — 2026-02-27
 
 ### Async two-phase card import pipeline (Task #57)
