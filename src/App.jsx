@@ -282,6 +282,14 @@ function CardTile({ card, compareMode, isSelected, onToggle, index, scrollRef, o
               x{card.copies}
             </span>
           )}
+          {/* Enrichment status indicator */}
+          {card._enrichmentStatus && card._enrichmentStatus !== "complete" && (
+            <div className={`enrichment-indicator ${card._enrichmentStatus}`} title={
+              card._enrichmentStatus === "pending" ? "Detaylar yükleniyor..." :
+              card._enrichmentStatus === "enriching" ? "Detaylar işleniyor..." :
+              "Detay yüklemesi başarısız"
+            } />
+          )}
         </div>
 
         {/* Info section */}
@@ -489,7 +497,7 @@ function CompareView({ cards, onClose }) {
   );
 }
 
-function PhotoUploadModal({ onClose, onAdd }) {
+function PhotoUploadModal({ onClose, onAdd, onTriggerEnrichment }) {
   const [phase, setPhase] = useState("upload");
   const [preview, setPreview] = useState(null);
   const [imageBase64, setImageBase64] = useState("");
@@ -546,7 +554,7 @@ function PhotoUploadModal({ onClose, onAdd }) {
     setPhase("analyzing");
     setError("");
     try {
-      const res = await fetch("/api/analyze", {
+      const res = await fetch("/api/analyze-fast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64, mimeType }),
@@ -568,7 +576,7 @@ function PhotoUploadModal({ onClose, onAdd }) {
         hp: +c.hp || 0,
         copies: +c.copies || 1,
         marketValue: +c.marketValue || 0,
-        // Ensure nested objects exist for new schema
+        _enrichmentStatus: c._enrichmentStatus || "pending",
         original: c.original || {},
         translations: c.translations || { en: {}, tr: {} },
       }));
@@ -608,6 +616,13 @@ function PhotoUploadModal({ onClose, onAdd }) {
       marketValue: +c.marketValue || 0,
     }));
     onAdd(cleaned);
+
+    // Trigger background enrichment for pending cards
+    const pendingCards = cleaned.filter((c) => c._enrichmentStatus === "pending");
+    if (pendingCards.length > 0 && onTriggerEnrichment) {
+      onTriggerEnrichment(pendingCards, imageBase64, mimeType);
+    }
+
     onClose();
   };
 
@@ -1356,6 +1371,72 @@ export default function App() {
     }
   }, [syncStatus]);
 
+  // Trigger background enrichment for pending cards (fire-and-forget)
+  const triggerEnrichment = (pendingCards, imageBase64, mimeType) => {
+    // Batch cards in groups of 2 to stay under Vercel 10s timeout
+    const batches = [];
+    for (let i = 0; i < pendingCards.length; i += 2) {
+      batches.push(pendingCards.slice(i, i + 2));
+    }
+    batches.forEach((batch) => {
+      fetch("/api/enrich", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cards: batch.map((c) => ({
+            cardNumber: cardNum(c),
+            englishName: c.translations?.en?.name || c.original?.name || "",
+          })),
+          imageBase64,
+          mimeType,
+        }),
+      }).catch(() => {});
+    });
+  };
+
+  // Poll for enrichment status of pending cards
+  useEffect(() => {
+    const pending = cards.filter((c) => c._enrichmentStatus && c._enrichmentStatus !== "complete");
+    if (pending.length === 0) return;
+
+    const poll = setInterval(async () => {
+      const nums = pending.map((c) => cardNum(c)).filter(Boolean);
+      if (nums.length === 0) return;
+      try {
+        const res = await fetch(`/api/enrich-status?cards=${encodeURIComponent(nums.join(","))}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        let hasUpdate = false;
+        for (const cn of nums) {
+          if (data[cn]?.status === "complete") { hasUpdate = true; break; }
+        }
+        if (!hasUpdate) return;
+        setCards((prev) => prev.map((card) => {
+          const cn = cardNum(card);
+          const enriched = data[cn];
+          if (!enriched || enriched.status !== "complete" || !enriched.data) return card;
+          return {
+            ...card,
+            ...enriched.data,
+            // Preserve client-side fields
+            id: card.id,
+            copies: card.copies,
+            addedAt: card.addedAt,
+            // Deep merge translations and original
+            original: { ...card.original, ...(enriched.data.original || {}) },
+            translations: {
+              en: { ...(card.translations?.en || {}), ...(enriched.data.translations?.en || {}) },
+              tr: { ...(card.translations?.tr || {}), ...(enriched.data.translations?.tr || {}) },
+            },
+            _enrichmentStatus: "complete",
+          };
+        }));
+      } catch (_) {}
+    }, 3000);
+
+    return () => clearInterval(poll);
+  }, [cards]);
+
   const updatePortrait = (val) => {
     portraitDirtyRef.current = true;
     setPortrait(val);
@@ -1785,7 +1866,7 @@ export default function App() {
         <Route path="/ayarlar" element={<SettingsPage theme={theme} onThemeChange={setTheme} ownerName={ownerName} onOwnerNameChange={setOwnerName} phone={phone} deviceId={getDeviceId()} onShowPhoneModal={() => setShowPhoneModal(true)} onPhoneChange={(p) => { setPhone(p); if (!p) { setCards([]); setFavorites([]); setTheme("blue"); setOwnerName("Koleksiyoncu"); } }} />} />
       </Routes>
       <BottomTabBar onAddClick={() => setShowAdd(true)} />
-      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((prev) => mergeNewCards(prev, newCards))} />}
+      {showAdd && <PhotoUploadModal onClose={() => setShowAdd(false)} onAdd={(newCards) => setCards((prev) => mergeNewCards(prev, newCards))} onTriggerEnrichment={triggerEnrichment} />}
       {deleteTarget && <DeleteConfirmModal card={deleteTarget} onConfirm={handleDeleteCard} onClose={() => setDeleteTarget(null)} />}
       {showPhoneModal && <PhoneModal onSave={(p) => { setPhone(p); setShowPhoneModal(false); }} onClose={() => setShowPhoneModal(false)} />}
     </div>

@@ -24,11 +24,16 @@ async function ensureSchema() {
       market_value      NUMERIC(10,4) NOT NULL DEFAULT 0,
       original          JSONB NOT NULL DEFAULT '{}',
       translations      JSONB NOT NULL DEFAULT '{}',
+      enrichment_status TEXT NOT NULL DEFAULT 'complete',
+      enrichment_error  TEXT NOT NULL DEFAULT '',
       market_updated_at TIMESTAMPTZ,
       created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
+  // Migration for existing tables missing enrichment columns
+  await sql`ALTER TABLE card_metadata ADD COLUMN IF NOT EXISTS enrichment_status TEXT NOT NULL DEFAULT 'complete'`;
+  await sql`ALTER TABLE card_metadata ADD COLUMN IF NOT EXISTS enrichment_error TEXT NOT NULL DEFAULT ''`;
 
   // Per-collector card ownership — references card_metadata by card_number
   await sql`
@@ -79,7 +84,7 @@ export default async function handler(req, res) {
           cc.collector_id, cc.copies, cc.trainer, cc.added_at,
           cm.card_number, cm.hp, cm.rarity, cm.retreat,
           cm.damage1, cm.damage2, cm.img, cm.market_value,
-          cm.original, cm.translations
+          cm.original, cm.translations, cm.enrichment_status
         FROM collection_cards cc
         JOIN card_metadata cm ON cm.card_number = cc.card_number
         WHERE cc.phone = ${phone}
@@ -103,6 +108,7 @@ export default async function handler(req, res) {
           copies: r.copies,
           trainer: r.trainer,
           addedAt: r.added_at ? new Date(r.added_at).toISOString() : undefined,
+          _enrichmentStatus: r.enrichment_status || "complete",
         }));
       }
       // else: fall back to row.cards from JSONB (pre-migration data)

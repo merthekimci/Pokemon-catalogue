@@ -453,6 +453,37 @@ body[data-theme="red"] {
   accent-color: var(--brand-yellow);
 }
 
+/* ── Enrichment Status Indicators ── */
+.enrichment-indicator {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.enrichment-indicator.pending,
+.enrichment-indicator.enriching {
+  background: var(--brand-yellow);
+  box-shadow: 0 0 6px rgba(255, 203, 5, 0.6);
+  animation: enrichment-pulse 1.5s ease-in-out infinite;
+}
+
+.enrichment-indicator.failed {
+  background: #ff4d6d;
+  box-shadow: 0 0 6px rgba(255, 77, 109, 0.6);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+@keyframes enrichment-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
 /* ── Photo Upload Zone ── */
 .upload-zone {
   border: 2px dashed rgba(255, 255, 255, 0.35);

@@ -1,5 +1,18 @@
 # Progress Log
 
+## Session 8 — 2026-02-27
+
+### Async two-phase card import pipeline (Task #57)
+- **Problem:** Multi-card photo import blocks user 5-15s; unreliable on Vercel Free tier (10s timeout)
+- **Solution:** Split into fast extract (2-4s) + background enrichment (polling)
+- **Phase 1 — Fast Extract (`api/analyze-fast.js`):** Stripped-down GPT-4o prompt (essential fields only: name, type, HP, rarity, stage, cardNumber). Fast image resolution (cache + TCGdex localId match, no vision). Cards added to collection immediately.
+- **Phase 2 — Background Enrich (`api/enrich.js`):** Frontend fires batched requests (2 cards/batch for 10s timeout). GPT-4o text-only for bio/lore/attacks/abilities + market price + full image resolution. Results written to `card_metadata` with `enrichment_status`.
+- **Polling (`api/enrich-status.js`):** Frontend polls every 3s, merges enriched data into card state.
+- **New files:** `api/analyze-fast.js`, `api/enrich.js`, `api/enrich-status.js`, `api/shared/card-utils.js`
+- **Modified files:** `api/collection.js` (schema migration + enrichment_status in JOIN), `src/App.jsx` (two-phase flow, enrichment polling, visual indicators), `src/styles.css` (enrichment pulse animation)
+- **DB changes:** Added `enrichment_status` and `enrichment_error` columns to `card_metadata` table
+- Build verified clean
+
 ## Session 7 — 2026-02-27
 
 ### Bug fix: Card photo upload crashes on large images (Task #56)
