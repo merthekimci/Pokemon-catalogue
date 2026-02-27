@@ -59,3 +59,19 @@
 **Fix:** Added `currentRotY.current = 0` and `targetRotY.current = 0` in the existing `setTimeout` callback (1050ms) that fires after the CSS transition ends, syncing the refs to match the visual state before user interaction begins.
 
 **Related Bugs:** —
+
+---
+
+## Bug #8 — Card Photo Upload Crashes on Large Images (3x3 Sheet)
+**Status:** Fixed | **Date:** 2026-02-27 | **Files:** src/App.jsx, api/analyze.js
+
+**Symptom:** Uploading a 3x3 card sheet photo from Android phone gallery → "Analiz Et" → loading spinner for ~1 second → error: `Unexpected token 'R', request end... not valid JSON`
+
+**Root Cause:** Vercel serverless functions have a 4.5 MB request body limit. Phone camera photos of 3x3 card sheets are typically 5–15 MB. Base64 encoding inflates the payload ~33%, so the JSON body easily reaches 7–20 MB. Vercel rejects with HTTP 413 and a plain-text body `"Request Entity Too Large"`. The frontend then calls `res.json()` on that plain-text response (before checking `res.ok`), which throws `SyntaxError: Unexpected token 'R'` — the "R" from "Request Entity Too Large".
+
+**Fix (3 parts):**
+1. **Image compression:** Reused existing `resizeImage()` utility (was scoped inside SummaryView) — extracted to module scope and applied in `PhotoUploadModal.handleFile`. Images resized to max 1500px at JPEG 0.85 quality before upload, keeping payloads well under 4.5 MB.
+2. **Safe error handling:** Changed `analyzeImage` to check `res.ok` before calling `res.json()`, catching non-JSON error responses gracefully with a Turkish error message instead of leaking SyntaxErrors.
+3. **Server hardening:** Bumped `max_tokens` from 4000 to 8000 in `api/analyze.js` to accommodate 9-card responses. Added try/catch around `JSON.parse` of GPT-4o output with a friendly error if the output is malformed/truncated.
+
+**Related Bugs:** Bug #4 (photo upload save), Bug #5 (wrong-set card scan)

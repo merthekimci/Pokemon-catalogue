@@ -164,7 +164,7 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
       },
       body: JSON.stringify({
         model: "gpt-4o",
-        max_tokens: 4000,
+        max_tokens: 8000,
         messages: [
           {
             role: "user",
@@ -191,7 +191,12 @@ Return ONLY the raw JSON array, no markdown, no explanation.`;
 
     const text = data.choices?.[0]?.message?.content || "[]";
     const json = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const cards = JSON.parse(json);
+    let cards;
+    try {
+      cards = JSON.parse(json);
+    } catch (_) {
+      return res.status(502).json({ error: "Kart verisi okunamadı. Lütfen daha net bir fotoğraf deneyin." });
+    }
 
     // Normalize translations.tr.type in case GPT-4o returned an English type name
     const TYPE_TR = {

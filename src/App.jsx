@@ -87,6 +87,29 @@ function getDeviceId() {
   } catch (_) { return ""; }
 }
 
+function resizeImage(file, maxSize) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        resolve({ base64: dataUrl.split(",")[1], mimeType: "image/jpeg" });
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function SyncIndicator({ status }) {
   const configs = {
     loading: { color: "var(--brand-yellow)", dot: "#FFCB05", label: "Yükleniyor..." },
@@ -492,7 +515,7 @@ function PhotoUploadModal({ onClose, onAdd }) {
     return `https://assets.tcgdex.net/en/me/me02/${num.padStart(3, "0")}/high.png`;
   };
 
-  const handleFile = (file) => {
+  const handleFile = async (file) => {
     if (!file || !file.type.startsWith("image/")) {
       setError("Lutfen bir gorsel dosyasi secin.");
       return;
@@ -502,14 +525,14 @@ function PhotoUploadModal({ onClose, onAdd }) {
       return;
     }
     setError("");
-    setMimeType(file.type);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target.result;
-      setPreview(dataUrl);
-      setImageBase64(dataUrl.split(",")[1]);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const { base64, mimeType: mt } = await resizeImage(file, 1500);
+      setMimeType(mt);
+      setPreview(`data:${mt};base64,${base64}`);
+      setImageBase64(base64);
+    } catch (_) {
+      setError("Görsel işlenemedi. Lütfen başka bir fotoğraf deneyin.");
+    }
   };
 
   const onDrop = (e) => {
@@ -528,8 +551,12 @@ function PhotoUploadModal({ onClose, onAdd }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64, mimeType }),
       });
+      if (!res.ok) {
+        let msg = "Analiz basarisiz";
+        try { const d = await res.json(); msg = d.error || msg; } catch (_) {}
+        throw new Error(msg);
+      }
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Analiz basarisiz");
       if (!data.cards || data.cards.length === 0) {
         setError("Fotograf uzerinde kart bulunamadi. Tekrar deneyin.");
         setPhase("upload");
@@ -886,28 +913,6 @@ function SummaryView({ stats, cards, favorites, portrait, setPortrait }) {
   const fileInputRef = useRef(null);
   const [portraitLoading, setPortraitLoading] = useState(false);
   const [portraitError, setPortraitError] = useState("");
-
-  const resizeImage = (file, maxSize) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
-          resolve({ base64: dataUrl.split(",")[1], mimeType: "image/jpeg" });
-        };
-        img.onerror = reject;
-        img.src = e.target.result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
 
   const handlePortraitUpload = async (e) => {
     const file = e.target.files?.[0];

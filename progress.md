@@ -1,5 +1,14 @@
 # Progress Log
 
+## Session 7 — 2026-02-27
+
+### Bug fix: Card photo upload crashes on large images (Task #56)
+- **Root cause:** Vercel's 4.5 MB body limit rejects large phone photos; frontend `res.json()` on plain-text 413 response causes SyntaxError
+- **Fix 1:** Extracted `resizeImage()` to module scope, applied to `PhotoUploadModal.handleFile` — compresses to 1500px max JPEG 0.85
+- **Fix 2:** Safe error handling in `analyzeImage` — check `res.ok` before `res.json()`
+- **Fix 3:** Bumped `max_tokens` 4000→8000 in `api/analyze.js` + added try/catch around GPT output `JSON.parse`
+- Build verified clean
+
 ## Session 6 — 2026-02-24
 
 ### Project file reorganization & housekeeping (Task #55)

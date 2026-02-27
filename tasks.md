@@ -57,3 +57,4 @@
 | 53 | Fix login screen flash on failed phone verification | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 54 | Add widget background panels to Biyografi & Hikaye on card detail page | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 55 | Project file reorganization & housekeeping | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
+| 56 | Fix card photo upload crash on large images (3x3 sheet) — compress before upload + fix JSON parse error | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
