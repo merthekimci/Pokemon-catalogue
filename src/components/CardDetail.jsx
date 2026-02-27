@@ -394,7 +394,7 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
           transform: "rotateY(180deg)", position: "absolute", inset: 0,
           borderRadius: 16, overflow: "hidden", border: `2px solid ${t.bg}40`, background: "#c62828",
         }}>
-          <img src="https://images.pokemontcg.io/cardback.png" alt="Card Back"
+          <img src="https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg" alt="Card Back"
             style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 14 }}
             crossOrigin="anonymous" />
         </div>
@@ -656,7 +656,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                     transform: "rotateY(180deg)", position: "absolute", inset: 0,
                     borderRadius: 12, overflow: "hidden", background: "#c62828",
                   }}>
-                    <img src="https://images.pokemontcg.io/cardback.png" alt="Card Back"
+                    <img src="https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg" alt="Card Back"
                       style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 10 }}
                       crossOrigin="anonymous" />
                   </div>

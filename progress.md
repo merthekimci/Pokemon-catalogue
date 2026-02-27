@@ -1,5 +1,13 @@
 # Progress Log
 
+## Session 10 — 2026-02-27
+
+### Fix card back image not loading (Task #59, Bug #9)
+- **Problem:** Card detail page back face shows red background instead of card back artwork during 3D flip animation
+- **Root cause:** External URL `https://images.pokemontcg.io/cardback.png` returns 404 (removed from S3)
+- **Fix:** Replaced with official Pokemon TCG URL `https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg` in both desktop (line 397) and mobile (line 659) of `src/components/CardDetail.jsx`
+- **Modified files:** `src/components/CardDetail.jsx`
+
 ## Session 9 — 2026-02-27
 
 ### Fast per-card processing with progressive status updates (Task #58)

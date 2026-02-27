@@ -59,4 +59,5 @@
 | 55 | Project file reorganization & housekeeping | Completed | Claude (Opus) | 2026-02-24 | 2026-02-24 |
 | 56 | Fix card photo upload crash on large images (3x3 sheet) — compress before upload + fix JSON parse error | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
 | 57 | Async two-phase card import: fast extract + background enrichment | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
-| 58 | Fast per-card processing: detect→split→parallel analyze with progressive UI | In Progress | Claude (Opus) | 2026-02-27 | — |
+| 58 | Fast per-card processing: detect→split→parallel analyze with progressive UI | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
+| 59 | Fix card back image not loading on card detail page | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |

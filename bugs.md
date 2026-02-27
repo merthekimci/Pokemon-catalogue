@@ -75,3 +75,16 @@
 3. **Server hardening:** Bumped `max_tokens` from 4000 to 8000 in `api/analyze.js` to accommodate 9-card responses. Added try/catch around `JSON.parse` of GPT-4o output with a friendly error if the output is malformed/truncated.
 
 **Related Bugs:** Bug #4 (photo upload save), Bug #5 (wrong-set card scan)
+
+---
+
+## Bug #9 — Card Back Image Not Loading on Card Detail Page
+**Status:** Fixed | **Date:** 2026-02-27 | **File:** src/components/CardDetail.jsx
+
+**Symptom:** On the card detail page, the back face of the 3D flip card shows only a red background instead of the Pokemon card back artwork.
+
+**Root Cause:** The hardcoded URL `https://images.pokemontcg.io/cardback.png` returns HTTP 404 — the image was removed from the pokemontcg.io S3 bucket (`x-amz-error-code: NoSuchKey`). Both desktop (line 397) and mobile (line 659) back face `<img>` tags used this dead URL with no `onError` fallback.
+
+**Fix:** Replaced the broken URL with the official Pokemon TCG card back image: `https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg` (verified accessible, 63KB JPEG).
+
+**Related Bugs:** Bug #1 (also an external image URL issue)
