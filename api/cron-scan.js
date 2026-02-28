@@ -8,9 +8,10 @@ import {
 
 const INLINE_BATCH_SIZE = 2;
 const SCAN_LIMIT = 10;
+const MAX_CARDS_PER_WORKER = 2;
+const MAX_RETRIES = 3;
 
 export default async function handler(req, res) {
-  // Vercel Cron sends Authorization: Bearer <CRON_SECRET>
   const authHeader = req.headers["authorization"];
   if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -21,13 +22,16 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "OpenAI API key not configured" });
   }
 
+  // POST = worker mode (process specific cards), GET = scanner mode (find + process)
+  if (req.method === "POST") {
+    return handleWorker(req, res, apiKey);
+  }
+  return handleScanner(req, res, apiKey);
+}
+
+// --- Scanner: find cards needing work, process some inline, delegate rest ---
+async function handleScanner(req, res, apiKey) {
   try {
-    // Find cards needing work:
-    // 1. Never completed (pending/failed)
-    // 2. Stale locks (enriching for >5 min)
-    // 3. Complete but missing bio/lore/market value
-    // 4. Stale market price (>24h old)
-    // All filtered by retry_count < 3
     const { rows: needsWork } = await sql`
       SELECT card_number,
              translations->'en'->>'name' AS en_name,
@@ -77,23 +81,22 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, message: "Nothing to process", found: 0 });
     }
 
-    // Process first batch inline
     const inlineBatch = needsWork.slice(0, INLINE_BATCH_SIZE);
     const remaining = needsWork.slice(INLINE_BATCH_SIZE);
     const results = {};
 
     for (const row of inlineBatch) {
-      results[row.card_number] = await processCard(row, apiKey);
+      results[row.card_number] = await processCard(row.card_number, row.en_name, apiKey);
     }
 
-    // Delegate remaining to worker via fire-and-forget
+    // Delegate remaining to self (POST mode) via fire-and-forget
     if (remaining.length > 0) {
       const cardNumbers = remaining.map((r) => r.card_number);
       const baseUrl = process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
         : "";
       if (baseUrl) {
-        fetch(`${baseUrl}/api/cron-enrich-worker`, {
+        fetch(`${baseUrl}/api/cron-scan`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -118,9 +121,45 @@ export default async function handler(req, res) {
   }
 }
 
-async function processCard(row, apiKey) {
-  const { card_number: cardNumber, en_name: englishName } = row;
+// --- Worker: process a batch of specific cards, self-chain for remainder ---
+async function handleWorker(req, res, apiKey) {
+  const { cardNumbers } = req.body || {};
+  if (!Array.isArray(cardNumbers) || cardNumbers.length === 0) {
+    return res.status(400).json({ error: "cardNumbers array required" });
+  }
 
+  const batch = cardNumbers.slice(0, MAX_CARDS_PER_WORKER);
+  const remaining = cardNumbers.slice(MAX_CARDS_PER_WORKER);
+  const results = {};
+
+  for (const cardNumber of batch) {
+    results[cardNumber] = await processCard(cardNumber, null, apiKey);
+  }
+
+  // Self-chain for remaining
+  if (remaining.length > 0) {
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "";
+    if (baseUrl) {
+      fetch(`${baseUrl}/api/cron-scan`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.CRON_SECRET}`,
+        },
+        body: JSON.stringify({ cardNumbers: remaining }),
+      }).catch((e) => console.error("[cron-worker] self-chain failed:", e.message));
+    } else {
+      console.error("[cron-worker] VERCEL_URL not set — cannot self-chain");
+    }
+  }
+
+  return res.status(200).json({ ok: true, results, remaining: remaining.length });
+}
+
+// --- Shared: process a single card ---
+async function processCard(cardNumber, englishName, apiKey) {
   try {
     // Atomic claim
     const { rowCount } = await sql`
@@ -128,15 +167,14 @@ async function processCard(row, apiKey) {
       SET enrichment_status = 'enriching', updated_at = NOW()
       WHERE card_number = ${cardNumber}
         AND (enrichment_status != 'enriching' OR updated_at < NOW() - INTERVAL '5 minutes')
-      AND COALESCE(retry_count, 0) < 3
+        AND COALESCE(retry_count, 0) < ${MAX_RETRIES}
       RETURNING card_number
     `;
-    if (rowCount === 0) return "skipped_locked";
+    if (rowCount === 0) return "skipped_locked_or_max_retries";
 
     const cached = await checkMetadataCache(cardNumber);
     const name = englishName || cached?.translations?.en?.name || "";
 
-    // Determine what work is needed
     const needsGpt = !cached?.translations?.en?.bio
       || !cached?.translations?.tr?.bio
       || !cached?.translations?.en?.lore
@@ -147,7 +185,6 @@ async function processCard(row, apiKey) {
       || !cached?.market_updated_at
       || new Date(cached.market_updated_at).getTime() < Date.now() - 24 * 60 * 60 * 1000;
 
-    // Run GPT + market price in parallel
     const [gptResult, price] = await Promise.all([
       needsGpt ? gptEnrichCard(name, cardNumber, apiKey) : null,
       needsMarket ? fetchMarketPrice(name, cardNumber) : (cached?.market_value || 0),
@@ -157,7 +194,7 @@ async function processCard(row, apiKey) {
       await sql`
         UPDATE card_metadata
         SET enrichment_status = 'failed',
-            enrichment_error = 'GPT enrichment failed (cron scanner)',
+            enrichment_error = 'GPT enrichment failed (cron)',
             retry_count = COALESCE(retry_count, 0) + 1,
             updated_at = NOW()
         WHERE card_number = ${cardNumber}
@@ -165,7 +202,6 @@ async function processCard(row, apiKey) {
       return "failed";
     }
 
-    // Merge enriched data with existing
     const existingOriginal = cached?.original || {};
     const existingTranslations = cached?.translations || {};
 
@@ -186,8 +222,6 @@ async function processCard(row, apiKey) {
     };
 
     await writeMetadataCache(cardNumber, enrichedData, "complete");
-
-    // Reset retry count on success
     await sql`
       UPDATE card_metadata SET retry_count = 0 WHERE card_number = ${cardNumber}
     `.catch(() => {});

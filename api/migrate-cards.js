@@ -1,9 +1,8 @@
 import { sql } from "@vercel/postgres";
 
-// One-time migration: backfill card_metadata and collection_cards
-// from existing collections.cards JSONB blobs.
-// Protected by MIGRATE_SECRET header. Idempotent (ON CONFLICT DO NOTHING).
-// Delete this file after successful migration.
+// One-time migrations for card_metadata and collection_cards.
+// Protected by MIGRATE_SECRET header. Idempotent.
+// Usage: POST /api/migrate-cards?action=backfill (default) or ?action=retry-count
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -13,6 +12,20 @@ export default async function handler(req, res) {
   const secret = process.env.MIGRATE_SECRET;
   if (!secret || req.headers["x-migrate-secret"] !== secret) {
     return res.status(403).json({ error: "Forbidden" });
+  }
+
+  const action = req.query?.action || "backfill";
+
+  if (action === "retry-count") {
+    try {
+      await sql`
+        ALTER TABLE card_metadata
+        ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0
+      `;
+      return res.status(200).json({ ok: true, message: "retry_count column added to card_metadata" });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
   }
 
   try {
