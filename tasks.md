@@ -63,3 +63,4 @@
 | 59 | Fix card back image not loading on card detail page | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
 | 60 | Fix card back image CORS + wonky drag behavior on card detail | Completed | Claude (Opus) | 2026-02-27 | 2026-02-27 |
 | 61 | Add pinch-to-zoom on card detail 3D view | Completed | Claude (Opus) | 2026-02-28 | 2026-02-28 |
+| 62 | Scheduled cron job: scan cards for missing bio/lore/market value + async enrichment queue | Completed | Claude (Opus) | 2026-02-28 | 2026-02-28 |

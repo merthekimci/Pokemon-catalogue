@@ -1,5 +1,20 @@
 # Progress Log
 
+## Session 12 — 2026-02-28
+
+### Scheduled cron job: card data collection queue (Task #62)
+- **Feature:** Vercel Cron job runs every 10 minutes to scan all cards in `card_metadata`, detect missing bio/lore/market value, and queue async GPT-4o enrichment
+- **Architecture:** Postgres-as-queue using existing `enrichment_status` column + new `retry_count` column for dead-letter protection
+- **Scanner** (`api/cron-scan.js`): Cron entry point — finds cards with missing data (bio, lore, market value, stale prices), processes 2 inline, delegates remaining to worker
+- **Worker** (`api/cron-enrich-worker.js`): Processes 2 cards per invocation with atomic claim, parallel GPT+market enrichment, self-chains for remaining cards
+- **Shared logic refactor:** Extracted `gptEnrichCard()` from `api/enrich.js` into `api/shared/card-utils.js` — both the interactive enrichment endpoint and cron worker reuse it
+- **Edge cases:** Atomic claim prevents double-processing, stale lock recovery (>5min), retry_count cap at 3, 24h market refresh cadence
+- **Migration:** `api/migrate-retry-count.js` adds `retry_count INTEGER DEFAULT 0` to `card_metadata`
+- **Config:** Added `crons` block to `vercel.json` — `*/10 * * * *` on `/api/cron-scan`
+- **New files:** `api/cron-scan.js`, `api/cron-enrich-worker.js`, `api/migrate-retry-count.js`
+- **Modified files:** `api/shared/card-utils.js`, `api/enrich.js`, `vercel.json`
+- **Post-deploy:** Set `CRON_SECRET` env var in Vercel dashboard, call `POST /api/migrate-retry-count` to run migration
+
 ## Session 11 — 2026-02-28
 
 ### Pinch-to-zoom on card detail 3D view (Task #61)

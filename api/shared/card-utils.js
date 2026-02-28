@@ -149,6 +149,68 @@ export async function resolveImage(card, enName, { imageBase64, mimeType, apiKey
   return { img: (best ?? scored[0].r).image + "/high.png" };
 }
 
+// GPT-4o text-only enrichment for a single card.
+// Returns parsed JSON object with retreat, damage, original, translations (incl. bio/lore), or null on failure.
+export async function gptEnrichCard(englishName, cardNumber, apiKey) {
+  const enrichPrompt = `For the Pokémon TCG card "${englishName}" (card number ${cardNumber}), provide the following data as a JSON object.
+Use empty string "" for unknown text fields, 0 for unknown numeric fields.
+
+{
+  "retreat": "retreat cost as string number e.g. '2' or '0' or '-'",
+  "damage1": "first attack damage as string e.g. '30' or '30+' or '-' or empty",
+  "damage2": "second attack damage as string or empty string",
+  "trainer": "pick the trainer most associated with this Pokémon in anime/game lore. Use one of these exact slugs: ash-ketchum, misty, brock, dawn, blaine, professor-oak, cynthia, red, blue, lance, n, steven-stone, team-rocket. Default to ash-ketchum if uncertain. For Trainer/Item/Tool/Stadium cards use professor-oak.",
+  "original": {
+    "type": "energy type in English: one of [Grass, Fire, Water, Lightning, Fighting, Metal, Colorless, Darkness, Psychic, Supporter, Item, Tool, Stadium]",
+    "stage": "stage in English: one of [Basic, Stage 1, Stage 2, Mega ex, Basic ex, Supporter, Item, Tool, Stadium]",
+    "attack1": "first attack name in English",
+    "attack2": "second attack name or empty string",
+    "ability": "ability name if present, else empty string",
+    "weakness": "weakness type and multiplier e.g. 'Fire ×2' or '-'"
+  },
+  "translations": {
+    "en": {
+      "attack1": "English attack name",
+      "attack2": "English second attack name or empty string",
+      "ability": "English ability name or empty string",
+      "bio": "2-3 sentence English biography of this Pokémon — its nature, notable traits, and abilities. For Trainer/Item/Tool/Stadium cards, describe the card's role and effect.",
+      "lore": "2-3 sentence English story about this Pokémon — its origin, legends, or role in the Pokémon world. For Trainer/Item/Tool/Stadium cards, give historical or strategic context."
+    },
+    "tr": {
+      "attack1": "Turkish attack name (translate if known, else use English)",
+      "attack2": "Turkish second attack name or empty string",
+      "ability": "Turkish ability name or empty string",
+      "bio": "Turkish translation of the English biography above",
+      "lore": "Turkish translation of the English story above"
+    }
+  }
+}
+
+Return ONLY the raw JSON object, no markdown, no explanation.`;
+
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        max_tokens: 2000,
+        messages: [{ role: "user", content: enrichPrompt }],
+      }),
+    });
+    if (!res.ok) return null;
+    const d = await res.json();
+    const text = d.choices?.[0]?.message?.content || "{}";
+    const json = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    try { return JSON.parse(json); } catch (_) { return null; }
+  } catch (_) {
+    return null;
+  }
+}
+
 // Normalize Turkish type names (GPT-4o sometimes returns English)
 export function normalizeTrTypes(cards) {
   cards.forEach((card) => {
@@ -176,7 +238,7 @@ export async function checkMetadataCache(cardNumber) {
 // Write card data to card_metadata cache.
 export async function writeMetadataCache(cardNumber, data, enrichmentStatus = "complete") {
   if (!cardNumber || cardNumber === "-") return;
-  sql`
+  await sql`
     INSERT INTO card_metadata
       (card_number, hp, rarity, retreat, damage1, damage2, img, market_value,
        original, translations, enrichment_status, enrichment_error, market_updated_at)
