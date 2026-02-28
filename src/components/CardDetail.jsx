@@ -50,29 +50,49 @@ function useCardTilt({ sensitivity = 0.4, initialRotY = 0 } = {}) {
   const currentRotX = useRef(0);
   const currentRotY = useRef(initialRotY);
 
+  // Pinch-to-zoom refs
+  const targetScale = useRef(1);
+  const currentScale = useRef(1);
+  const pinchStartDist = useRef(null);
+  const pinchStartScale = useRef(1);
+  const isPinching = useRef(false);
+  const lastTapTime = useRef(0);
+
   const [tilt, setTilt] = useState({ rotX: 0, rotY: initialRotY });
+  const [scale, setScale] = useState(1);
   const [isInteracting, setIsInteracting] = useState(false);
   const [introPhase, setIntroPhase] = useState(initialRotY !== 0);
+
+  const MIN_SCALE = 0.8;
+  const MAX_SCALE = 2.5;
 
   const tick = useCallback(() => {
     const lerp = isActive.current ? 0.3 : 0.12;
     currentRotX.current += (targetRotX.current - currentRotX.current) * lerp;
     currentRotY.current += (targetRotY.current - currentRotY.current) * lerp;
 
-    const settled = !isActive.current &&
+    // Scale lerp
+    const scaleLerp = isPinching.current ? 0.25 : 0.1;
+    currentScale.current += (targetScale.current - currentScale.current) * scaleLerp;
+
+    const settled = !isActive.current && !isPinching.current &&
       Math.abs(currentRotX.current - targetRotX.current) < 0.1 &&
-      Math.abs(currentRotY.current - targetRotY.current) < 0.1;
+      Math.abs(currentRotY.current - targetRotY.current) < 0.1 &&
+      Math.abs(currentScale.current - targetScale.current) < 0.005;
 
     if (settled) {
       currentRotX.current = targetRotX.current;
       currentRotY.current = targetRotY.current;
+      currentScale.current = targetScale.current;
       setTilt({ rotX: targetRotX.current, rotY: targetRotY.current });
+      setScale(currentScale.current);
       setIsInteracting(false);
       rafId.current = null;
       return;
     }
 
     setTilt({ rotX: currentRotX.current, rotY: currentRotY.current });
+    setScale(currentScale.current);
     rafId.current = requestAnimationFrame(tick);
   }, []);
 
@@ -107,20 +127,54 @@ function useCardTilt({ sensitivity = 0.4, initialRotY = 0 } = {}) {
     startLoop();
   }, [startLoop]);
 
+  const handlePinchStart = useCallback((touches) => {
+    // Pause tilt while pinching
+    isActive.current = false;
+    isPinching.current = true;
+    const dist = Math.hypot(
+      touches[1].clientX - touches[0].clientX,
+      touches[1].clientY - touches[0].clientY
+    );
+    pinchStartDist.current = dist;
+    pinchStartScale.current = currentScale.current;
+    setIsInteracting(true);
+    startLoop();
+  }, [startLoop]);
+
+  const handlePinchMove = useCallback((touches) => {
+    if (!isPinching.current || !pinchStartDist.current) return;
+    const dist = Math.hypot(
+      touches[1].clientX - touches[0].clientX,
+      touches[1].clientY - touches[0].clientY
+    );
+    const ratio = dist / pinchStartDist.current;
+    const raw = pinchStartScale.current * ratio;
+    targetScale.current = Math.max(MIN_SCALE, Math.min(MAX_SCALE, raw));
+  }, []);
+
+  const handlePinchEnd = useCallback(() => {
+    isPinching.current = false;
+    pinchStartDist.current = null;
+  }, []);
+
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const onTouchMove = (e) => {
-      if (!isActive.current) return;
       e.preventDefault();
-      handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      if (e.touches.length === 2) {
+        handlePinchMove(e.touches);
+      } else if (e.touches.length === 1 && !isPinching.current) {
+        if (!isActive.current) return;
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
     };
     el.addEventListener('touchmove', onTouchMove, { passive: false });
     return () => {
       el.removeEventListener('touchmove', onTouchMove);
       if (rafId.current) cancelAnimationFrame(rafId.current);
     };
-  }, [handleMove]);
+  }, [handleMove, handlePinchMove]);
 
   // Intro flip: animate from initialRotY to 0 on mount
   useEffect(() => {
@@ -144,11 +198,37 @@ function useCardTilt({ sensitivity = 0.4, initialRotY = 0 } = {}) {
     onMouseMove: (e) => handleMove(e.clientX, e.clientY),
     onMouseUp: () => handleEnd(),
     onMouseLeave: () => { if (isActive.current) handleEnd(); },
-    onTouchStart: (e) => handleStart(e.touches[0].clientX, e.touches[0].clientY),
-    onTouchEnd: () => handleEnd(),
+    onTouchStart: (e) => {
+      if (e.touches.length === 2) {
+        handlePinchStart(e.touches);
+      } else if (e.touches.length === 1) {
+        // Double-tap to reset zoom
+        const now = Date.now();
+        if (now - lastTapTime.current < 300 && targetScale.current !== 1) {
+          targetScale.current = 1;
+          setIsInteracting(true);
+          startLoop();
+          lastTapTime.current = 0;
+          return;
+        }
+        lastTapTime.current = now;
+        handleStart(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    },
+    onTouchEnd: (e) => {
+      if (isPinching.current && e.touches.length < 2) {
+        handlePinchEnd();
+        if (e.touches.length === 0) {
+          // All fingers lifted — also reset tilt
+          if (isActive.current) handleEnd();
+        }
+      } else {
+        handleEnd();
+      }
+    },
   };
 
-  return { cardRef, tilt, isInteracting, introPhase, handlers };
+  return { cardRef, tilt, scale, isInteracting, introPhase, handlers };
 }
 
 // ─── Sub-components ───
@@ -216,7 +296,7 @@ function RelationCard({ card, reason, isFoe, resolveImg }) {
 }
 
 // ─── Physical Card (Desktop left column) ───
-function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, holoIntensity, tiltMagnitude, cardRef, handlers }) {
+function PhysicalCard({ card, t, tilt, scale, isInteracting, introPhase, holoX, holoY, holoIntensity, tiltMagnitude, cardRef, handlers }) {
   const weaknessStr = card.original?.weakness ?? card.weakness ?? "";
   const weaknessType = weaknessStr?.match(/^(\S+)/)?.[1];
   const weaknessColor = Object.entries(typeColors).find(([k]) => k === weaknessType)?.[1]?.bg || "var(--text-secondary)";
@@ -229,11 +309,12 @@ function PhysicalCard({ card, t, tilt, isInteracting, introPhase, holoX, holoY, 
         style={{
           width: 320,
           transformStyle: "preserve-3d",
-          transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg)`,
+          transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg) scale(${scale})`,
           transition: introPhase ? "transform 1s cubic-bezier(0.34, 1.56, 0.64, 1)" : isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
           willChange: "transform",
           cursor: introPhase ? "default" : isInteracting ? "grabbing" : "grab",
           userSelect: "none", WebkitUserSelect: "none",
+          touchAction: "none",
           position: "relative",
           borderRadius: 16,
           boxShadow: isInteracting
@@ -409,7 +490,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
     return () => window.removeEventListener("resize", handler);
   }, []);
 
-  const { cardRef, tilt, isInteracting, introPhase, handlers } = useCardTilt({ sensitivity: 0.4, initialRotY: 180 });
+  const { cardRef, tilt, scale, isInteracting, introPhase, handlers } = useCardTilt({ sensitivity: 0.4, initialRotY: 180 });
 
   // Scroll to top on page load / card change
   useEffect(() => { window.scrollTo(0, 0); }, [cardId]);
@@ -584,7 +665,7 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
             {/* LEFT: Physical Card */}
             <div style={{ width: 340, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
               <PhysicalCard
-                card={card} t={t} tilt={tilt} isInteracting={isInteracting} introPhase={introPhase}
+                card={card} t={t} tilt={tilt} scale={scale} isInteracting={isInteracting} introPhase={introPhase}
                 holoX={holoX} holoY={holoY} holoIntensity={holoIntensity}
                 tiltMagnitude={tiltMagnitude} cardRef={cardRef} handlers={handlers}
               />
@@ -603,11 +684,12 @@ export default function CardDetail({ cards, favorites, onToggleFavorite }) {
                   style={{
                     width: 260, height: 364,
                     transformStyle: "preserve-3d",
-                    transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg)`,
+                    transform: `rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg) scale(${scale})`,
                     transition: introPhase ? "transform 1s cubic-bezier(0.34, 1.56, 0.64, 1)" : isInteracting ? "none" : "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
                     willChange: "transform",
                     cursor: introPhase ? "default" : isInteracting ? "grabbing" : "grab",
                     userSelect: "none", WebkitUserSelect: "none",
+                    touchAction: "none",
                     position: "relative", borderRadius: 12,
                     boxShadow: isInteracting
                       ? `0 ${10 + Math.abs(tilt.rotX) * 0.5}px ${20 + tiltMagnitude * 0.8}px rgba(0,0,0,0.25), 0 0 ${20 + tiltMagnitude}px ${t.glow}`

@@ -69,7 +69,7 @@ OPENAI_API_KEY=sk-...
 - Fotograftan kart ekleme (OpenAI Vision ile tek kart veya sayfa analizi)
 - Egitmen (Trainer) detay sayfalari — her kartta egitmen adi, tiklandiginda biyografi, hikaye ve resim iceren detay sayfasi
 - Alt navigasyon cubugu (5 tab) — Ozet, Kartlarim, Kart Ekle, Egitmenler, Ayarlar
-- Kart detay sayfasi — buyuk kart gorseli, istatistik gridi, favori butonu, egitmen bilgisi, benzer kartlar
+- Kart detay sayfasi — buyuk kart gorseli, 3D döndürme, pinch-to-zoom (0.8x–2.5x), istatistik gridi, favori butonu, egitmen bilgisi, benzer kartlar
 - Egitmenler listesi — trainer grid (portre, isim, bolge, kart sayisi)
 - Ayarlar sayfasi — karanlik/aydinlik tema secimi, koleksiyon sahibi ismi
 - Favori sistemi — kart bazinda favori toggle, katalogda favori filtresi, ozet dashboard'da favori sayaci

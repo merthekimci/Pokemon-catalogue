@@ -1,5 +1,17 @@
 # Progress Log
 
+## Session 11 — 2026-02-28
+
+### Pinch-to-zoom on card detail 3D view (Task #61)
+- **Feature:** Added touch pinch-to-zoom gesture on the 3D card view in CardDetail page
+- **Implementation:** Extended `useCardTilt` hook with scale state, pinch detection (2-finger touch distance tracking), smooth lerp animation, and double-tap-to-reset
+- **Zoom range:** 0.8x – 2.5x with smooth spring animation
+- **Gesture handling:** Single-finger tilt and two-finger pinch are mutually exclusive — `isPinching` ref prevents ghost tilt jumps when lifting one finger
+- **Reset:** Double-tap resets zoom to 1.0x; zoom persists on finger release (intentional for examining card details)
+- **Browser compat:** Added `touchAction: "none"` on card containers to prevent Safari/Chrome native pinch interference
+- **Modified files:** `src/components/CardDetail.jsx`
+- Build verified clean
+
 ## Session 10 — 2026-02-27
 
 ### Fix card back CORS + wonky drag (Task #60, Bugs #10 & #11)
